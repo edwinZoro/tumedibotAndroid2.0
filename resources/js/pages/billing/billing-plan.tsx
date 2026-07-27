@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { router, usePage } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
+import { toast } from 'sonner';
 import {
     Card,
     CardContent,
@@ -18,7 +19,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import {
-    Pencil,
     AlertCircle,
     Loader2,
     User,
@@ -41,9 +41,9 @@ interface FormState {
     apellido: string;
     celular: string;
     ci_rif: string;
-    pais: string;
-    estado: string;
-    ciudad: string;
+    pais_id: string;    // antes 'pais'
+    estado_id: string;  // antes 'estado'
+    ciudad_id: string;  // antes 'ciudad'
     direccion: string;
     codigo_postal: string;
 }
@@ -56,12 +56,10 @@ interface LocationItem {
 
 export default function FacturacionPlan({ userId, plan }: Props) {
     const [step, setStep] = useState<number>(1);
-    const [modoEditar, setModoEditar] = useState<boolean>(false);
-    const [idFactura, setIdFactura] = useState<number | null>(null);
     const [touched, setTouched] = useState<Record<string, boolean>>({});
     const [serverErrors, setServerErrors] = useState<string[]>([]);
 
-    // Datos del formulario
+    // Datos del formulario (siempre vacío al inicio)
     const [form, setForm] = useState<FormState>({
         user_id: userId,
         plan: plan,
@@ -69,14 +67,14 @@ export default function FacturacionPlan({ userId, plan }: Props) {
         apellido: '',
         celular: '',
         ci_rif: '',
-        pais: '',
-        estado: '',
-        ciudad: '',
+        pais_id: '',        // ← antes 'pais'
+        estado_id: '',      // ← antes 'estado'
+        ciudad_id: '',      // ← antes 'ciudad'
         direccion: '',
         codigo_postal: '',
     });
 
-    // Selects Data & Loaders
+    // Selects Data
     const [paises, setPaises] = useState<LocationItem[]>([]);
     const [estados, setEstados] = useState<LocationItem[]>([]);
     const [ciudades, setCiudades] = useState<LocationItem[]>([]);
@@ -92,74 +90,35 @@ export default function FacturacionPlan({ userId, plan }: Props) {
     };
     const planLabel = planLabels[plan] || 'Desconocido';
 
-    // Efecto Inicial: Cargar datos locales o buscar factura existente
+    // Cargar solo países al montar (sin buscar factura)
     useEffect(() => {
-        const cargarDatosIniciales = async () => {
+        const cargarPaises = async () => {
             setLoadingPaises(true);
             try {
-                const resPaises = await fetch('/api/paises');
-                if (resPaises.ok) {
-                    const dataPaises = await resPaises.json();
+                const res = await fetch('/api/paises');
+                if (res.ok) {
+                    const data = await res.json();
                     setPaises(
-                        dataPaises.map((p: any) => ({
+                        data.map((p: any) => ({
                             ...p,
                             id: Number(p.id),
                         })),
                     );
                 }
-
-                // Buscar si ya existe una factura
-                const resFactura = await fetch(
-                    `/api/factura/usuario/${userId}`,
-                );
-                if (resFactura.ok) {
-                    const data = await resFactura.json();
-                    setIdFactura(Number(data.id));
-                    setModoEditar(true);
-
-                    // Actualizar el estado del formulario con los datos recuperados
-                    setForm((prev) => ({
-                        ...prev,
-                        ...data,
-                        pais: String(data.pais),
-                        estado: String(data.estado),
-                        ciudad: String(data.ciudad),
-                    }));
-
-                    // Cargar cascada de locaciones de forma asíncrona secuencial
-                    await cargarEstados(String(data.pais), false);
-                    await cargarCiudades(String(data.estado), false);
-                } else {
-                    setModoEditar(false);
-                    const datosLocales =
-                        localStorage.getItem('formularioCompras');
-                    if (datosLocales) {
-                        setForm(JSON.parse(datosLocales));
-                    }
-                }
             } catch (error) {
-                console.error('Error inicializando el componente:', error);
-                setModoEditar(false);
+                console.error('Error cargando países:', error);
             } finally {
                 setLoadingPaises(false);
             }
         };
+        cargarPaises();
+    }, []); // Solo se ejecuta una vez
 
-        cargarDatosIniciales();
-    }, [userId]);
-
-    // Handlers de Locación (API)
-    const cargarEstados = async (paisId: string, resetSublevels = true) => {
-        if (resetSublevels) {
-            setForm((prev) => ({
-                ...prev,
-                pais: paisId,
-                estado: '',
-                ciudad: '',
-            }));
-            setEstados([]);
-            setCiudades([]);
-        }
+    // Handlers de locación
+    const cargarEstados = async (paisId: string) => {
+        setForm((prev) => ({ ...prev, pais_id: paisId, estado_id: '', ciudad_id: '' }));
+        setEstados([]);
+        setCiudades([]);
         if (!paisId) return;
 
         setLoadingEstados(true);
@@ -176,11 +135,9 @@ export default function FacturacionPlan({ userId, plan }: Props) {
         }
     };
 
-    const cargarCiudades = async (estadoId: string, resetSublevels = true) => {
-        if (resetSublevels) {
-            setForm((prev) => ({ ...prev, estado: estadoId, ciudad: '' }));
-            setCiudades([]);
-        }
+    const cargarCiudades = async (estadoId: string) => {
+        setForm((prev) => ({ ...prev, estado_id: estadoId, ciudad_id: '' }));
+        setCiudades([]);
         if (!estadoId) return;
 
         setLoadingCiudades(true);
@@ -197,32 +154,30 @@ export default function FacturacionPlan({ userId, plan }: Props) {
         }
     };
 
-    // Helper para manejar cambios reactivos en inputs
+    // Helpers
     const handleChange = (field: keyof FormState, value: string) => {
         setForm((prev) => ({ ...prev, [field]: value }));
         setTouched((prev) => ({ ...prev, [field]: true }));
     };
 
-    // Validación Reactiva Real-Time
+    // Validación
     const getFieldErrors = () => {
         const e: Record<string, string> = {};
         if (!form.nombre || form.nombre.length < 2)
             e.nombre = 'Nombre obligatorio (Mínimo 2 caracteres).';
         if (!form.apellido || form.apellido.length < 2)
             e.apellido = 'Apellido obligatorio (Mínimo 2 caracteres).';
-        if (!form.celular || !/^\d{10,14}$/.test(form.celular))
-            e.celular = 'Teléfono requerido (Entre 10 y 14 dígitos).';
-        if (!form.ci_rif || !/^\d{7,10}$/.test(form.ci_rif))
-            e.ci_rif = 'N° de Identificación inválido (7 a 10 números).';
-
-        if (!form.pais) e.pais = 'El país es obligatorio.';
-        if (!form.estado) e.estado = 'El estado es obligatorio.';
-        if (!form.ciudad) e.ciudad = 'La ciudad es obligatoria.';
+        if (!form.celular || !/^\d{10,15}$/.test(form.celular))
+          e.celular = 'Teléfono requerido (Entre 10 y 15 dígitos).';
+        if (!form.ci_rif || !/^\d{7,20}$/.test(form.ci_rif))
+          e.ci_rif = 'N° de Identificación inválido (7 a 18 números).';
+        if (!form.pais_id) e.pais = 'El país es obligatorio.';
+        if (!form.estado_id) e.estado = 'El estado es obligatorio.';
+        if (!form.ciudad_id) e.ciudad = 'La ciudad es obligatoria.';
         if (!form.direccion || form.direccion.length < 10)
             e.direccion = 'Dirección requerida (Mínimo 10 caracteres).';
-        if (!form.codigo_postal || !/^\d{4,}$/.test(form.codigo_postal))
-            e.codigo_postal = 'Código postal inválido (Mínimo 4 números).';
-
+        if (!form.codigo_postal || !/^\d{4,7}$/.test(form.codigo_postal))
+          e.codigo_postal = 'Código postal inválido (4 a 7 números).';
         return e;
     };
 
@@ -250,7 +205,6 @@ export default function FacturacionPlan({ userId, plan }: Props) {
         }
 
         setServerErrors([]);
-        localStorage.setItem('formularioCompras', JSON.stringify(form));
         return true;
     };
 
@@ -268,48 +222,39 @@ export default function FacturacionPlan({ userId, plan }: Props) {
             apellido: '',
             celular: '',
             ci_rif: '',
-            pais: '',
-            estado: '',
-            ciudad: '',
+            pais_id: '',
+            estado_id: '',
+            ciudad_id: '',
             direccion: '',
             codigo_postal: '',
         });
         setTouched({});
         setServerErrors([]);
         setStep(1);
-        localStorage.removeItem('formularioCompras');
     };
 
-    // Envío del Formulario vía Inertia Router
+    // Envío (siempre POST)
     const enviarFormulario = (e: React.FormEvent) => {
         e.preventDefault();
         if (!validarPaso(2)) return;
 
-        const url = modoEditar
-            ? `/api/actualizar-factura/${form.user_id}/${idFactura}`
-            : `/api/guardar-factura/${form.user_id}`;
-
-        const opciones = {
-            data: form,
-            onError: (errs: any) => {
+        router.post(`/api/guardar-factura/${form.user_id}`, form, {
+            onError: (errs) => {
+                toast.error('Ocurrió un error al procesar la solicitud.');
                 setServerErrors(Object.values(errs).flat() as string[]);
             },
             onSuccess: () => {
-                localStorage.removeItem('formularioCompras');
                 resetearFormulario();
+                // Redirigir al dashboard para actualizar permisos y sidebar
+                 toast.success('Factura guardada correctamente. Redirigiendo al dashboard...');
             },
-        };
-
-        if (modoEditar) {
-            router.put(url, form, opciones);
-        } else {
-            router.post(url, form, opciones);
-        }
+        });
     };
 
+    // Renderizado (igual al original pero sin modoEditar)
     return (
         <div className="relative flex min-h-screen flex-col justify-between overflow-hidden bg-slate-50 font-sans text-slate-900 transition-colors duration-300 dark:bg-[#0b1121] dark:text-slate-100">
-            {/* Background Effects similar to profile-medical */}
+            {/* Fondo decorativo */}
             <div
                 className="absolute inset-0 scale-105 bg-cover bg-center opacity-[0.03] blur-xl dark:opacity-[0.05]"
                 style={{ backgroundImage: `url('/imagen/1674252818.jpg')` }}
@@ -320,7 +265,6 @@ export default function FacturacionPlan({ userId, plan }: Props) {
 
             <div className="relative z-10 flex flex-1 flex-col justify-center py-10">
                 <main className="container mx-auto max-w-4xl px-4">
-                    {/* Alertas de Error del Servidor (Opcional) */}
                     {serverErrors.length > 0 && (
                         <Alert
                             variant="destructive"
@@ -341,17 +285,15 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                     )}
 
                     <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white to-slate-50 p-[1px] shadow-2xl shadow-blue-500/10 backdrop-blur-xl dark:from-[#0f1e3d]/90 dark:to-[#0b1121]/90">
-                        {/* Gradient border */}
                         <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-blue-600/30 via-sky-500/10 to-transparent dark:from-blue-600/50 dark:via-sky-500/20 dark:to-transparent" />
 
                         <div className="relative rounded-[calc(2rem-1px)] bg-white/90 dark:bg-[#0b1426]/95">
-                            {/* Decorative Top Border Pulse */}
                             <div className="relative h-1 w-full overflow-hidden rounded-t-[calc(2rem-1px)]">
                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-sky-500/50 to-transparent" />
                                 <div className="absolute top-0 left-1/2 h-full w-32 -translate-x-1/2 animate-[pulse_2s_ease-in-out_infinite] bg-sky-400 shadow-[0_0_12px_3px_rgba(56,189,248,0.8)]" />
                             </div>
 
-                            {/* Header */}
+                            {/* Header (sin modoEditar) */}
                             <div className="flex flex-col items-center justify-between gap-6 px-6 py-8 text-center md:flex-row md:px-10 md:pt-10 md:pb-6 md:text-left">
                                 <div className="flex flex-col items-center gap-5 md:flex-row">
                                     <div className="group relative">
@@ -359,16 +301,11 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                         <div className="absolute -inset-1 animate-[spin_5s_linear_infinite_reverse] rounded-full border border-blue-400/40 border-l-sky-500/80 dark:border-blue-500/30" />
                                         <div className="absolute inset-0 rounded-full bg-sky-400/20 blur-md" />
                                         <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-sky-500 text-white shadow-lg shadow-blue-500/30">
-                                            {modoEditar ? (
-                                                <Pencil className="h-7 w-7" />
-                                            ) : (
-                                                <ShieldCheck className="h-7 w-7" />
-                                            )}
+                                            <ShieldCheck className="h-7 w-7" />
                                         </div>
                                     </div>
                                     <div className="text-center md:text-left">
                                         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-                                            {modoEditar ? 'Actualizando ' : ''}
                                             Facturación{' '}
                                             <br className="md:hidden" />
                                             <span className="bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent dark:from-blue-400 dark:to-sky-400">
@@ -389,7 +326,11 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                         {[1, 2, 3].map((s) => (
                                             <div
                                                 key={s}
-                                                className={`h-1.5 rounded-full transition-all duration-500 ${step >= s ? 'w-8 bg-sky-500 shadow-[0_0_8px_rgba(56,189,248,0.8)]' : 'w-2 bg-slate-200 dark:bg-slate-800'}`}
+                                                className={`h-1.5 rounded-full transition-all duration-500 ${
+                                                    step >= s
+                                                        ? 'w-8 bg-sky-500 shadow-[0_0_8px_rgba(56,189,248,0.8)]'
+                                                        : 'w-2 bg-slate-200 dark:bg-slate-800'
+                                                }`}
                                             />
                                         ))}
                                     </div>
@@ -397,7 +338,7 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                             </div>
 
                             <div className="px-4 pb-10 md:px-10">
-                                {/* Enhanced Stepper */}
+                                {/* Stepper */}
                                 <div className="relative mb-12 px-2 pt-4 md:px-6">
                                     <div className="absolute top-1/2 right-[10%] left-[10%] z-0 h-0.5 -translate-y-1/2 rounded-full bg-slate-200 dark:bg-slate-800">
                                         <div
@@ -455,7 +396,11 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                                             }`}
                                                         >
                                                             <s.icon
-                                                                className={`h-5 w-5 ${isActive ? 'animate-bounce' : ''} [animation-duration:2s]`}
+                                                                className={`h-5 w-5 ${
+                                                                    isActive
+                                                                        ? 'animate-bounce'
+                                                                        : ''
+                                                                } [animation-duration:2s]`}
                                                             />
                                                         </div>
                                                     </div>
@@ -480,7 +425,7 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                     onSubmit={enviarFormulario}
                                     className="space-y-6"
                                 >
-                                    {/* PASO 1: DATOS PERSONALES */}
+                                    {/* PASO 1 */}
                                     {step === 1 && (
                                         <div className="animate-in duration-500 fade-in slide-in-from-right-8">
                                             <div className="grid grid-cols-1 gap-6 rounded-3xl border border-slate-100 bg-slate-50/50 p-6 md:grid-cols-2 md:p-8 dark:border-white/5 dark:bg-slate-900/20">
@@ -521,7 +466,7 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                                 <InputField
                                                     id="celular"
                                                     label="Teléfono Celular"
-                                                    placeholder="Ej. 04141234567"
+                                                    placeholder="Ej.300 1234567"
                                                     value={form.celular}
                                                     inputMode="numeric"
                                                     onChange={(v) =>
@@ -580,7 +525,7 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                         </div>
                                     )}
 
-                                    {/* PASO 2: DIRECCIÓN */}
+                                    {/* PASO 2 */}
                                     {step === 2 && (
                                         <div className="animate-in duration-500 fade-in slide-in-from-right-8">
                                             <div className="space-y-6 rounded-3xl border border-slate-100 bg-slate-50/50 p-6 md:p-8 dark:border-white/5 dark:bg-slate-900/20">
@@ -588,7 +533,7 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                                     <SelectField
                                                         id="pais"
                                                         label="País"
-                                                        value={form.pais}
+                                                        value={form.pais_id}
                                                         options={paises.map(
                                                             (p) => ({
                                                                 value: String(
@@ -602,7 +547,7 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                                         onChange={(v) => {
                                                             cargarEstados(v);
                                                             handleChange(
-                                                                'pais',
+                                                                'pais_id',
                                                                 v,
                                                             );
                                                         }}
@@ -617,7 +562,7 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                                     <SelectField
                                                         id="estado"
                                                         label="Estado"
-                                                        value={form.estado}
+                                                        value={form.estado_id}
                                                         options={estados.map(
                                                             (e) => ({
                                                                 value: String(
@@ -631,7 +576,7 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                                         onChange={(v) => {
                                                             cargarCiudades(v);
                                                             handleChange(
-                                                                'estado',
+                                                                'estado_id',
                                                                 v,
                                                             );
                                                         }}
@@ -655,7 +600,7 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                                     <SelectField
                                                         id="ciudad"
                                                         label="Ciudad"
-                                                        value={form.ciudad}
+                                                        value={form.ciudad_id}
                                                         options={ciudades.map(
                                                             (c) => ({
                                                                 value: String(
@@ -668,7 +613,7 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                                         )}
                                                         onChange={(v) =>
                                                             handleChange(
-                                                                'ciudad',
+                                                                'ciudad_id',
                                                                 v,
                                                             )
                                                         }
@@ -762,11 +707,10 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                         </div>
                                     )}
 
-                                    {/* PASO 3: CONFIRMACIÓN Y ENVÍO */}
+                                    {/* PASO 3 */}
                                     {step === 3 && (
                                         <div className="animate-in duration-500 fade-in slide-in-from-right-8">
                                             <div className="relative overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 to-sky-50 p-8 shadow-inner dark:border-blue-900/50 dark:from-[#08132b] dark:to-[#0f1a2e]">
-                                                {/* Background flair */}
                                                 <div className="absolute top-0 right-0 h-40 w-40 translate-x-1/3 -translate-y-1/2 rounded-full bg-blue-500/10 blur-2xl" />
                                                 <div className="absolute bottom-0 left-0 h-40 w-40 -translate-x-1/3 translate-y-1/2 rounded-full bg-sky-500/10 blur-2xl" />
 
@@ -809,7 +753,7 @@ export default function FacturacionPlan({ userId, plan }: Props) {
                                                         />
                                                         <ConfirmItem
                                                             label="Ubicación"
-                                                            value={`${paises.find((p) => p.id === Number(form.pais))?.nombre_paises || ''}, ${estados.find((e) => e.id === Number(form.estado))?.name || ''}`}
+                                                            value={`${paises.find((p) => p.id === Number(form.pais_id))?.nombre_paises || ''}, ${estados.find((e) => e.id === Number(form.estado_id))?.name || ''}`}
                                                         />
                                                         <ConfirmItem
                                                             label="Dirección"

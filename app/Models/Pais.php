@@ -51,11 +51,5 @@ class Pais extends Model
         return $this->hasMany(Medico::class, 'pais_id');
     }
 
-    /**
-     * Obtiene todas las clínicas registradas que pertenecen a este país.
-     */
-    public function clinicas(): HasMany
-    {
-        return $this->hasMany(Clinica::class, 'pais_id');
-    }
+
 }

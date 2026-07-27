@@ -28,9 +28,9 @@ class Factura extends Model
         'apellido',
         'celular',
         'ci_rif',
-        'pais',
-        'estado',
-        'ciudad',
+        'pais_id',
+        'estado_id',
+        'ciudad_id',
         'direccion',
         'codigo_postal',
         'user_id',
@@ -69,5 +69,29 @@ class Factura extends Model
     public function pedido(): HasMany
     {
         return $this->hasMany(Pedido::class, 'factura_id');
+    }
+
+    /**
+     * Relación con el País.
+     */
+    public function pais(): BelongsTo
+    {
+        return $this->belongsTo(Pais::class, 'pais_id');
+    }
+
+    /**
+     * Relación con el Estado/Provincia.
+     */
+    public function estado(): BelongsTo
+    {
+        return $this->belongsTo(State::class, 'estado_id');
+    }
+
+    /**
+     * Relación con la Ciudad.
+     */
+    public function ciudad(): BelongsTo
+    {
+        return $this->belongsTo(Ciudad::class, 'ciudad_id');
     }
 }

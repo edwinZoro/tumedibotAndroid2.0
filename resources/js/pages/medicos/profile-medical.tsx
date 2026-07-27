@@ -436,7 +436,8 @@ export default function MedicoPerfil({ medico, user }: MedicoPerfilProps) {
                                     <div className="space-y-8">
                                         <SectionHeading icon={User} title="Acerca de Mí" />
 
-                                        <div className="prose prose-sm prose-slate max-w-none text-justify leading-relaxed dark:prose-invert">
+                                        {/* En la pestaña de Biografía */}
+                                        <div className="prose prose-sm prose-slate max-w-none leading-relaxed dark:prose-invert [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_h4]:text-base [&_h4]:font-bold [&_h5]:text-sm [&_h5]:font-bold [&_h6]:text-xs [&_h6]:font-bold">
                                             {medico.perfil_medico
                                                 ? <div dangerouslySetInnerHTML={{ __html: medico.perfil_medico }} />
                                                 : <p className="italic text-slate-400">Sin biografía disponible.</p>
@@ -479,12 +480,13 @@ export default function MedicoPerfil({ medico, user }: MedicoPerfilProps) {
                                 {activeTab === 'treatments' && (
                                     <div className="space-y-8">
                                         <SectionHeading icon={Activity} title="Tratamientos y Procedimientos" />
-                                        <div className="prose prose-sm prose-slate max-w-none text-justify leading-relaxed dark:prose-invert">
-                                            {medico.tratamientos
-                                                ? <div dangerouslySetInnerHTML={{ __html: medico.tratamientos }} />
-                                                : <p className="italic text-slate-400">Sin tratamientos especificados.</p>
-                                            }
-                                        </div>
+                                        {/* En la pestaña de Tratamientos */}
+                                      <div className="prose prose-sm prose-slate max-w-none leading-relaxed dark:prose-invert [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_h4]:text-base [&_h4]:font-bold [&_h5]:text-sm [&_h5]:font-bold [&_h6]:text-xs [&_h6]:font-bold">
+                                          {medico.tratamientos
+                                              ? <div dangerouslySetInnerHTML={{ __html: medico.tratamientos }} />
+                                              : <p className="italic text-slate-400">Sin tratamientos especificados.</p>
+                                          }
+                                      </div>
                                     </div>
                                 )}
 

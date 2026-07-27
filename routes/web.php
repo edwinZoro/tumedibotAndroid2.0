@@ -4,6 +4,7 @@ use App\Http\Controllers\Billings\BillingController;
 use App\Http\Controllers\Medical\MedicoSearchController;
 use App\Http\Controllers\Medical\MedicalFormController;
 use App\Http\Controllers\Medical\MedicalAreaController;
+use App\Http\Controllers\Medical\MedicoReportController;
 use App\Http\Controllers\Medical\ProfileMedical;
 use App\Models\Pais;
 use App\Models\State;
@@ -14,6 +15,7 @@ Route::inertia('/', 'welcome')->name('home');
 Route::prefix('medicos')->group(function(){
   Route::get('area-medico', [MedicalAreaController::class, 'show'])->name('medicos.area');
   Route::get('search', [MedicoSearchController::class, 'index'])->name('medicos.search');
+  Route::get('report_payment', [MedicoReportController::class, 'index'])->name('medicos.report');
   Route::get('perfil/{id}/{nombre?}/{apellido?}/{especialidad?}', [ProfileMedical::class, 'show'])->name('perfil_medico');
   Route::get('calendar/{id}/{userId?}', function () {
       return 'Calendario';
@@ -34,19 +36,35 @@ Route::prefix('api')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/ListadoDeMedicosDeLatinoamericaTumedibot', [MedicoSearchController::class, 'index'])->name('dashboard');
 
-    Route::inertia('/soy-doctor', 'soydoctor')->name('soydoctor');
-    Route::get('/billing-plan/{plan}', function (string $plan) {
-        return inertia('billing/billing-plan', [
-            'userId' => auth()->id(),
-            'plan' => $plan,
-        ]);
-    })->name('billing.plan');
+    // Rutas protegidas para que los médicos NO puedan entrar escribiendo la URL
+    Route::middleware(['not.medico'])->group(function () {
+        Route::inertia('/soy-doctor', 'soydoctor')->name('soydoctor');
+
+        Route::get('/billing-plan/{plan}', function (string $plan) {
+            return inertia('billing/billing-plan', [
+                'userId' => auth()->id(),
+                'plan' => $plan,
+            ]);
+        })->name('billing.plan');
+    });
+
+    //edit Billing
+    Route::get('/billing-plan-edit/{userId}', [BillingController::class, 'show'])->name('billing.edit');
+
+
 
     Route::prefix('api')->group(function () {
         Route::get('/factura/usuario/{userId}', [BillingController::class, 'getFacturaByUser']);
         Route::post('/guardar-factura/{userId}', [BillingController::class, 'guardarFactura']);
-        Route::put('/actualizar-factura/{userId}/{id}', [BillingController::class, 'actualizarFactura']);
+        Route::put('/actualizar-factura/{userId}/{id}', [BillingController::class, 'actualizarFactura'])
+        ->name('factura.update');
+
+        //medicos
+        Route::post('/medicos', [MedicalFormController::class, 'store'])
+        ->middleware('auth')
+        ->name('medical.store');
     });
+
 });
 
 require __DIR__.'/settings.php';

@@ -14,13 +14,14 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'password', 'pagos', 'pagos_clinica', 'privacy', 'confirmacion_codigo'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasRoles, HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     /**
      * Get the attributes that should be cast.
@@ -81,11 +82,4 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasOne(Factura::class, 'user_id');
     }
 
-    /**
-     * Obtiene la clínica administrada por este usuario (si aplica).
-     */
-    public function clinica(): HasOne
-    {
-        return $this->hasOne(Clinica::class, 'user_id');
-    }
 }

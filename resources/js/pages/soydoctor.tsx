@@ -14,7 +14,7 @@ import {
 const plans = [
     {
         name: 'Andromeda',
-        price: 20,
+        price: 25,
         period: '/Al mes',
         gradient: 'from-blue-600 to-blue-400',
         shadow: 'shadow-blue-500/10',
@@ -42,12 +42,12 @@ const plans = [
     },
     {
         name: 'Fenix',
-        price: 110,
+        price: 135,
         period: '/6 meses',
         gradient: 'from-amber-500 to-orange-500',
         shadow: 'shadow-amber-500/10',
         border: 'hover:border-amber-500/50',
-        save: 10,
+        save: 15,
         features: [
             'Llenar Perfil Médico',
             'Agregar 1 foto a Perfil',
@@ -71,12 +71,12 @@ const plans = [
     },
     {
         name: 'Pegasus',
-        price: 220,
+        price: 270,
         period: '/1 año',
         gradient: 'from-purple-600 to-violet-500',
         shadow: 'shadow-purple-500/10',
         border: 'hover:border-purple-500/50',
-        save: 20,
+        save: 30,
         popular: true,
         features: [
             'Llenar Perfil Médico',

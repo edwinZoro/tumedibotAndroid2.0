@@ -75,8 +75,6 @@ class Medico extends Model
         'direccion',
         'experiencia',
         'usted_es',
-        'perfil_medico',
-        'tratamientos',
     ];
 
     /**
