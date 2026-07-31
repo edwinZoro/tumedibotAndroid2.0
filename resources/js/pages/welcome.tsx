@@ -35,6 +35,7 @@ export default function Welcome() {
         setMobileOpen(false);
     };
 
+
     // Scroll animations (Intersection Observer)
     useEffect(() => {
         const observerOptions: IntersectionObserverInit = {
@@ -279,7 +280,7 @@ export default function Welcome() {
                             >
                                 ¿Cómo funciona?
                             </a>
-                            {auth.user && (
+                            {auth?.user && (
                                 <Link
                                     href={dashboard()}
                                     className="nav-link"
@@ -291,7 +292,7 @@ export default function Welcome() {
                         </nav>
 
                         <div className="nav-actions">
-                            {auth.user ? (
+                            {auth?.user ? (
                                 <Link
                                     href={dashboard()}
                                     className="btn btn-primary"
@@ -301,13 +302,14 @@ export default function Welcome() {
                             ) : (
                                 <>
                                     <Link
-                                        href={login()}
+                                        href={login().url}
                                         className="btn btn-outline"
                                     >
                                         Iniciar Sesión
+
                                     </Link>
                                     <Link
-                                        href={register()}
+                                        href={register().url}
                                         className="btn btn-primary"
                                     >
                                         Regístrate

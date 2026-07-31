@@ -33,10 +33,14 @@ class Pedido extends Model
         'ticket',
         'fecha_pedido',
         'fecha_vence_pedido',
-        'fecha_transaccion',
         'fecha_vence_transaccion',
         'metodo_transaccion',
         'estado',
+        'fecha_aprobacion',
+        'dias_duracion',
+        'reminder_7d_sent',
+        'reminder_3d_sent',
+        'reminder_1d_sent'
     ];
 
     /**
@@ -52,7 +56,6 @@ class Pedido extends Model
         'iva' => 'decimal:2',
         'fecha_pedido' => 'datetime',
         'fecha_vence_pedido' => 'datetime',
-        'fecha_transaccion' => 'datetime',
         'fecha_vence_transaccion' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

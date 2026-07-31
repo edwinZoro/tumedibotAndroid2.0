@@ -15,17 +15,23 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
         $middleware->alias([
-        'not.medico' => CheckNotMedico::class, ]);
+            'not.medico' => CheckNotMedico::class,
+            'verify.recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
+        ]);
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
     })
+    ->withSchedule(function ($schedule) {
+        $schedule->command('pedidos:generar-renovaciones')->dailyAt('08:00');
+        $schedule->command('pedidos:enviar-recordatorios')->dailyAt('09:00');
+    })
+    ->withEvents() // ← Ahora los listeners se registran en EventServiceProvider
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),

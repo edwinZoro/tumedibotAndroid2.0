@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { router } from '@inertiajs/react';
 import {
     Card,
@@ -96,6 +96,17 @@ const capitalize = (str: string | undefined) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+// Dentro del componente o en un helper externo
+const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });
+};
+
 // ─── Componente ─────────────────────────────────────────────────────────────
 export default function PaymentOverview({
     userId,
@@ -110,6 +121,24 @@ export default function PaymentOverview({
     reportPaymentRoute,
     medicalBalanceRoute,
 }: Props) {
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleGenerarPago = () => {
+    setIsGenerating(true);
+    router.visit(ruta_pagar, {
+        method: 'get',
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            setIsGenerating(false);
+            // Recargar solo los datos necesarios
+            router.reload({ only: ['pedi', 'reporte', 'reporte_b'] });
+        },
+        onError: () => {
+            setIsGenerating(false);
+        },
+    });
+};
     // ── Paginación ──
     const changePediPage = (page: number) => {
         if (pedi?.data) {
@@ -252,33 +281,33 @@ export default function PaymentOverview({
                 </CardContent>
             </Card>
 
-            {/* ══ 3. MIS PEDIDOS (si existen) ══ */}
-            {pedi && Array.isArray(pedi.data) && pedi.data.length > 0 && (
-                <Card className="rounded-3xl border-slate-200/80 bg-white/80 shadow-lg backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-lg font-bold flex items-center gap-2">
-                            <ShoppingCart className="h-5 w-5 text-indigo-500" />
-                            Mis Pedidos
-                        </CardTitle>
-                        <Button asChild variant="link" className="text-xs h-auto p-0 text-sky-600 dark:text-sky-400">
-                            <a href={cryptoPayRoute} className="flex items-center gap-1">
-                                <Wallet className="h-3.5 w-3.5" /> Pagar con Crypto
-                            </a>
-                        </Button>
-                    </CardHeader>
-                    <CardContent className="space-y-4 pt-2">
-                        <div className="rounded-2xl border border-slate-200/60 bg-white/50 overflow-hidden dark:border-slate-800/60 dark:bg-slate-950/30">
-                            <Table>
-                                <TableHeader className="bg-slate-50/80 dark:bg-slate-900/80">
-                                    <TableRow className="border-slate-200 dark:border-slate-800">
-                                        <TableHead className="text-[11px] uppercase tracking-wider">Ticket N°</TableHead>
-                                        <TableHead className="text-[11px] uppercase tracking-wider">Fechas</TableHead>
-                                        <TableHead className="text-[11px] uppercase tracking-wider">Monto</TableHead>
-                                        <TableHead className="text-[11px] uppercase tracking-wider text-right">Estado PDF</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {pedi.data.map((p) => {
+            {/* ══ 3. MIS PEDIDOS (siempre visible) ══ */}
+            <Card className="rounded-3xl border-slate-200/80 bg-white/80 shadow-lg backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-lg font-bold flex items-center gap-2">
+                        <ShoppingCart className="h-5 w-5 text-indigo-500" />
+                        Mis Pedidos
+                    </CardTitle>
+                    <Button asChild variant="link" className="text-xs h-auto p-0 text-sky-600 dark:text-sky-400">
+                        <a href={'/pagar-crypto'} className="flex items-center gap-1">
+                            <Wallet className="h-3.5 w-3.5" /> Pagar con Crypto
+                        </a>
+                    </Button>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-2">
+                    <div className="rounded-2xl border border-slate-200/60 bg-white/50 overflow-hidden dark:border-slate-800/60 dark:bg-slate-950/30">
+                        <Table>
+                            <TableHeader className="bg-slate-50/80 dark:bg-slate-900/80">
+                                <TableRow className="border-slate-200 dark:border-slate-800">
+                                    <TableHead className="text-[11px] uppercase tracking-wider">Ticket N°</TableHead>
+                                    <TableHead className="text-[11px] uppercase tracking-wider">Fechas</TableHead>
+                                    <TableHead className="text-[11px] uppercase tracking-wider">Monto</TableHead>
+                                    <TableHead className="text-[11px] uppercase tracking-wider text-right">Estado PDF</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {pedi?.data && pedi.data.length > 0 ? (
+                                    pedi.data.map((p) => {
                                         const isPaid = p.estado?.toLowerCase() !== 'no pagado';
                                         return (
                                             <TableRow key={p.id} className="border-slate-100 dark:border-slate-800">
@@ -288,10 +317,10 @@ export default function PaymentOverview({
                                                 <TableCell>
                                                     <div className="flex flex-col gap-1 text-xs">
                                                         <span className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
-                                                            <Calendar className="h-3 w-3" /> {p.fecha_pedido}
+                                                            <Calendar className="h-3 w-3" /> {formatDate(p.fecha_pedido)}
                                                         </span>
                                                         <span className="flex items-center gap-1 text-rose-500 dark:text-rose-400 font-medium">
-                                                            <Clock className="h-3 w-3" /> Vence: {p.fecha_vence_pedido}
+                                                            <Clock className="h-3 w-3" /> Vence: {formatDate(p.fecha_vence_pedido)}
                                                         </span>
                                                     </div>
                                                 </TableCell>
@@ -305,7 +334,7 @@ export default function PaymentOverview({
                                                         variant={isPaid ? "default" : "destructive"}
                                                         className={`rounded-xl h-8 px-3 text-xs font-bold shadow-sm ${isPaid ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : ''}`}
                                                     >
-                                                        <a href={`/pagando_perfil_medico/${userId}/${p.id}`} target="_blank" rel="noopener noreferrer">
+                                                        <a href={`/medicos/pagando_perfil_medico/${userId}/${p.id}`} target="_blank" rel="noopener noreferrer">
                                                             {isPaid ? <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> : <XCircle className="mr-1.5 h-3.5 w-3.5" />}
                                                             {p.estado}
                                                         </a>
@@ -313,29 +342,36 @@ export default function PaymentOverview({
                                                 </TableCell>
                                             </TableRow>
                                         );
-                                    })}
-                                </TableBody>
-                            </Table>
-                        </div>
+                                    })
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="text-center text-muted-foreground italic py-6">
+                                            No tienes pedidos generados.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
 
-                        {pedi.last_page > 1 && (
-                            <div className="flex justify-center gap-2 pt-2">
-                                {Array.from({ length: pedi.last_page }, (_, i) => i + 1).map((page) => (
-                                    <Button
-                                        key={page}
-                                        size="icon"
-                                        variant={pedi.current_page === page ? 'default' : 'outline'}
-                                        className={`h-8 w-8 rounded-lg text-xs font-bold ${pedi.current_page === page ? 'bg-blue-600 text-white' : ''}`}
-                                        onClick={() => changePediPage(page)}
-                                    >
-                                        {page}
-                                    </Button>
-                                ))}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            )}
+                    {/* Paginación (si hay más de una página) */}
+                    {pedi?.last_page && pedi.last_page > 1 && (
+                        <div className="flex justify-center gap-2 pt-2">
+                            {Array.from({ length: pedi.last_page }, (_, i) => i + 1).map((page) => (
+                                <Button
+                                    key={page}
+                                    size="icon"
+                                    variant={pedi.current_page === page ? 'default' : 'outline'}
+                                    className={`h-8 w-8 rounded-lg text-xs font-bold ${pedi.current_page === page ? 'bg-blue-600 text-white' : ''}`}
+                                    onClick={() => changePediPage(page)}
+                                >
+                                    {page}
+                                </Button>
+                            ))}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
             {/* ══ 4. HISTORIAL DE TRANSACCIONES ══ */}
             <Card className="rounded-3xl border-slate-200/80 bg-white/80 shadow-lg backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">

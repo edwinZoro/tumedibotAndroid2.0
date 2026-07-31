@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Billings\BillingController;
+use App\Http\Controllers\Billings\InvoiceController;
 use App\Http\Controllers\Medical\MedicalAreaController;
 use App\Http\Controllers\Medical\MedicalFormController;
 use App\Http\Controllers\Medical\MedicoReportController;
@@ -11,18 +12,25 @@ use App\Models\Pais;
 use App\Models\State;
 use Illuminate\Support\Facades\Route;
 
+
+
 Route::inertia('/', 'welcome')->name('home');
 
 Route::prefix('medicos')->group(function () {
     Route::get('area-medico', [MedicalAreaController::class, 'show'])->name('medicos.area');
     Route::get('search', [MedicoSearchController::class, 'index'])->name('medicos.search');
     Route::get('report_payment', [MedicoReportController::class, 'index'])->name('medicos.report');
+    // generar pedidos
+    Route::get('/generar-pedido/{user}/{plan}', [MedicoReportController::class, 'generarPedido'])->name('generar.pedido');
     Route::get('perfil/{id}/{nombre?}/{apellido?}/{especialidad?}', [ProfileMedical::class, 'show'])->name('perfil_medico');
     Route::get('calendar/{id}/{userId?}', function () {
         return 'Calendario';
     })->name('calendar_view');
     Route::get('/medicoLLenarPerfil/{id}', [MedicalFormController::class, 'show'])->name('medical-form');
     Route::get('editar/{id}', [MedicalFormController::class, 'edit'])->name('medical.edit');
+
+    Route::get('/pagando_perfil_medico/{user}/{pedido}', [InvoiceController::class, 'download'])
+    ->name('pagando_perfil_medico');
 });
 
 Route::prefix('api')->group(function () {
@@ -49,8 +57,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('billing.plan');
     });
 
+    //delete perfil medico
+    Route::delete('/delete_medico_perfil/{medico}', [MedicalFormController::class, 'destroy'])
+    ->name('medicos.destroy');
+
     // edit Billing
     Route::get('/billing-plan-edit/{userId}', [BillingController::class, 'show'])->name('billing.edit');
+
+    Route::get('/pagar-crypto', function () {
+    return inertia('crypto');
+    })->name('crypto.pay');
 
     Route::prefix('api')->group(function () {
         Route::get('/factura/usuario/{userId}', [BillingController::class, 'getFacturaByUser']);

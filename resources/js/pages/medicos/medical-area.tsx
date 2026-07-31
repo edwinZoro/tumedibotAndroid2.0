@@ -1,10 +1,20 @@
-import React from 'react';
+import {React, useState }from 'react';
 import { router, Head } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import {
     PlusCircle,
     Eye,
@@ -102,11 +112,22 @@ export default function AreaMedica({
         : 'DR';
 
     // Eliminación del perfil
-    const handleDeleteProfile = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (confirm('¿Está seguro de que desea eliminar su perfil médico?')) {
-            router.delete(`/delete_medico_perfil/${medico?.id || ''}`);
-        }
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+    const handleDeleteProfile = () => {
+      router.delete(`/delete_medico_perfil/${medico?.id}`, {
+        onSuccess: () => {
+          toast.success('Perfil médico eliminado correctamente.');
+          // Opcional: redirigir o recargar
+          setIsDeleteDialogOpen(false);
+          // Si deseas recargar la página para reflejar cambios
+          // router.reload();
+        },
+        onError: (errors) => {
+          toast.error('Error al eliminar el perfil. Inténtalo de nuevo.');
+          setIsDeleteDialogOpen(false);
+        },
+      });
     };
 
     return (
@@ -270,16 +291,33 @@ export default function AreaMedica({
 
                                     <Separator className="my-2 dark:bg-slate-800" />
 
-                                    <form onSubmit={handleDeleteProfile}>
-                                        <Button
-                                            variant="ghost"
-                                            type="submit"
-                                            className="w-full text-xs text-rose-500 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400"
-                                        >
-                                            <Trash2 className="mr-2 h-4 w-4" />{' '}
-                                            Eliminar Perfil Médico
+                                    <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                                    <DialogTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        className="w-full text-xs text-rose-500 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400"
+                                      >
+                                        <Trash2 className="mr-2 h-4 w-4" /> Eliminar Perfil Médico
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[425px]">
+                                      <DialogHeader>
+                                        <DialogTitle>¿Estás seguro?</DialogTitle>
+                                        <DialogDescription>
+                                          Esta acción eliminará permanentemente tu perfil médico y todos los datos asociados.
+                                          No podrás recuperarlos después.
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <DialogFooter className="gap-2 sm:gap-0">
+                                        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+                                          Cancelar
                                         </Button>
-                                    </form>
+                                        <Button variant="destructive" onClick={handleDeleteProfile}>
+                                          Sí, eliminar
+                                        </Button>
+                                      </DialogFooter>
+                                    </DialogContent>
+                                  </Dialog>
                                 </>
                             )}
                         </CardContent>

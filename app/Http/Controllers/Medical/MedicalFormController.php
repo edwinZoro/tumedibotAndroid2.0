@@ -315,4 +315,24 @@ class MedicalFormController extends Controller
             'redirect' => route('medicos.area'),
         ]);
     }
+
+    public function destroy(Medico $medico)
+    {
+      \Log::info('Intento de eliminar médico', [
+           'medico_id' => $medico->id,
+           'medico_user_id' => $medico->user_id,
+           'auth_id' => Auth::id(),
+       ]);
+
+       if ($medico->user_id !== Auth::id()) {
+           \Log::warning('Intento no autorizado', [
+               'medico_user_id' => $medico->user_id,
+               'auth_id' => Auth::id(),
+           ]);
+           abort(403, 'No tienes permiso para eliminar este perfil.');
+       }
+
+       $medico->delete();
+       return redirect()->route('medicos.area')->with('success', 'Perfil eliminado.');
+    }
 }
