@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { LogOut, Settings, Shield } from 'lucide-react';
 import {
     DropdownMenuGroup,
@@ -18,6 +18,8 @@ type Props = {
 
 export function UserMenuContent({ user }: Props) {
     const cleanup = useMobileNavigation();
+    const { can } = usePage().props;
+    const canAdmin = can?.administration ?? false;
 
     const handleLogout = () => {
         cleanup();
@@ -33,17 +35,19 @@ export function UserMenuContent({ user }: Props) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                    <Link
-                        className="block w-full cursor-pointer"
-                        href="/admin"
-                        prefetch
-                        onClick={cleanup}
-                    >
-                        <Shield className="mr-2 text-primary" />
-                        Administración
-                    </Link>
-                </DropdownMenuItem>
+                {canAdmin && (
+                    <DropdownMenuItem asChild>
+                        <Link
+                            className="block w-full cursor-pointer"
+                            href="/admin"
+                            prefetch
+                            onClick={cleanup}
+                        >
+                            <Shield className="mr-2 text-primary" />
+                            Administración
+                        </Link>
+                    </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                     <Link
                         className="block w-full cursor-pointer"

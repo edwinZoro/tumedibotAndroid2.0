@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Billings\BillingController;
 use App\Http\Controllers\Billings\InvoiceController;
 use App\Http\Controllers\Medical\MedicalAreaController;
@@ -11,8 +12,6 @@ use App\Models\Especialidades;
 use App\Models\Pais;
 use App\Models\State;
 use Illuminate\Support\Facades\Route;
-
-
 
 Route::inertia('/', 'welcome')->name('home');
 
@@ -30,9 +29,9 @@ Route::prefix('medicos')->group(function () {
     Route::get('editar/{id}', [MedicalFormController::class, 'edit'])->name('medical.edit');
 
     Route::get('/pagando_perfil_medico/{user}/{pedido}', [InvoiceController::class, 'download'])
-    ->name('pagando_perfil_medico');
+        ->name('pagando_perfil_medico');
 
-    //reporte pago de medico
+    // reporte pago de medico
     Route::get('/reporte-pago', [MedicoReportController::class, 'create'])
         ->name('reporte.pago');
 });
@@ -76,17 +75,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('billing.plan');
     });
 
-    //delete perfil medico
+    // delete perfil medico
     Route::delete('/delete_medico_perfil/{medico}', [MedicalFormController::class, 'destroy'])
-    ->name('medicos.destroy');
+        ->name('medicos.destroy');
 
     // edit Billing
     Route::get('/billing-plan-edit/{userId}', [BillingController::class, 'show'])->name('billing.edit');
 
     Route::get('/pagar-crypto', function () {
-    return inertia('crypto');
+        return inertia('crypto');
     })->name('crypto.pay');
 
+    // Área de administración (solo usuarios con permiso 'administration')
+    Route::prefix('admin')->middleware('can:administration')->group(function () {
+        Route::get('/', [AdminController::class, 'index'])->name('admin.index');
+
+        Route::get('/usuarios/{user}/editar', [AdminController::class, 'editUser'])->name('admin.users.edit');
+        Route::put('/usuarios/{user}', [AdminController::class, 'updateUser'])->name('admin.users.update');
+
+        Route::get('/medicos/{medico}/editar', [AdminController::class, 'editMedico'])->name('admin.medicos.edit');
+        Route::put('/medicos/{medico}', [AdminController::class, 'updateMedico'])->name('admin.medicos.update');
+
+        Route::get('/facturas/{factura}/editar', [AdminController::class, 'editFactura'])->name('admin.facturas.edit');
+        Route::put('/facturas/{factura}', [AdminController::class, 'updateFactura'])->name('admin.facturas.update');
+
+        Route::get('/reportes/{reporte}/editar', [AdminController::class, 'editReporte'])->name('admin.reportes.edit');
+        Route::put('/reportes/{reporte}', [AdminController::class, 'updateReporte'])->name('admin.reportes.update');
+    });
 
 });
 
