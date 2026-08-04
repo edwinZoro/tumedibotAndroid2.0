@@ -19,7 +19,7 @@ Route::inertia('/', 'welcome')->name('home');
 Route::prefix('medicos')->group(function () {
     Route::get('area-medico', [MedicalAreaController::class, 'show'])->name('medicos.area');
     Route::get('search', [MedicoSearchController::class, 'index'])->name('medicos.search');
-    Route::get('report_payment', [MedicoReportController::class, 'index'])->name('medicos.report');
+    Route::get('report-payment', [MedicoReportController::class, 'index'])->name('medicos.report');
     // generar pedidos
     Route::get('/generar-pedido/{user}/{plan}', [MedicoReportController::class, 'generarPedido'])->name('generar.pedido');
     Route::get('perfil/{id}/{nombre?}/{apellido?}/{especialidad?}', [ProfileMedical::class, 'show'])->name('perfil_medico');
@@ -31,6 +31,10 @@ Route::prefix('medicos')->group(function () {
 
     Route::get('/pagando_perfil_medico/{user}/{pedido}', [InvoiceController::class, 'download'])
     ->name('pagando_perfil_medico');
+
+    //reporte pago de medico
+    Route::get('/reporte-pago', [MedicoReportController::class, 'create'])
+        ->name('reporte.pago');
 });
 
 Route::prefix('api')->group(function () {
@@ -40,6 +44,21 @@ Route::prefix('api')->group(function () {
     Route::get('/especialidades', function () {
         return Especialidades::all(['id', 'nombre_especialidad']);
     });
+
+    Route::get('/factura/usuario/{userId}', [BillingController::class, 'getFacturaByUser']);
+    Route::post('/guardar-factura/{userId}', [BillingController::class, 'guardarFactura']);
+    Route::put('/actualizar-factura/{userId}/{id}', [BillingController::class, 'actualizarFactura'])
+        ->name('factura.update');
+
+    // medicos
+    Route::post('/medicos', [MedicalFormController::class, 'store'])
+        ->middleware('auth')
+        ->name('medical.store');
+    Route::put('/medicos/{id}', [MedicalFormController::class, 'update'])
+        ->middleware('auth')
+        ->name('medical.update');
+
+    Route::post('/reporte-pago', [MedicoReportController::class, 'store']);
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -68,20 +87,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     return inertia('crypto');
     })->name('crypto.pay');
 
-    Route::prefix('api')->group(function () {
-        Route::get('/factura/usuario/{userId}', [BillingController::class, 'getFacturaByUser']);
-        Route::post('/guardar-factura/{userId}', [BillingController::class, 'guardarFactura']);
-        Route::put('/actualizar-factura/{userId}/{id}', [BillingController::class, 'actualizarFactura'])
-            ->name('factura.update');
-
-        // medicos
-        Route::post('/medicos', [MedicalFormController::class, 'store'])
-            ->middleware('auth')
-            ->name('medical.store');
-        Route::put('/medicos/{id}', [MedicalFormController::class, 'update'])
-            ->middleware('auth')
-            ->name('medical.update');
-    });
 
 });
 

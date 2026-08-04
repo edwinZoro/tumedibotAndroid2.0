@@ -21,73 +21,104 @@
             border: 1px solid #e2e8f0;
         }
 
-        /* ─── HEADER con degradado azul moderno ─── */
+        /* ─── HEADER compatible con PDF (usando Tabla) ─── */
         .invoice-header {
             background: linear-gradient(135deg, #2563eb, #0ea5e9);
-            padding: 24px 32px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px 20px;
+            padding: 20px 24px;
             border-bottom: 3px solid #60a5fa;
-        }
-        .header-left {
-            display: flex;
-            align-items: center;
-        }
-        .logo-svg {
-            width: 44px;
-            height: 44px;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
-        }
-        .brand-text {
-            font-size: 24px;
-            font-weight: 800;
-            color: black;
-            letter-spacing: -0.5px;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        .brand-text span {
-            color: #60a5fa;
+            width: 100%;
         }
 
-        .header-center {
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .header-left-td {
+            width: 35%;
+            vertical-align: middle;
+        }
+
+        .header-center-td {
+            width: 30%;
             text-align: center;
+            vertical-align: middle;
+        }
+
+        .header-right-td {
+            width: 35%;
+            text-align: right;
+            vertical-align: middle;
+            color: rgba(255,255,255,0.85);
+            padding-right: 45px; /* Arrimado un poco más hacia la izquierda */
+        }
+
+        /* Alineación interna de Logo + Texto */
+        .logo-container-table {
+            border-collapse: collapse;
+        }
+        .logo-container-table td {
+            vertical-align: middle;
+        }
+
+        .logo-svg {
+            width: 38px;
+            height: 38px;
+        }
+
+        .brand-text {
+      /* Lista de fuentes sin serifa, limpias y modernas */
+      font-family:  'Helvetica Neue', Arial, sans-serif;
+      font-size: 24px;
+      font-weight: 800; /* Extra bold */
+      color: black;
+      padding-left: 10px;
+      letter-spacing: -0.5px; /* Junta ligeramente las letras para un look de logo */
+      }
+
+      .brand-text span {
+          color: #93c5fd;
+          font-weight: 800;
+      }
+
+        .header-center-box {
+            display: inline-block;
             background: rgba(255,255,255,0.18);
-            backdrop-filter: blur(6px);
-            padding: 8px 24px;
+            padding: 6px 16px;
             border-radius: 100px;
             border: 1px solid rgba(255,255,255,0.30);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
-        .estado-badge {
-            font-weight: 700;
-            font-size: 16px;
-            letter-spacing: 0.5px;
-            padding: 5px 15px;
-            border-radius: 20px;
-            text-transform: uppercase;
-            color: black;
-        }
-        .estado-badge.pagado { color: #6ee7b7; }
-        .estado-badge.no-pagado { color: #fca5a5; }
 
-        .header-right {
-            text-align: right;
-            color: rgba(255,255,255,0.85);
-            font-size: 14px;
-            line-height: 1.5;
+        /* Badge con Fondo Verde / Rojo y Texto Blanco */
+        .estado-badge {
+            display: inline-block;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: #ffffff !important; /* Texto siempre blanco */
+            padding: 6px 16px;
+            border-radius: 50px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
+
+        .estado-badge.pagado {
+            background-color: #10b981; /* Verde esmeralda sólido */
+        }
+
+        .estado-badge.no-pagado {
+            background-color: #ef4444; /* Rojo carmesí sólido */
+        }
+
         .ticket-number {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 700;
             color: black;
-            letter-spacing: 0.5px;
         }
+
         .fecha-emision {
             margin-top: 2px;
-            font-size: 13px;
+            font-size: 12px;
             opacity: 0.9;
         }
 
@@ -293,27 +324,43 @@
 
 <div class="invoice-wrapper">
 
-    <!-- ═══ HEADER ═══ -->
-    <div class="invoice-header">
-        <div class="header-left">
-            <!-- SVG del logo (corazón) -->
-            <svg class="logo-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="black">
-                <path d="M228.3 469.1L47.6 300.4c-4.2-3.9-8.2-8.1-11.9-12.4h87c22.6 0 43-13.6 51.7-34.5l10.5-25.2 49.3 109.5c3.8 8.5 12.1 14 21.4 14.1s17.8-5 22-13.3L320 253.7l1.7 3.4c9.5 19 28.9 31 50.1 31H476.3c-3.7 4.3-7.7 8.5-11.9 12.4L283.7 469.1c-7.5 7-17.4 10.9-27.7 10.9s-20.2-3.9-27.7-10.9zM503.7 240h-132c-3 0-5.8-1.7-7.2-4.4l-23.2-46.3c-4.1-8.1-12.4-13.3-21.5-13.3s-17.4 5.1-21.5 13.3l-41.4 82.8L205.9 158.2c-3.9-8.7-12.7-14.3-22.2-14.1s-18.1 5.9-21.8 14.8l-31.8 76.3c-1.2 3-4.2 4.9-7.4 4.9H16c-2.6 0-5 .4-7.3 1.1C3 225.2 0 208.2 0 190.9v-5.8c0-69.9 50.5-129.5 119.4-141C165 36.5 211.4 51.4 244 84l12 12 12-12c32.6-32.6 79-47.5 124.6-39.9C461.5 55.6 512 115.2 512 185.1v5.8c0 16.9-2.8 33.5-8.3 49.1z"/>
-            </svg>
-            <div class="brand-text">TuMedi<span>Bot</span></div>
-        </div>
+  <!-- ═══ HEADER ═══ -->
+  <div class="invoice-header">
+      <table class="header-table">
+          <tr>
+              <!-- Columna Izquierda: Logo y Marca -->
+              <td class="header-left-td">
+                  <table class="logo-container-table">
+                      <tr>
+                          <td>
+                              <svg class="logo-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="black">
+                                  <path d="M228.3 469.1L47.6 300.4c-4.2-3.9-8.2-8.1-11.9-12.4h87c22.6 0 43-13.6 51.7-34.5l10.5-25.2 49.3 109.5c3.8 8.5 12.1 14 21.4 14.1s17.8-5 22-13.3L320 253.7l1.7 3.4c9.5 19 28.9 31 50.1 31H476.3c-3.7 4.3-7.7 8.5-11.9 12.4L283.7 469.1c-7.5 7-17.4 10.9-27.7 10.9s-20.2-3.9-27.7-10.9zM503.7 240h-132c-3 0-5.8-1.7-7.2-4.4l-23.2-46.3c-4.1-8.1-12.4-13.3-21.5-13.3s-17.4 5.1-21.5 13.3l-41.4 82.8L205.9 158.2c-3.9-8.7-12.7-14.3-22.2-14.1s-18.1 5.9-21.8 14.8l-31.8 76.3c-1.2 3-4.2 4.9-7.4 4.9H16c-2.6 0-5 .4-7.3 1.1C3 225.2 0 208.2 0 190.9v-5.8c0-69.9 50.5-129.5 119.4-141C165 36.5 211.4 51.4 244 84l12 12 12-12c32.6-32.6 79-47.5 124.6-39.9C461.5 55.6 512 115.2 512 185.1v5.8c0 16.9-2.8 33.5-8.3 49.1z"/>
+                              </svg>
+                          </td>
+                          <td>
+                              <div class="brand-text">TuMedi<span>Bot</span></div>
+                          </td>
+                      </tr>
+                  </table>
+              </td>
 
-        <div class="header-center">
-            <span class="estado-badge {{ $pedido->estado === 'No Pagado' ? 'no-pagado' : 'pagado' }}">
-                {{ $pedido->estado }}
-            </span>
-        </div>
+              <!-- Columna Central: Estado -->
+              <td class="header-center-td">
+                  <div class="header-center-box">
+                      <span class="estado-badge {{ $pedido->estado === 'No Pagado' ? 'no-pagado' : 'pagado' }}">
+                          {{ $pedido->estado }}
+                      </span>
+                  </div>
+              </td>
 
-        <div class="header-right">
-            <div class="ticket-number">Ticket Nº {{ $pedido->ticket }}</div>
-            <div class="fecha-emision">{{ now()->format('d/m/Y') }}</div>
-        </div>
-    </div>
+              <!-- Columna Derecha: Ticket y Fecha -->
+              <td class="header-right-td">
+                  <div class="ticket-number">Ticket Nº {{ $pedido->ticket }}</div>
+                  <div class="fecha-emision">{{ now()->format('d/m/Y') }}</div>
+              </td>
+          </tr>
+      </table>
+  </div>
 
     <!-- ═══ BODY ═══ -->
     <div class="invoice-body">

@@ -29,6 +29,9 @@ import {
     ArrowRight,
     ShoppingCart,
     CreditCard,
+    Copy,
+    Check,
+    Bitcoin
 } from 'lucide-react';
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
@@ -42,6 +45,7 @@ interface Factura {
     ciudad: string;
     estado: string;
     codigo_postal: string;
+    plan?: string; // Añadido para el ejemplo
 }
 
 interface Pedido {
@@ -96,7 +100,6 @@ const capitalize = (str: string | undefined) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-// Dentro del componente o en un helper externo
 const formatDate = (dateString: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -106,6 +109,8 @@ const formatDate = (dateString: string) => {
         day: '2-digit',
     });
 };
+
+
 
 // ─── Componente ─────────────────────────────────────────────────────────────
 export default function PaymentOverview({
@@ -121,24 +126,41 @@ export default function PaymentOverview({
     reportPaymentRoute,
     medicalBalanceRoute,
 }: Props) {
-  const [isGenerating, setIsGenerating] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const handleGenerarPago = () => {
-    setIsGenerating(true);
-    router.visit(ruta_pagar, {
-        method: 'get',
-        preserveState: true,
-        preserveScroll: true,
-        onSuccess: () => {
-            setIsGenerating(false);
-            // Recargar solo los datos necesarios
-            router.reload({ only: ['pedi', 'reporte', 'reporte_b'] });
-        },
-        onError: () => {
-            setIsGenerating(false);
-        },
-    });
-};
+    // ── Copiar al portapapeles ──
+    const handleCopy = (text: string, id: string) => {
+        const copy = () => {
+            setCopiedId(id);
+            setTimeout(() => setCopiedId(null), 2000);
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text)
+                .then(copy)
+                .catch(() => fallbackCopy(text, copy));
+        } else {
+            fallbackCopy(text, copy);
+        }
+    };
+
+    const fallbackCopy = (text: string, onSuccess: () => void) => {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            onSuccess();
+        } catch (err) {
+            console.error('Fallback copy failed', err);
+        }
+        document.body.removeChild(textarea);
+    };
+
     // ── Paginación ──
     const changePediPage = (page: number) => {
         if (pedi?.data) {
@@ -151,6 +173,34 @@ export default function PaymentOverview({
             router.visit(`/api/reportes-pago?page=${page}`, { only: ['reporte'], preserveScroll: true });
         }
     };
+
+    const handleGenerarPago = () => {
+        setIsGenerating(true);
+        router.visit(ruta_pagar, {
+            method: 'get',
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsGenerating(false);
+                router.reload({ only: ['pedi', 'reporte', 'reporte_b'] });
+            },
+            onError: () => {
+                setIsGenerating(false);
+            },
+        });
+    };
+
+    // Dentro del componente, antes del return, agrega esta función:
+    const getPayPalUrl = (plan: string): string => {
+        const urls: Record<string, string> = {
+            andromeda: 'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-0TH61499TM750412VMQ2ADIQ',
+            fenix: 'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-64F7219433878621WMQ2AM3I',
+            pegasus: 'https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-97K39607M8380533KMQ2AOKA',
+        };
+        return urls[plan] || '';
+    };
+
+
 
     return (
         <div className="flex flex-col gap-6 p-4 md:p-6">
@@ -205,7 +255,7 @@ export default function PaymentOverview({
                             variant="secondary"
                             className="rounded-xl h-11 font-bold bg-sky-50 text-sky-700 hover:bg-sky-100 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
                         >
-                            <a href={reportPaymentRoute}>
+                            <a href={`/medicos/reporte-pago`} target="_blank">
                                 <CreditCard className="mr-2 h-4 w-4" /> Reportar Pago
                             </a>
                         </Button>
@@ -288,11 +338,20 @@ export default function PaymentOverview({
                         <ShoppingCart className="h-5 w-5 text-indigo-500" />
                         Mis Pedidos
                     </CardTitle>
-                    <Button asChild variant="link" className="text-xs h-auto p-0 text-sky-600 dark:text-sky-400">
-                        <a href={'/pagar-crypto'} className="flex items-center gap-1">
-                            <Wallet className="h-3.5 w-3.5" /> Pagar con Crypto
-                        </a>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        {factura.length > 0 && factura[0].plan && (
+                            <Button asChild variant="link" className="text-xs h-auto p-0 text-sky-600 dark:text-sky-400">
+                                <a href={getPayPalUrl(factura[0].plan)} target="_blank" className="flex items-center gap-1">
+                                    <Wallet className="h-3.5 w-3.5" /> Pagar con PayPal
+                                </a>
+                            </Button>
+                        )}
+                        <Button asChild variant="link" className="text-xs h-auto p-0 text-sky-600 dark:text-sky-400">
+                            <a href={'/pagar-crypto'} className="flex items-center gap-1">
+                                <Bitcoin className="h-3.5 w-3.5" /> Pagar con Crypto
+                            </a>
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-2">
                     <div className="rounded-2xl border border-slate-200/60 bg-white/50 overflow-hidden dark:border-slate-800/60 dark:bg-slate-950/30">
@@ -312,7 +371,21 @@ export default function PaymentOverview({
                                         return (
                                             <TableRow key={p.id} className="border-slate-100 dark:border-slate-800">
                                                 <TableCell className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                                    {p.ticket}
+                                                    <div className="flex items-center gap-1">
+                                                        <span>{p.ticket}</span>
+                                                        <button
+                                                            onClick={() => handleCopy(p.ticket, `ticket-${p.id}`)}
+                                                            className="ml-0.5 p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                                            aria-label="Copiar ticket"
+                                                            title="Copiar ticket"
+                                                        >
+                                                            {copiedId === `ticket-${p.id}` ? (
+                                                                <Check className="h-3.5 w-3.5 text-emerald-500" />
+                                                            ) : (
+                                                                <Copy className="h-3.5 w-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300" />
+                                                            )}
+                                                        </button>
+                                                    </div>
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="flex flex-col gap-1 text-xs">
@@ -386,7 +459,7 @@ export default function PaymentOverview({
                         <Table>
                             <TableHeader className="bg-slate-50/80 dark:bg-slate-900/80">
                                 <TableRow className="border-slate-200 dark:border-slate-800">
-                                    <TableHead className="text-[11px] uppercase tracking-wider">ID Transacción</TableHead>
+                                    <TableHead className="text-[11px] uppercase tracking-wider">Id del reporte</TableHead>
                                     <TableHead className="text-[11px] uppercase tracking-wider">Fechas</TableHead>
                                     <TableHead className="text-[11px] uppercase tracking-wider">Monto</TableHead>
                                     <TableHead className="text-[11px] uppercase tracking-wider text-right">Estado</TableHead>
@@ -403,12 +476,26 @@ export default function PaymentOverview({
                                     reporte.data.map((r) => (
                                         <TableRow key={r.id} className="border-slate-100 dark:border-slate-800">
                                             <TableCell className="font-mono text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                                                {r.transaccion_id}
+                                                <div className="flex items-center gap-1">
+                                                    <span>{r.transaccion_id}</span>
+                                                    <button
+                                                        onClick={() => handleCopy(r.transaccion_id, `reporte-${r.id}`)}
+                                                        className="ml-0.5 p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                                        aria-label="Copiar ID de reporte"
+                                                        title="Copiar ID de reporte"
+                                                    >
+                                                        {copiedId === `reporte-${r.id}` ? (
+                                                            <Check className="h-3.5 w-3.5 text-emerald-500" />
+                                                        ) : (
+                                                            <Copy className="h-3.5 w-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300" />
+                                                        )}
+                                                    </button>
+                                                </div>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex flex-col gap-0.5 text-xs">
-                                                    <span className="text-slate-700 dark:text-slate-300">Ingresado: {r.fecha_transaccion}</span>
-                                                    <span className="text-slate-500 dark:text-slate-500">Vence: {r.fecha_vence_transaccion}</span>
+                                                    <span className="text-slate-700 dark:text-slate-300">Ingresado: {formatDate(r.fecha_transaccion)}</span>
+                                                    <span className="text-slate-500 dark:text-slate-500">Vence:  {formatDate(r.fecha_vence_transaccion)}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="font-bold text-slate-800 dark:text-slate-200">

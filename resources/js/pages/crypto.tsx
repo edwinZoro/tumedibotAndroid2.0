@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Copy, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { Copy, CheckCircle, AlertCircle, X, Coins } from 'lucide-react';
 
 // ─── Datos de criptomonedas ──────────────────────────────────────────────
 const cryptos = [
@@ -91,6 +91,17 @@ export default function CryptoPayment() {
     }
   };
 
+  const copyEmail = async (email: string) => {
+    try {
+      await navigator.clipboard.writeText(email);
+      setSnackbar({ open: true, message: '¡Email copiado!', type: 'success' });
+      setTimeout(() => setSnackbar((prev) => ({ ...prev, open: false })), 3000);
+    } catch {
+      setSnackbar({ open: true, message: 'Error al copiar el email', type: 'error' });
+      setTimeout(() => setSnackbar((prev) => ({ ...prev, open: false })), 3000);
+    }
+  };
+
   return (
     <>
       <Head title="Pagar con Crypto - TuMediBot" />
@@ -114,6 +125,34 @@ export default function CryptoPayment() {
                 </span>
               </p>
             </div>
+          </div>
+
+          {/* ─── Nueva sección: Pago por Binance ────────────────────────── */}
+          <div className="mb-10">
+            <Card className="overflow-hidden border border-amber-200/60 bg-white/80 shadow-lg backdrop-blur-sm transition-all hover:shadow-xl dark:border-amber-800/40 dark:bg-slate-900/50">
+              <CardHeader className="bg-gradient-to-r from-amber-400 to-orange-500 p-4 text-white">
+                <CardTitle className="flex items-center gap-2 text-base font-bold tracking-wide">
+                  <Coins className="h-5 w-5" />
+                  Paga con Binance
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col items-center space-y-4 p-5">
+                <p className="text-center text-sm text-slate-600 dark:text-slate-300">
+                  Realiza tu pago a través de Binance utilizando el siguiente email:
+                </p>
+                <div className="w-full rounded-lg bg-slate-800 p-3 font-mono text-xs break-all text-amber-300 dark:bg-slate-700/80 dark:text-amber-200">
+                  edwinboada444@gmail.com
+                </div>
+                <Button
+                  onClick={() => copyEmail('edwinboada444@gmail.com')}
+                  variant="default"
+                  className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md hover:from-amber-400 hover:to-orange-500 dark:from-amber-600 dark:to-orange-700 dark:hover:from-amber-500 dark:hover:to-orange-600"
+                >
+                  <Copy className="h-4 w-4" />
+                  Copiar Email
+                </Button>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Grid de tarjetas */}

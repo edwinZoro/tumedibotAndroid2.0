@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Medical;
 
+use App\Http\Requests\Medicos\StoreMedicalReportRequest;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\ReportePago;
@@ -98,4 +100,78 @@ class MedicoReportController extends Controller
          return redirect()->route('medicos.report')
                           ->with('success', 'Pedido generado. Realiza el pago y repórtalo.');
      }
+
+     // Muestra el formulario (desde Inertia)
+    public function create()
+    {
+        $user = Auth::user();
+        $factura = Factura::where('user_id', $user->id)->firstOrFail();
+        $pedido = Pedido::where('factura_id', $factura->id)
+                        ->where('estado', 'No Pagado')
+                        ->first();
+
+        return Inertia::render('medicos/medical-report', [
+            'userId'    => $user->id,
+            'pedidoId'  => $pedido ? $pedido->id : 0,
+            'facturaId' => $factura->id,
+            'plan'      => $factura->plan,
+        ]);
+    }
+
+    // Procesa el reporte (endpoint POST)
+    public function store(StoreMedicalReportRequest $request)
+    {
+        $data = $request->validated();
+        $user = Auth::user();
+
+        // Obtener factura y plan
+        $factura = Factura::findOrFail($data['factura_id']);
+        $plan = $factura->plan;
+
+        // Calcular totales (según tu lógica original)
+        $planValues = [
+            'andromeda' => 10,
+            'fenix'     => 55,
+            'pegasus'   => 100,
+        ];
+        $base = $planValues[$plan] ?? 0;
+        $iva = 16;
+        $total = $base + ($base * $iva / 100);
+        $subtotal = $base;
+        $ingreso = $data['monto_pagado'];
+        $egreso = $total;
+        $credito = $ingreso - $egreso;
+
+        // Generar datos de transacción
+        $now = Carbon::now();
+        $transaccion_id = strtoupper(Str::random(5));
+
+        $reporte = ReportePago::create([
+            'transaccion_id'           => $transaccion_id,
+            'banco_emisor'             => $data['banco_emisor'],
+            'banco_receptor'           => $data['banco_receptor'],
+            'nmro_referencia'          => $data['nmro_referencia'],
+            'monto_pagado'             => $data['monto_pagado'],
+            'metodo_transaccion'       => $data['metodo_transaccion'],
+            'total'                    => $total,
+            'ingreso'                  => $ingreso,
+            'egreso'                   => $egreso,
+            'credito'                  => $credito,
+            'fecha_transaccion'        => $now->toDateString(),
+            'fecha_vence_transaccion'  => $now->addDays(31)->toDateString(),
+            'pedidos_id'               => $data['pedido_id'] ?? null,
+            'estado'                   => 'procesando',
+            'factura_id'               => $data['factura_id'],
+        ]);
+
+        // (Opcional) Actualizar estado del pedido a "Pagado" si se desea automático
+        // if ($data['pedido_id']) {
+        //     Pedido::where('id', $data['pedido_id'])->update(['estado' => 'Pagado']);
+        // }
+
+        return response()->json([
+            'message' => 'Reporte de pago registrado exitosamente.',
+            'redirect' => route('medicos.report', $user->id)
+        ]);
+    }
 }
