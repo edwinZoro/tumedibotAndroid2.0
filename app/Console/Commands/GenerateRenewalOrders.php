@@ -1,54 +1,96 @@
 <?php
+
 namespace App\Console\Commands;
 
+use App\Mail\PedidoGeneradoMail;
 use App\Models\Pedido;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class GenerateRenewalOrders extends Command
 {
     protected $signature = 'pedidos:generar-renovaciones';
-    protected $description = 'Genera pedidos de renovación para suscripciones próximas a vencer';
+
+    protected $description = 'Genera pedidos de renovación "No Pagado" cuando el pedido anterior está "Pagado" y su ciclo de facturación se cumplió';
 
     public function handle()
     {
         $hoy = Carbon::now()->startOfDay();
-        $limite = $hoy->copy()->addDays(7);
 
-        Pedido::where('estado', 'Pagado')
-            ->whereNotNull('fecha_aprobacion')
-            ->where('fecha_vence_pedido', '>=', $hoy->toDateString())
-            ->where('fecha_vence_pedido', '<=', $limite->toDateString())
-            ->whereDoesntHave('factura.pedidos', function ($query) {
-                $query->where('fecha_pedido', '>', \DB::raw('pedidos.fecha_pedido'));
-            })
-            ->chunk(100, function ($pedidos) {
-                foreach ($pedidos as $pedido) {
-                    $this->crearPedidoRenovacion($pedido);
+        Pedido::chunk(100, function ($pedidos) use ($hoy) {
+            foreach ($pedidos as $pedido) {
+                if ($pedido->estado !== 'Pagado') {
+                    continue;
                 }
-            });
 
-        $this->info('Renovaciones generadas correctamente.');
+                $factura = $pedido->factura;
+                if (! $factura) {
+                    continue;
+                }
+
+                $ultimoPedido = Pedido::where('factura_id', $factura->id)
+                    ->orderBy('id', 'desc')
+                    ->first();
+                if (! $ultimoPedido || $ultimoPedido->id !== $pedido->id) {
+                    continue;
+                }
+
+                $pendiente = Pedido::where('factura_id', $factura->id)
+                    ->where('estado', 'No Pagado')
+                    ->exists();
+                if ($pendiente) {
+                    continue;
+                }
+
+                $fechaBase = Carbon::parse($pedido->fecha_aprobacion ?? $pedido->fecha_pedido)->startOfDay();
+                $diasDuracion = $pedido->dias_duracion ?: 30;
+
+                if ($hoy->lt($fechaBase->copy()->addDays($diasDuracion))) {
+                    continue;
+                }
+
+                $this->crearPedidoRenovacion($pedido);
+                $this->info("Renovación generada para factura #{$factura->id} (pedido anterior #{$pedido->id}) - Plan: {$pedido->plan}");
+            }
+        });
+
+        $this->info('Verificación de renovaciones completada.');
     }
 
     private function crearPedidoRenovacion(Pedido $pedidoAnterior)
     {
-        $fechaBase = Carbon::parse($pedidoAnterior->fecha_aprobacion);
-        $nuevaFechaVencimiento = $fechaBase->copy()->addDays($pedidoAnterior->dias_duracion);
+        $nuevaFechaVencimiento = Carbon::now()->startOfDay()->copy()->addDays(7);
 
-        Pedido::create([
-            'transaccion_id'    => strtoupper(Str::random(5)),
-            'total'             => $pedidoAnterior->total,
-            'sub_total'         => $pedidoAnterior->sub_total,
-            'iva'               => $pedidoAnterior->iva,
-            'factura_id'        => $pedidoAnterior->factura_id,
-            'plan'              => $pedidoAnterior->plan,
-            'ticket'            => mt_rand(220000, 500000),
-            'fecha_pedido'      => Carbon::now()->toDateString(),
-            'fecha_vence_pedido'=> $nuevaFechaVencimiento->toDateString(),
-            'dias_duracion'     => $pedidoAnterior->dias_duracion,
-            'estado'            => 'No Pagado',
+        $pedido = Pedido::create([
+            'transaccion_id' => strtoupper(Str::random(5)),
+            'total' => $pedidoAnterior->total,
+            'sub_total' => $pedidoAnterior->sub_total,
+            'iva' => $pedidoAnterior->iva,
+            'factura_id' => $pedidoAnterior->factura_id,
+            'plan' => $pedidoAnterior->plan,
+            'ticket' => mt_rand(220000, 500000),
+            'fecha_pedido' => Carbon::now()->toDateString(),
+            'fecha_vence_pedido' => $nuevaFechaVencimiento->toDateString(),
+            'dias_duracion' => $pedidoAnterior->dias_duracion,
+            'estado' => 'No Pagado',
         ]);
+
+        $this->enviarCorreo($pedido);
+    }
+
+    private function enviarCorreo(Pedido $pedido)
+    {
+        $email = $pedido->factura?->user?->email;
+        if (! $email) {
+            return;
+        }
+
+        try {
+            Mail::to($email)->send(new PedidoGeneradoMail($pedido));
+        } catch (\Throwable $e) {
+            $this->error("No se pudo enviar el correo del pedido #{$pedido->id}: {$e->getMessage()}");
+        }
     }
 }

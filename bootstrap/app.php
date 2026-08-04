@@ -1,13 +1,14 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Foundation\Application;
 use App\Http\Middleware\CheckNotMedico;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\VerifyRecaptcha;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
         $middleware->alias([
             'not.medico' => CheckNotMedico::class,
-            'verify.recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
+            'verify.recaptcha' => VerifyRecaptcha::class,
         ]);
         $middleware->web(append: [
             HandleAppearance::class,
@@ -28,7 +29,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withSchedule(function ($schedule) {
-        $schedule->command('pedidos:generar-renovaciones')->dailyAt('08:00');
+        // PRUEBA: cada minuto para comprobar la generación automática de pedidos.
+        // Cuando termines la prueba, vuelve a dailyAt('08:00').
+        $schedule->command('pedidos:generar-renovaciones')->everyMinute();
         $schedule->command('pedidos:enviar-recordatorios')->dailyAt('09:00');
     })
     ->withEvents() // ← Ahora los listeners se registran en EventServiceProvider

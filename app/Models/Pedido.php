@@ -82,4 +82,12 @@ class Pedido extends Model
     {
         return $this->belongsToMany(ReportePago::class);
     }
+
+    /**
+     * Obtiene la duración en días del pedido, usando el valor del atributo o el config por defecto.
+     */
+    public function getDuracionDiasAttribute($value)
+    {
+        return $value ?? config("planes.{$this->plan}.dias", 30);
+    }
 }
