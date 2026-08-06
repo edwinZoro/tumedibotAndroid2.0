@@ -34,6 +34,8 @@ class CitaPaciente extends Model
     protected $fillable = [
         'id_paciente',
         'id_medico',
+        'fecha',
+        'hora',
         'motivo_consulta',
         'sintomas',
         'estado',
@@ -44,12 +46,13 @@ class CitaPaciente extends Model
     /**
      * Los atributos que deben ser convertidos a tipos nativos.
      *
-     * @var array<string, string>
+     * @var array<int, string>
      */
     protected $casts = [
         'id' => 'integer',
         'id_paciente' => 'integer',
         'id_medico' => 'integer',
+        'fecha' => 'date',
     ];
 
     /**

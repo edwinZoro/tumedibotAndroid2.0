@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class HistorialPaciente extends Model
 {
-    use HasFactory, EncryptsAttributes;
+    use EncryptsAttributes, HasFactory;
 
     /**
      * La tabla asociada con el modelo.
@@ -109,10 +109,10 @@ class HistorialPaciente extends Model
     }
 
     /**
-     * Obtiene los archivos adjuntos (exámenes, imágenes, PDFs) de este historial.
+     * Obtiene los archivos adjuntos (exámenes, imágenes, PDFs) del paciente de este historial.
      */
     public function archivos(): HasMany
     {
-        return $this->hasMany(Archivo::class, 'id_historial');
+        return $this->hasMany(Archivo::class, 'paciente_id', 'id_paciente');
     }
 }

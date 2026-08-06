@@ -2,16 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Traits\EncryptsAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\Notifiable;
 
 class Paciente extends Model
 {
-    use HasFactory, Notifiable;
+    use EncryptsAttributes, HasFactory, Notifiable;
 
     /**
      * La tabla asociada con el modelo.
@@ -32,6 +34,18 @@ class Paciente extends Model
         'edad',
         'peso',
         'estatura',
+        'user_id',
+        'medico_id',
+    ];
+
+    /**
+     * Campos sensibles que se encriptan con el trait EncryptsAttributes.
+     *
+     * @var array<int, string>
+     */
+    protected $encrypted = [
+        'tlf_paciente',
+        'email_paciente',
     ];
 
     /**
@@ -42,11 +56,18 @@ class Paciente extends Model
     protected $casts = [
         'id' => 'integer',
         'edad' => 'integer',
-        'peso' => 'decimal:2',     // Ajusta a 'float' o 'decimal:2' según guardes en base de datos
-        'estatura' => 'decimal:2', // Ajusta a 'float' o 'decimal:2' según guardes en base de datos
+        'peso' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Retorna los campos que deben ser encriptados por el trait.
+     */
+    public function getEncryptedFields(): array
+    {
+        return $this->encrypted;
+    }
 
     /**
      * Configura el canal de envío para las notificaciones por correo electrónico.
@@ -70,6 +91,14 @@ class Paciente extends Model
         return $this->belongsToMany(Medico::class, 'medico_paciente', 'paciente_id', 'medico_id')
             ->withPivot(['origen', 'visible', 'created_at', 'updated_at'])
             ->withTimestamps();
+    }
+
+    /**
+     * Obtiene los archivos (exámenes, radiologías, recetas) de la bóveda del paciente.
+     */
+    public function archivos(): HasMany
+    {
+        return $this->hasMany(Archivo::class, 'paciente_id');
     }
 
     /**

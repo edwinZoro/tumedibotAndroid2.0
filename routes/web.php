@@ -5,9 +5,14 @@ use App\Http\Controllers\Billings\BillingController;
 use App\Http\Controllers\Billings\InvoiceController;
 use App\Http\Controllers\Medical\MedicalAreaController;
 use App\Http\Controllers\Medical\MedicalFormController;
+use App\Http\Controllers\Medical\MedicoArchivosController;
+use App\Http\Controllers\Medical\MedicoCitasController;
 use App\Http\Controllers\Medical\MedicoReportController;
 use App\Http\Controllers\Medical\MedicoSearchController;
 use App\Http\Controllers\Medical\ProfileMedical;
+use App\Http\Controllers\Paciente\ArchivosController;
+use App\Http\Controllers\Paciente\CitasController;
+use App\Http\Controllers\Paciente\DatosMedicosController;
 use App\Models\Especialidades;
 use App\Models\Pais;
 use App\Models\State;
@@ -63,6 +68,11 @@ Route::prefix('api')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/ListadoDeMedicosDeLatinoamericaTumedibot', [MedicoSearchController::class, 'index'])->name('dashboard');
 
+    // Datos médicos del paciente (primera vez + edición)
+    Route::get('/paciente/datos-medicos', [DatosMedicosController::class, 'show'])->name('pacientes.datos-medicos');
+    Route::post('/paciente/datos-medicos', [DatosMedicosController::class, 'store'])->name('pacientes.datos-medicos.store');
+    Route::put('/paciente/datos-medicos/{paciente}', [DatosMedicosController::class, 'update'])->name('pacientes.datos-medicos.update');
+
     // Rutas protegidas para que los médicos NO puedan entrar escribiendo la URL
     Route::middleware(['not.medico'])->group(function () {
         Route::inertia('/soy-doctor', 'soydoctor')->name('soydoctor');
@@ -74,6 +84,42 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ]);
         })->name('billing.plan');
     });
+
+    // Bóveda de archivos del paciente (acceso por id propio, no por rol)
+    Route::get('/paciente/mis-archivos', [ArchivosController::class, 'index'])
+        ->name('pacientes.archivos');
+    Route::post('/paciente/mis-archivos', [ArchivosController::class, 'store'])
+        ->name('pacientes.archivos.store');
+    Route::put('/paciente/mis-archivos/{archivo}/compartir', [ArchivosController::class, 'compartir'])
+        ->name('pacientes.archivos.compartir');
+    Route::delete('/paciente/mis-archivos/{archivo}', [ArchivosController::class, 'destroy'])
+        ->name('pacientes.archivos.destroy');
+
+    // Citas del paciente (calendario + agendar con médico)
+    Route::get('/paciente/mis-citas', [CitasController::class, 'index'])
+        ->name('pacientes.citas');
+    Route::post('/paciente/mis-citas', [CitasController::class, 'store'])
+        ->name('pacientes.citas.store');
+    Route::delete('/paciente/mis-citas/{cita}', [CitasController::class, 'destroy'])
+        ->name('pacientes.citas.destroy');
+
+    // Descarga y vista en línea (dueño del archivo o médico con acceso otorgado)
+    Route::get('/archivos/{archivo}/descargar', [ArchivosController::class, 'descargar'])
+        ->name('archivos.descargar');
+    Route::get('/archivos/{archivo}/ver', [ArchivosController::class, 'ver'])
+        ->name('archivos.ver');
+
+    // Archivos compartidos con el médico (solo lectura)
+    Route::get('/medico/archivos-compartidos', [MedicoArchivosController::class, 'index'])
+        ->name('medicos.archivos-compartidos');
+
+    // Agenda de citas del médico
+    Route::get('/medico/citas-agenda', [MedicoCitasController::class, 'index'])
+        ->name('medicos.citas');
+    Route::put('/medico/citas-agenda/{cita}/fecha', [MedicoCitasController::class, 'asignarFecha'])
+        ->name('medicos.citas.asignar-fecha');
+    Route::post('/medico/citas-agenda/paciente', [MedicoCitasController::class, 'storePaciente'])
+        ->name('medicos.citas.store-paciente');
 
     // delete perfil medico
     Route::delete('/delete_medico_perfil/{medico}', [MedicalFormController::class, 'destroy'])
