@@ -1,8 +1,9 @@
 import React, { useState, useCallback, ChangeEvent } from 'react';
-import { router, usePage, Link, Head } from '@inertiajs/react';
+import { router, Link, Head } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
-import { perfil_medico, calendar_view } from '@/routes';
+import { perfil_medico } from '@/routes';
 import medicos from '@/routes/medicos';
+import { citas } from '@/routes/pacientes';
 import {
     Card,
     CardContent,
@@ -122,11 +123,6 @@ export default function Search({
     ciudades,
     filters,
 }: SearchProps) {
-    // Acceder a las propiedades globales compartidas de Inertia
-    const { auth } = usePage<{
-        auth: { user: { id: number } | null };
-    }>().props;
-
     // Estado para mostrar/ocultar filtros en móvil
     const [showFilters, setShowFilters] = useState(false);
 
@@ -489,13 +485,13 @@ export default function Search({
                         const flag = getFlagCode(lista.pais?.nombre_paises);
                         const displayPrefix =
                             lista.especialidad?.nombre_especialidad ===
-                                'ENFERMERÍA'
+                            'ENFERMERÍA'
                                 ? isMasculino
                                     ? 'Lcdo. '
                                     : 'Lcda. '
                                 : isMasculino
-                                    ? 'Dr. '
-                                    : 'Dra. ';
+                                  ? 'Dr. '
+                                  : 'Dra. ';
 
                         const capNombre =
                             lista.nombre.charAt(0).toUpperCase() +
@@ -612,12 +608,7 @@ export default function Search({
                                         size="sm"
                                         className="w-full bg-gradient-to-r from-blue-600 to-sky-500 font-semibold text-white shadow-lg shadow-blue-500/20 hover:from-blue-500 hover:to-sky-400"
                                     >
-                                        <Link
-                                            href={calendar_view([
-                                                lista.id,
-                                                auth?.user?.id || 0,
-                                            ])}
-                                        >
+                                        <Link href={citas().url}>
                                             <Calendar className="mr-1 size-3.5" />
                                             Cita
                                         </Link>
@@ -641,7 +632,7 @@ export default function Search({
                                     ? 'border-blue-600 bg-blue-600 font-semibold text-white shadow-lg shadow-blue-500/30'
                                     : 'border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground dark:border-white/10 dark:bg-slate-800/40 dark:text-slate-300 dark:hover:bg-slate-800/80 dark:hover:text-white',
                                 !link.url &&
-                                'pointer-events-none cursor-not-allowed opacity-40',
+                                    'pointer-events-none cursor-not-allowed opacity-40',
                             )}
                             preserveState
                         />

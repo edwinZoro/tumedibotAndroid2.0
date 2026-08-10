@@ -37,11 +37,21 @@ class MedicoPacientesController extends Controller
 
         $pacientesQuery = $medico->pacientes()
             ->withPivot(['origen', 'visible'])
+            ->with(['citas' => function ($query) use ($medico) {
+                $query->where('id_medico', $medico->id)
+                    ->where('tipo', 'VIDEOLLAMADA')
+                    ->where('estado_cita', 'CONFIRMADA')
+                    ->orderByDesc('fecha')
+                    ->orderByDesc('id');
+            }])
             ->orderByDesc('medico_paciente.created_at')
             ->orderByDesc('pacientes.id');
 
         if ($q !== '') {
-            $pacientesQuery->where('pacientes.nombre_paciente', 'LIKE', '%'.$q.'%');
+            $pacientesQuery->whereRaw(
+                'LOWER(pacientes.nombre_paciente) LIKE ?',
+                ['%'.mb_strtolower($q).'%'],
+            );
         }
 
         $pacientes = $pacientesQuery
@@ -141,6 +151,8 @@ class MedicoPacientesController extends Controller
      */
     protected function mapPaciente(Paciente $paciente): array
     {
+        $citaVideo = $paciente->citas->first();
+
         return [
             'id' => $paciente->id,
             'nombre' => $paciente->nombre_paciente,
@@ -150,6 +162,9 @@ class MedicoPacientesController extends Controller
             'peso' => $paciente->peso,
             'estatura' => $paciente->estatura,
             'origen' => $paciente->pivot?->origen ?? null,
+            'video_cita_id' => $citaVideo?->id,
+            'video_cita_fecha' => $citaVideo?->fecha?->toDateString(),
+            'video_cita_hora' => $citaVideo?->hora,
         ];
     }
 }

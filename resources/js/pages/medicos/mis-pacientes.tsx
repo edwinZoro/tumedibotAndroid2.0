@@ -9,11 +9,11 @@ import {
     Search,
     ShieldCheck,
     Sparkles,
-    Stethoscope,
     StickyNote,
     UserPlus,
     UserRound,
     Users,
+    Video,
     Weight,
 } from 'lucide-react';
 import React, { useState } from 'react';
@@ -39,7 +39,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import { pacientes as pacientesMedico } from '@/routes/medicos';
+import { pacientes as pacientesMedico, videollamada } from '@/routes/medicos';
 
 interface PacienteProp {
     id: number;
@@ -50,6 +50,9 @@ interface PacienteProp {
     peso?: number | null;
     estatura?: string | null;
     origen?: string | null;
+    video_cita_id?: number | null;
+    video_cita_fecha?: string | null;
+    video_cita_hora?: string | null;
 }
 
 interface PaginationLink {
@@ -286,6 +289,28 @@ export default function MisPacientes({
                                                             </TableCell>
                                                             <TableCell className="pr-6">
                                                                 <div className="flex flex-wrap justify-end gap-1.5">
+                                                                    {paciente.video_cita_id && (
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="outline"
+                                                                            asChild
+                                                                            className="rounded-xl text-[11px] font-semibold"
+                                                                        >
+                                                                            <Link
+                                                                                href={
+                                                                                    videollamada(
+                                                                                        {
+                                                                                            cita: paciente.video_cita_id,
+                                                                                        },
+                                                                                    )
+                                                                                        .url
+                                                                                }
+                                                                            >
+                                                                                <Video className="mr-1 h-3.5 w-3.5 text-sky-500" />
+                                                                                Videollamada
+                                                                            </Link>
+                                                                        </Button>
+                                                                    )}
                                                                     <Button
                                                                         size="sm"
                                                                         variant="outline"

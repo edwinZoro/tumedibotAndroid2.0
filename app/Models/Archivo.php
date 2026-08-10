@@ -20,13 +20,6 @@ class Archivo extends Model
     protected $table = 'archivos';
 
     /**
-     * Indica si el modelo debe tener los campos created_at y updated_at.
-     *
-     * @var bool
-     */
-    public $timestamps = false;
-
-    /**
      * Los atributos que son asignables en masa (Mass Assignable).
      *
      * @var array<int, string>
@@ -41,7 +34,7 @@ class Archivo extends Model
     ];
 
     /**
-     * Los atributos que deben ser convertidos a tipos nativos.
+     * Los atributos que son convertidos a tipos nativos.
      *
      * @var array<string, string>
      */
@@ -49,6 +42,8 @@ class Archivo extends Model
         'id' => 'integer',
         'paciente_id' => 'integer',
         'subido_por_user_id' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**

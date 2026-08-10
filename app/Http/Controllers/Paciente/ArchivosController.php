@@ -38,7 +38,7 @@ class ArchivosController extends Controller
 
         $archivos = $paciente->archivos()
             ->with(['accesos.medico', 'subidoPor'])
-            ->orderByDesc('id')
+            ->orderByDesc('created_at')
             ->get()
             ->map(fn (Archivo $archivo) => [
                 'id' => $archivo->id,

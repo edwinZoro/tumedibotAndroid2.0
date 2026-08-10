@@ -93,9 +93,10 @@ class VideoCall extends Model
 
     /**
      * Obtiene la cita médica vinculada directamente a esta videollamada de telemedicina.
+     * La app guarda las citas en `cita_pacientes`, por lo que la relación apunta ahí.
      */
     public function cita(): BelongsTo
     {
-        return $this->belongsTo(Cita::class, 'cita_id');
+        return $this->belongsTo(CitaPaciente::class, 'cita_id');
     }
 }

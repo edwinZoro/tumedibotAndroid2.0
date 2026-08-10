@@ -68,7 +68,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import { citas, datosMedicos } from '@/routes/pacientes';
+import { citas, datosMedicos, videollamada } from '@/routes/pacientes';
 import citasRoutes from '@/routes/pacientes/citas';
 
 interface MedicoProp {
@@ -626,7 +626,28 @@ function TarjetaCita({ cita }: { cita: CitaProp }) {
                     )}
                 </div>
             </div>
-            <CancelarCita cita={cita} />
+            <div className="flex shrink-0 flex-col items-end gap-2">
+                {cita.tipo === 'VIDEOLLAMADA' &&
+                    cita.estado_cita === 'CONFIRMADA' && (
+                        <Button
+                            size="sm"
+                            asChild
+                            className="rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 font-semibold shadow-md hover:from-blue-500 hover:to-sky-400"
+                        >
+                            <Link
+                                href={
+                                    videollamada({
+                                        cita: cita.id,
+                                    }).url
+                                }
+                            >
+                                <Video className="mr-1.5 h-4 w-4" />
+                                Entrar a videollamada
+                            </Link>
+                        </Button>
+                    )}
+                <CancelarCita cita={cita} />
+            </div>
         </div>
     );
 }

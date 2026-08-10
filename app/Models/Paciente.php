@@ -102,6 +102,14 @@ class Paciente extends Model
     }
 
     /**
+     * Obtiene las citas médicas del paciente.
+     */
+    public function citas(): HasMany
+    {
+        return $this->hasMany(CitaPaciente::class, 'id_paciente');
+    }
+
+    /**
      * Obtiene todas las notificaciones del paciente mediante relación polimórfica.
      */
     public function notifications(): MorphMany

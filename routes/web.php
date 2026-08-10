@@ -14,6 +14,7 @@ use App\Http\Controllers\Medical\ProfileMedical;
 use App\Http\Controllers\Paciente\ArchivosController;
 use App\Http\Controllers\Paciente\CitasController;
 use App\Http\Controllers\Paciente\DatosMedicosController;
+use App\Http\Controllers\VideoCallController;
 use App\Models\Especialidades;
 use App\Models\Pais;
 use App\Models\State;
@@ -119,6 +120,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('medicos.citas');
     Route::put('/medico/citas-agenda/{cita}/fecha', [MedicoCitasController::class, 'asignarFecha'])
         ->name('medicos.citas.asignar-fecha');
+
+    // Videollamada (Jitsi Meet) - acceso por cita, desde ambos paneles
+    Route::get('/medico/videollamada/{cita}', [VideoCallController::class, 'unirseMedico'])
+        ->name('medicos.videollamada');
+    Route::get('/paciente/videollamada/{cita}', [VideoCallController::class, 'unirsePaciente'])
+        ->name('pacientes.videollamada');
 
     // Pacientes del médico (consultorio)
     Route::get('/medico/mis-pacientes', [MedicoPacientesController::class, 'index'])

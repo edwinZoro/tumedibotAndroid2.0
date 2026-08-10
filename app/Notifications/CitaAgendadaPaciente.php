@@ -52,14 +52,35 @@ class CitaAgendadaPaciente extends Notification
 
         return (new MailMessage)
             ->subject('Tu cita fue agendada · TuMediBot')
-            ->greeting('¡Hola, '.($notifiable->nombre_paciente ?? '').'!')
-            ->line('Tu médico ha asignado fecha y hora a tu cita.')
-            ->line('Médico: '.$nombreMedico)
-            ->line('Fecha: '.($this->cita->fecha?->format('d/m/Y') ?? '—'))
-            ->line('Hora: '.($this->cita->hora ?? '—'))
-            ->line('Motivo: '.($this->cita->motivo_consulta ?? '—'))
-            ->line('Tipo: '.($this->cita->tipo ?? '—'))
-            ->action('Ver mis citas', url('/paciente/mis-citas'))
-            ->line('Si no puedes asistir, cancela o reprograma desde la app.');
+            ->view('emails.cita_agendada_paciente', [
+                'cita' => $this->cita,
+                'paciente_nombre' => $notifiable->nombre_paciente ?? '',
+                'medico_nombre' => $nombreMedico,
+                'hora' => $this->formatearHora($this->cita->hora),
+                'tipo' => $this->cita->tipo === 'VIDEOLLAMADA' ? 'Videollamada' : 'Consulta en consultorio',
+            ]);
+    }
+
+    /**
+     * Convierte la hora "H:i" a formato 12 horas (ej: 02:30 PM).
+     */
+    protected function formatearHora(?string $hora): string
+    {
+        if (! $hora) {
+            return '—';
+        }
+
+        $partes = explode(':', $hora);
+
+        if (count($partes) < 2 || ! is_numeric($partes[0])) {
+            return $hora;
+        }
+
+        $h = (int) $partes[0];
+        $m = $partes[1];
+        $periodo = $h >= 12 ? 'PM' : 'AM';
+        $h12 = $h % 12 === 0 ? 12 : $h % 12;
+
+        return $h12.':'.$m.' '.$periodo;
     }
 }
