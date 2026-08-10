@@ -112,20 +112,42 @@ class CitasController extends Controller
 
         $validated = $request->validate([
             'id_medico' => ['required', 'integer', 'exists:medicos,id'],
-            'motivo_consulta' => ['required', 'string', 'max:255'],
-            'sintomas' => ['nullable', 'string', 'max:1000'],
+            'motivos' => ['nullable', 'array', 'max:20'],
+            'motivos.*' => ['required', 'string', 'min:1', 'max:80'],
+            'sintomas' => ['nullable', 'array', 'max:20'],
+            'sintomas.*' => ['required', 'string', 'min:1', 'max:80'],
             'tipo' => ['required', 'string', 'in:CONSULTA,VIDEOLLAMADA'],
         ]);
 
         $medico = Medico::findOrFail($validated['id_medico']);
+
+        $motivos = collect($validated['motivos'] ?? [])
+            ->map(fn (string $m) => trim($m))
+            ->filter()
+            ->unique()
+            ->values();
+
+        $motivoConsulta = $motivos->isNotEmpty()
+            ? $motivos->implode(', ')
+            : 'Consulta en consultorio';
+
+        $sintomas = collect($validated['sintomas'] ?? [])
+            ->map(fn (string $s) => trim($s))
+            ->filter()
+            ->unique()
+            ->values();
+
+        $sintomasConsulta = $sintomas->isNotEmpty()
+            ? $sintomas->implode(', ')
+            : null;
 
         $cita = CitaPaciente::create([
             'id_paciente' => $paciente->id,
             'id_medico' => $medico->id,
             'fecha' => null,
             'hora' => null,
-            'motivo_consulta' => $validated['motivo_consulta'],
-            'sintomas' => $validated['sintomas'] ?? null,
+            'motivo_consulta' => $motivoConsulta,
+            'sintomas' => $sintomasConsulta,
             'tipo' => $validated['tipo'],
             'estado_cita' => 'PENDIENTE',
         ]);

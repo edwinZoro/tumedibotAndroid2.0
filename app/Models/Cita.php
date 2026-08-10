@@ -32,11 +32,6 @@ class Cita extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'color',
-        'start',
-        'end',
-        'timed',
         'id_paciente',
         'id_medico',
         'motivo_consulta',
@@ -55,8 +50,6 @@ class Cita extends Model
         'id' => 'integer',
         'id_paciente' => 'integer',
         'id_medico' => 'integer',
-        'start' => 'datetime', // Convierte automáticamente el string a una instancia de Carbon
-        'end' => 'datetime',   // Se añade también 'end' por consistencia con 'start'
     ];
 
     /**

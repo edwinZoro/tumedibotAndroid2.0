@@ -7,6 +7,7 @@ use App\Http\Controllers\Medical\MedicalAreaController;
 use App\Http\Controllers\Medical\MedicalFormController;
 use App\Http\Controllers\Medical\MedicoArchivosController;
 use App\Http\Controllers\Medical\MedicoCitasController;
+use App\Http\Controllers\Medical\MedicoPacientesController;
 use App\Http\Controllers\Medical\MedicoReportController;
 use App\Http\Controllers\Medical\MedicoSearchController;
 use App\Http\Controllers\Medical\ProfileMedical;
@@ -118,8 +119,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('medicos.citas');
     Route::put('/medico/citas-agenda/{cita}/fecha', [MedicoCitasController::class, 'asignarFecha'])
         ->name('medicos.citas.asignar-fecha');
-    Route::post('/medico/citas-agenda/paciente', [MedicoCitasController::class, 'storePaciente'])
-        ->name('medicos.citas.store-paciente');
+
+    // Pacientes del médico (consultorio)
+    Route::get('/medico/mis-pacientes', [MedicoPacientesController::class, 'index'])
+        ->name('medicos.pacientes');
+    Route::post('/medico/mis-pacientes/paciente', [MedicoPacientesController::class, 'storePaciente'])
+        ->name('medicos.pacientes.store');
 
     // delete perfil medico
     Route::delete('/delete_medico_perfil/{medico}', [MedicalFormController::class, 'destroy'])

@@ -30,6 +30,7 @@ import {
     archivosCompartidos,
     area,
     citas as citasMedico,
+    pacientes as pacientesMedico,
     report,
 } from '@/routes/medicos';
 import { archivos, citas, datosMedicos } from '@/routes/pacientes';
@@ -70,7 +71,11 @@ export function AppSidebar() {
             hidden: !hasFactura,
             items: [
                 { title: 'Área Médico', href: area(), icon: UserRound },
-                { title: 'Mis Pacientes', href: '#', icon: Users },
+                {
+                    title: 'Mis Pacientes',
+                    href: pacientesMedico(),
+                    icon: Users,
+                },
                 {
                     title: 'Citas (Agenda)',
                     href: citasMedico(),

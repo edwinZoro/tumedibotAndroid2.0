@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Medical;
 use App\Http\Controllers\Controller;
 use App\Models\CitaPaciente;
 use App\Models\Medico;
-use App\Models\Paciente;
 use App\Notifications\CitaAgendadaPaciente;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -103,60 +102,6 @@ class MedicoCitasController extends Controller
         }
 
         return back()->with('success', 'Fecha asignada. El paciente ha sido notificado.');
-    }
-
-    /**
-     * El médico registra un paciente de su consultorio y crea una cita pendiente
-     * (sin fecha/hora; luego la agenda con "Añadir fecha").
-     */
-    public function storePaciente(Request $request): RedirectResponse
-    {
-        $medico = $this->medicoAutenticado();
-
-        abort_unless($medico, 403, 'No tienes perfil de médico.');
-
-        $validated = $request->validate([
-            'nombre_paciente' => ['required', 'string', 'min:2', 'max:20'],
-            'email_paciente' => ['required', 'email', 'max:255'],
-            'tlf_paciente' => ['required', 'string', 'max:20', 'regex:/^[+]?[\d\s-]+$/'],
-            'motivos' => ['nullable', 'array', 'max:20'],
-            'motivos.*' => ['required', 'string', 'min:1', 'max:80'],
-            'tipo' => ['required', 'string', 'in:CONSULTA,VIDEOLLAMADA'],
-        ]);
-
-        $motivos = collect($validated['motivos'] ?? [])
-            ->map(fn (string $m) => trim($m))
-            ->filter()
-            ->unique()
-            ->values();
-
-        $motivoConsulta = $motivos->isNotEmpty()
-            ? $motivos->implode(', ')
-            : 'Consulta en consultorio';
-
-        $paciente = Paciente::create([
-            'nombre_paciente' => $validated['nombre_paciente'],
-            'email_paciente' => $validated['email_paciente'],
-            'tlf_paciente' => $validated['tlf_paciente'],
-            'user_id' => null,
-        ]);
-
-        $medico->pacientes()->syncWithoutDetaching([
-            $paciente->id => ['origen' => 'medico', 'visible' => true],
-        ]);
-
-        CitaPaciente::create([
-            'id_paciente' => $paciente->id,
-            'id_medico' => $medico->id,
-            'fecha' => null,
-            'hora' => null,
-            'motivo_consulta' => $motivoConsulta,
-            'sintomas' => null,
-            'tipo' => $validated['tipo'],
-            'estado_cita' => 'PENDIENTE',
-        ]);
-
-        return back()->with('success', 'Paciente añadido. Ahora puedes asignarle fecha y hora.');
     }
 
     protected function medicoAutenticado(): ?Medico

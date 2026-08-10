@@ -15,10 +15,8 @@ import {
     ShieldCheck,
     Sparkles,
     Stethoscope,
-    UserPlus,
     UserRound,
     Video,
-    X,
 } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -354,327 +352,6 @@ function AsignarFechaDialog({
     );
 }
 
-function AgregarPacienteDialog({
-    open,
-    onOpenChange,
-}: {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-}) {
-    const [motivoInput, setMotivoInput] = useState('');
-    const [motivos, setMotivos] = useState<string[]>([]);
-    const [enviando, setEnviando] = useState(false);
-    const form = useForm({
-        nombre_paciente: '',
-        email_paciente: '',
-        tlf_paciente: '',
-        tipo: 'CONSULTA',
-    });
-
-    const resetDialogo = () => {
-        form.reset();
-        form.setData('tipo', 'CONSULTA');
-        form.clearErrors();
-        setMotivoInput('');
-        setMotivos([]);
-        setEnviando(false);
-    };
-
-    const agregarMotivo = () => {
-        const valor = motivoInput.trim();
-
-        if (!valor) {
-            return;
-        }
-
-        const existe = motivos.some(
-            (m) => m.toLowerCase() === valor.toLowerCase(),
-        );
-
-        if (existe) {
-            toast.error('Ese motivo ya está en la lista.');
-
-            return;
-        }
-
-        if (motivos.length >= 20) {
-            toast.error('Máximo 20 motivos.');
-
-            return;
-        }
-
-        setMotivos((prev) => [...prev, valor]);
-        setMotivoInput('');
-    };
-
-    const quitarMotivo = (index: number) => {
-        setMotivos((prev) => prev.filter((_, i) => i !== index));
-    };
-
-    const submit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Si quedó texto en el input sin pulsar +, lo incluimos
-        let lista = motivos;
-        const pendiente = motivoInput.trim();
-
-        if (
-            pendiente &&
-            !lista.some((m) => m.toLowerCase() === pendiente.toLowerCase())
-        ) {
-            lista = [...lista, pendiente];
-            setMotivos(lista);
-            setMotivoInput('');
-        }
-
-        setEnviando(true);
-        router.post(
-            citasRoutes.storePaciente.url(),
-            {
-                ...form.data,
-                motivos: lista,
-            },
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    onOpenChange(false);
-                    resetDialogo();
-                    toast.success(
-                        'Paciente añadido. Ahora puedes asignarle fecha y hora.',
-                    );
-                },
-                onError: (errors) => {
-                    const mensaje = Object.values(errors)[0];
-                    toast.error(
-                        typeof mensaje === 'string'
-                            ? mensaje
-                            : 'Revisa los datos del paciente.',
-                    );
-                },
-                onFinish: () => setEnviando(false),
-            },
-        );
-    };
-
-    return (
-        <Dialog
-            open={open}
-            onOpenChange={(next) => {
-                if (!next) {
-                    resetDialogo();
-                }
-
-                onOpenChange(next);
-            }}
-        >
-            <DialogContent className="sm:max-w-[520px]">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <UserPlus className="h-5 w-5 text-sky-500" />
-                        Agregar paciente
-                    </DialogTitle>
-                    <DialogDescription>
-                        Registra un paciente de tu consultorio. Luego asigna
-                        fecha y hora desde la tabla.
-                    </DialogDescription>
-                </DialogHeader>
-
-                <form onSubmit={submit} className="mt-2 space-y-4">
-                    <div className="space-y-2">
-                        <Label
-                            htmlFor="nombre_paciente"
-                            className="text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400"
-                        >
-                            Nombre
-                        </Label>
-                        <Input
-                            id="nombre_paciente"
-                            maxLength={20}
-                            className="h-11 rounded-2xl border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950/50"
-                            value={form.data.nombre_paciente}
-                            onChange={(e) =>
-                                form.setData('nombre_paciente', e.target.value)
-                            }
-                        />
-                        {form.errors.nombre_paciente && (
-                            <p className="px-1 text-xs font-bold text-red-500">
-                                {form.errors.nombre_paciente}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
-                            <Label
-                                htmlFor="email_paciente"
-                                className="text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400"
-                            >
-                                Correo
-                            </Label>
-                            <Input
-                                id="email_paciente"
-                                type="email"
-                                className="h-11 rounded-2xl border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950/50"
-                                value={form.data.email_paciente}
-                                onChange={(e) =>
-                                    form.setData(
-                                        'email_paciente',
-                                        e.target.value,
-                                    )
-                                }
-                            />
-                            {form.errors.email_paciente && (
-                                <p className="px-1 text-xs font-bold text-red-500">
-                                    {form.errors.email_paciente}
-                                </p>
-                            )}
-                        </div>
-                        <div className="space-y-2">
-                            <Label
-                                htmlFor="tlf_paciente"
-                                className="text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400"
-                            >
-                                Teléfono
-                            </Label>
-                            <Input
-                                id="tlf_paciente"
-                                className="h-11 rounded-2xl border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950/50"
-                                value={form.data.tlf_paciente}
-                                onChange={(e) =>
-                                    form.setData('tlf_paciente', e.target.value)
-                                }
-                            />
-                            {form.errors.tlf_paciente && (
-                                <p className="px-1 text-xs font-bold text-red-500">
-                                    {form.errors.tlf_paciente}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label className="text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">
-                            Tipo de cita
-                        </Label>
-                        <Select
-                            value={form.data.tipo}
-                            onValueChange={(v) => form.setData('tipo', v)}
-                        >
-                            <SelectTrigger className="h-11 rounded-2xl border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950/50">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="CONSULTA">
-                                    Consulta en consultorio
-                                </SelectItem>
-                                <SelectItem value="VIDEOLLAMADA">
-                                    Videollamada
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
-                        {form.errors.tipo && (
-                            <p className="px-1 text-xs font-bold text-red-500">
-                                {form.errors.tipo}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label
-                            htmlFor="motivo_input"
-                            className="text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400"
-                        >
-                            Motivos{' '}
-                            <span className="font-medium text-slate-400 normal-case">
-                                (opcional · varios)
-                            </span>
-                        </Label>
-                        <div className="flex gap-2">
-                            <Input
-                                id="motivo_input"
-                                className="h-11 rounded-2xl border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950/50"
-                                placeholder="Ej: Fiebre, diarrea, vómito..."
-                                value={motivoInput}
-                                onChange={(e) => setMotivoInput(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        agregarMotivo();
-                                    }
-                                }}
-                            />
-                            <Button
-                                type="button"
-                                size="icon"
-                                onClick={agregarMotivo}
-                                disabled={!motivoInput.trim()}
-                                className="h-11 w-11 shrink-0 rounded-2xl bg-gradient-to-r from-blue-600 to-sky-500 shadow-md hover:from-blue-500 hover:to-sky-400"
-                                title="Añadir motivo"
-                            >
-                                <Plus className="h-5 w-5" />
-                            </Button>
-                        </div>
-
-                        {motivos.length > 0 && (
-                            <ul className="mt-2 flex flex-wrap gap-2">
-                                {motivos.map((motivo, index) => (
-                                    <li key={`${motivo}-${index}`}>
-                                        <Badge
-                                            variant="outline"
-                                            className="gap-1.5 rounded-full border-sky-200 bg-sky-50 py-1.5 pr-1.5 pl-3 text-xs font-semibold text-sky-800 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200"
-                                        >
-                                            {motivo}
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    quitarMotivo(index)
-                                                }
-                                                className="flex h-5 w-5 items-center justify-center rounded-full text-sky-600 transition hover:bg-sky-200/80 dark:text-sky-300 dark:hover:bg-sky-900"
-                                                aria-label={`Quitar ${motivo}`}
-                                            >
-                                                <X className="h-3 w-3" />
-                                            </button>
-                                        </Badge>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-
-                    <DialogFooter className="mt-6">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={
-                                enviando ||
-                                !form.data.nombre_paciente ||
-                                !form.data.email_paciente ||
-                                !form.data.tlf_paciente
-                            }
-                            className="bg-gradient-to-r from-blue-600 to-sky-500 shadow-md hover:from-blue-500 hover:to-sky-400"
-                        >
-                            {enviando ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Guardando...
-                                </>
-                            ) : (
-                                'Agregar paciente'
-                            )}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-    );
-}
-
 function CitasDelDia({ citas, fecha }: { citas: CitaProp[]; fecha: Date }) {
     if (citas.length === 0) {
         return (
@@ -743,7 +420,6 @@ export default function CitasAgenda({
     const [citaSeleccionada, setCitaSeleccionada] = useState<CitaProp | null>(
         null,
     );
-    const [pacienteDialogo, setPacienteDialogo] = useState(false);
 
     const fechasConCitas = useMemo(
         () =>
@@ -901,20 +577,13 @@ export default function CitasAgenda({
                                     <div>
                                         <CardTitle className="flex items-center gap-2 text-lg font-bold">
                                             <UserRound className="h-5 w-5 text-sky-500" />
-                                            Pacientes / solicitudes
+                                            Cita de Paciente / solicitudes
                                         </CardTitle>
                                         <CardDescription className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
                                             Nombre, correo y teléfono · asigna
                                             fecha cuando estés listo
                                         </CardDescription>
                                     </div>
-                                    <Button
-                                        className="h-11 shrink-0 rounded-2xl bg-gradient-to-r from-blue-600 to-sky-500 font-bold text-white shadow-lg shadow-blue-500/25 hover:from-blue-500 hover:to-sky-400"
-                                        onClick={() => setPacienteDialogo(true)}
-                                    >
-                                        <UserPlus className="mr-2 h-4 w-4" />
-                                        Agregar Paciente
-                                    </Button>
                                 </CardHeader>
                                 <CardContent className="space-y-4 p-4">
                                     <form
@@ -946,9 +615,9 @@ export default function CitasAgenda({
                                                 Aún no tienes citas
                                             </p>
                                             <p className="text-xs text-slate-400">
-                                                Agrega un paciente de
-                                                consultorio o espera
-                                                solicitudes.
+                                                Registra pacientes de
+                                                consultorio desde Mis Pacientes
+                                                o espera solicitudes.
                                             </p>
                                         </div>
                                     ) : (
@@ -1121,10 +790,6 @@ export default function CitasAgenda({
                 cita={citaSeleccionada}
                 open={fechaDialogo}
                 onOpenChange={setFechaDialogo}
-            />
-            <AgregarPacienteDialog
-                open={pacienteDialogo}
-                onOpenChange={setPacienteDialogo}
             />
         </div>
     );
