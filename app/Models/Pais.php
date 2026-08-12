@@ -50,6 +50,4 @@ class Pais extends Model
     {
         return $this->hasMany(Medico::class, 'pais_id');
     }
-
-
 }

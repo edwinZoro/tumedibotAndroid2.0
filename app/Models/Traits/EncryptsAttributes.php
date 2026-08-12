@@ -35,7 +35,7 @@ trait EncryptsAttributes
         }
     }
 
-    protected function decryptAttributes(): void
+    public function decryptAttributes(): void
     {
         foreach ($this->getEncryptedFields() as $field) {
             if (! empty($this->attributes[$field])) {

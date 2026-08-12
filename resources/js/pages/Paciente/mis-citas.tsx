@@ -17,6 +17,7 @@ import {
     UserRound,
     Video,
     X,
+    FileText,
 } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -95,6 +96,7 @@ interface CitaProp {
     sintomas?: string | null;
     estado_cita?: string | null;
     tipo?: string | null;
+    historial_compartido?: number | null;
     medico?: MedicoCita | null;
 }
 
@@ -627,6 +629,22 @@ function TarjetaCita({ cita }: { cita: CitaProp }) {
                 </div>
             </div>
             <div className="flex shrink-0 flex-col items-end gap-2">
+                {cita.historial_compartido && (
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded-xl border-sky-200 text-sky-600 hover:bg-sky-50"
+                        onClick={() =>
+                            window.open(
+                                `/paciente/historial/${cita.historial_compartido}/pdf`,
+                                '_blank',
+                            )
+                        }
+                    >
+                        <FileText className="mr-1.5 h-4 w-4" />
+                        Ver informe médico
+                    </Button>
+                )}
                 {cita.tipo === 'VIDEOLLAMADA' &&
                     cita.estado_cita === 'CONFIRMADA' && (
                         <Button

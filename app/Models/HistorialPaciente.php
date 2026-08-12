@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class HistorialPaciente extends Model
 {
@@ -34,12 +35,14 @@ class HistorialPaciente extends Model
     protected $fillable = [
         'id_paciente',
         'id_cita',
+        'id_cita_paciente',
         'diagnostico',
         'tratamiento',
         'conclusiones',
         'examen_paraclinico',
         'examen_fisico',
         'examen_funcional',
+        'compartido',
     ];
 
     /**
@@ -65,6 +68,8 @@ class HistorialPaciente extends Model
         'id' => 'integer',
         'id_paciente' => 'integer',
         'id_cita' => 'integer',
+        'id_cita_paciente' => 'integer',
+        'compartido' => 'boolean',
     ];
 
     /**
@@ -92,6 +97,14 @@ class HistorialPaciente extends Model
     }
 
     /**
+     * Obtiene la cita médica de la cual se deriva este historial clínico (desde panel de médico).
+     */
+    public function citaPaciente(): BelongsTo
+    {
+        return $this->belongsTo(CitaPaciente::class, 'id_cita_paciente');
+    }
+
+    /**
      * Obtiene el paciente dueño de este historial clínico.
      */
     public function paciente(): BelongsTo
@@ -114,5 +127,13 @@ class HistorialPaciente extends Model
     public function archivos(): HasMany
     {
         return $this->hasMany(Archivo::class, 'paciente_id', 'id_paciente');
+    }
+
+    /**
+     * Obtiene la firma médica vinculada a este historial.
+     */
+    public function firma(): HasOne
+    {
+        return $this->hasOne(Firma::class, 'id_historial', 'id');
     }
 }

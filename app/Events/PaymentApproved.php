@@ -2,14 +2,12 @@
 
 namespace App\Events;
 
+use App\Models\ReportePago;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use App\Models\ReportePago;
 
 class PaymentApproved
 {
@@ -18,11 +16,12 @@ class PaymentApproved
     /**
      * Create a new event instance.
      */
-     public ReportePago $reportePago;
-     public function __construct(ReportePago $reportePago)
-     {
-         $this->reportePago = $reportePago;
-     }
+    public ReportePago $reportePago;
+
+    public function __construct(ReportePago $reportePago)
+    {
+        $this->reportePago = $reportePago;
+    }
 
     /**
      * Get the channels the event should broadcast on.

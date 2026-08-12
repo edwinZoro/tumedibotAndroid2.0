@@ -17,7 +17,7 @@ class Recaptcha implements ValidationRule
 
         $json = $response->json();
 
-        if (!$json['success'] || !isset($json['score']) || $json['score'] < 0.5) {
+        if (! $json['success'] || ! isset($json['score']) || $json['score'] < 0.5) {
             $fail('Verificación reCAPTCHA fallida.');
         }
     }

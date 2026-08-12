@@ -1,12 +1,12 @@
 <?php
 
-use App\Models\Medico;
+use App\Models\Ciudad;
 use App\Models\Especialidades;
+use App\Models\Medico;
 use App\Models\Pais;
 use App\Models\State;
-use App\Models\Ciudad;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Testing\AssertableInertia as Assert;
 
 it('renders the doctor profile page', function () {
@@ -72,21 +72,21 @@ it('renders the doctor profile page', function () {
 
     // 2. Insert records using Eloquent
     $especialidad = Especialidades::create([
-        'nombre_especialidad' => 'Cardiología'
+        'nombre_especialidad' => 'Cardiología',
     ]);
 
     $pais = Pais::create([
-        'nombre_paises' => 'Venezuela'
+        'nombre_paises' => 'Venezuela',
     ]);
 
     $estado = State::create([
         'name' => 'Distrito Capital',
-        'pais_id' => $pais->id
+        'pais_id' => $pais->id,
     ]);
 
     $ciudad = Ciudad::create([
         'name' => 'Caracas',
-        'state_id' => $estado->id
+        'state_id' => $estado->id,
     ]);
 
     $medico = Medico::create([

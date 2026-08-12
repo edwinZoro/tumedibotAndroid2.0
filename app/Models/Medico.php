@@ -60,6 +60,8 @@ class Medico extends Model
         'name_original',
         'user_id',
         'logo',
+        'firma_medico',
+        'sello_medico',
     ];
 
     /**
@@ -75,6 +77,8 @@ class Medico extends Model
         'direccion',
         'experiencia',
         'usted_es',
+        'firma_medico',
+        'sello_medico',
     ];
 
     /**

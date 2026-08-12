@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Billings;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Pedido;
 use App\Models\Factura;
+use App\Models\Pedido;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +21,7 @@ class InvoiceController extends Controller
         }
 
         // Obtener la factura asociada al pedido (asumo que existe relación)
-        $factura = Factura::where('user_id', $user->id)->with(['pais','estado','ciudad'])->first();
+        $factura = Factura::where('user_id', $user->id)->with(['pais', 'estado', 'ciudad'])->first();
 
         // Cargar la vista PDF con los datos necesarios
         $pdf = Pdf::loadView('pdf.factura_pedido', [
@@ -33,5 +32,4 @@ class InvoiceController extends Controller
 
         return $pdf->stream("factura_{$pedido->ticket}.pdf");
     }
-
 }

@@ -1,9 +1,11 @@
+import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
 import { JitsiMeeting } from '@jitsi/react-sdk';
 import { ArrowLeft, Loader2, Video } from 'lucide-react';
 import React from 'react';
 
 import { Button } from '@/components/ui/button';
+import type { BreadcrumbItem } from '@/types';
 
 interface CitaProp {
     id: number;
@@ -21,7 +23,7 @@ interface Props {
 
 function Cargando() {
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-slate-950 text-white">
+        <div className="flex h-full flex-col items-center justify-center gap-3 bg-slate-950 text-white">
             <Loader2 className="h-10 w-10 animate-spin text-sky-400" />
             <p className="text-sm font-semibold text-slate-300">
                 Preparando la videollamada segura...
@@ -44,20 +46,25 @@ export default function Videollamada({
         }
     };
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: 'Videollamada', href: '#' },
+    ];
+
     return (
-        <div className="flex min-h-screen flex-col bg-slate-950">
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Videollamada · TuMediBot" />
 
-            <header className="z-10 flex items-center justify-between gap-4 border-b border-white/10 bg-slate-900/80 px-4 py-3 backdrop-blur-md">
+            {/* Barra superior de info + botón salir */}
+            <div className="flex shrink-0 items-center justify-between gap-4 border-b border-sidebar-border/70 bg-background px-4 py-2.5">
                 <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 shadow-lg shadow-blue-500/30">
-                        <Video className="h-5 w-5 text-white" />
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 shadow-md shadow-blue-500/30">
+                        <Video className="h-4 w-4 text-white" />
                     </span>
                     <div className="min-w-0">
-                        <p className="text-sm font-bold text-white">
+                        <p className="text-sm font-bold text-foreground">
                             Videollamada segura
                         </p>
-                        <p className="truncate text-[11px] text-slate-400">
+                        <p className="truncate text-[11px] text-muted-foreground">
                             {rol === 'medico'
                                 ? 'Consultando a tu paciente'
                                 : 'Consulta con tu médico'}
@@ -71,14 +78,15 @@ export default function Videollamada({
                     variant="outline"
                     size="sm"
                     onClick={salir}
-                    className="shrink-0 rounded-xl border-white/15 bg-white/5 text-white hover:bg-white/10"
+                    className="shrink-0 rounded-xl"
                 >
                     <ArrowLeft className="mr-1.5 h-4 w-4" />
                     Salir
                 </Button>
-            </header>
+            </div>
 
-            <main className="relative min-h-0 flex-1">
+            {/* Contenedor del iframe — ocupa todo el alto restante */}
+            <div className="relative flex-1 overflow-hidden" style={{ height: 'calc(100vh - 120px)' }}>
                 <JitsiMeeting
                     domain="meet.jit.si"
                     roomName={roomName}
@@ -91,12 +99,17 @@ export default function Videollamada({
                         node.style.width = '100%';
                         node.style.border = '0';
                         node.style.display = 'block';
+                        node.style.position = 'absolute';
+                        node.style.inset = '0';
                     }}
                     configOverwrite={{
                         prejoinPageEnabled: false,
                         startWithAudioMuted: false,
                         disableDeepLinking: true,
                         enableInsecureRoomNameWarning: false,
+                        disableInitialGUM: false,
+                        // Ocultar completamente la pantalla de bienvenida
+                        hideConferenceTimer: false,
                         analytics: {
                             disabled: true,
                         },
@@ -104,9 +117,27 @@ export default function Videollamada({
                     interfaceConfigOverwrite={{
                         DEFAULT_LANGUAGE: 'es',
                         SHOW_CHROME_EXTENSION_BANNER: false,
+                        // Quitar botones innecesarios de la toolbar
+                        TOOLBAR_BUTTONS: [
+                            'microphone',
+                            'camera',
+                            'closedcaptions',
+                            'desktop',
+                            'fullscreen',
+                            'fodeviceselection',
+                            'hangup',
+                            'chat',
+                            'raisehand',
+                            'videoquality',
+                            'tileview',
+                            'participants-pane',
+                            'toggle-camera',
+                            'shortcuts',
+                            'stats',
+                        ],
                     }}
                 />
-            </main>
-        </div>
+            </div>
+        </AppLayout>
     );
 }

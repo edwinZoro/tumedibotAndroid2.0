@@ -11,7 +11,7 @@ class VerifyRecaptcha
     public function handle(Request $request, Closure $next)
     {
         $token = $request->input('g-recaptcha-response');
-        if (!$token) {
+        if (! $token) {
             return response()->json(['message' => 'Falta el token reCAPTCHA'], 422);
         }
 
@@ -22,7 +22,7 @@ class VerifyRecaptcha
 
         $body = $response->json();
 
-        if (!$body['success'] || ($body['score'] ?? 0) < 0.5) {
+        if (! $body['success'] || ($body['score'] ?? 0) < 0.5) {
             return response()->json(['message' => 'Verificación reCAPTCHA fallida'], 422);
         }
 

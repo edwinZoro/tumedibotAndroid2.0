@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 class SendRenewalReminders extends Command
 {
     protected $signature = 'pedidos:enviar-recordatorios';
+
     protected $description = 'Envía recordatorios de pago 7, 3 y 1 día antes del vencimiento';
 
     public function handle()

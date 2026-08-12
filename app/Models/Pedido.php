@@ -40,7 +40,7 @@ class Pedido extends Model
         'dias_duracion',
         'reminder_7d_sent',
         'reminder_3d_sent',
-        'reminder_1d_sent'
+        'reminder_1d_sent',
     ];
 
     /**

@@ -86,6 +86,14 @@ class CitaPaciente extends Model
     }
 
     /**
+     * Obtiene el historial clínico creado desde el panel del médico (via cita_paciente).
+     */
+    public function historialClinico(): HasOne
+    {
+        return $this->hasOne(HistorialPaciente::class, 'id_cita_paciente');
+    }
+
+    /**
      * Obtiene los datos de la videollamada vinculada a esta cita (si aplica).
      */
     public function video_call(): HasOne

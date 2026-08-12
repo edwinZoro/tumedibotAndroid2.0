@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Billings\BillingController;
 use App\Http\Controllers\Billings\InvoiceController;
+use App\Http\Controllers\Medical\HistorialController;
 use App\Http\Controllers\Medical\MedicalAreaController;
 use App\Http\Controllers\Medical\MedicalFormController;
 use App\Http\Controllers\Medical\MedicoArchivosController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Medical\ProfileMedical;
 use App\Http\Controllers\Paciente\ArchivosController;
 use App\Http\Controllers\Paciente\CitasController;
 use App\Http\Controllers\Paciente\DatosMedicosController;
+use App\Http\Controllers\Paciente\HistorialPacienteController;
 use App\Http\Controllers\VideoCallController;
 use App\Models\Especialidades;
 use App\Models\Pais;
@@ -105,6 +107,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/paciente/mis-citas/{cita}', [CitasController::class, 'destroy'])
         ->name('pacientes.citas.destroy');
 
+    // PDF del historial clínico compartido por el médico
+    Route::get('/paciente/historial/{historial}/pdf', [HistorialPacienteController::class, 'pdfSingle'])
+        ->name('pacientes.historial.pdf');
+
     // Descarga y vista en línea (dueño del archivo o médico con acceso otorgado)
     Route::get('/archivos/{archivo}/descargar', [ArchivosController::class, 'descargar'])
         ->name('archivos.descargar');
@@ -132,6 +138,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('medicos.pacientes');
     Route::post('/medico/mis-pacientes/paciente', [MedicoPacientesController::class, 'storePaciente'])
         ->name('medicos.pacientes.store');
+
+    // Historial Clínico
+    Route::get('/medico/historial/{citaPaciente}', [HistorialController::class, 'index'])->name('medicos.historial.index');
+    Route::post('/medico/historial/{citaPaciente}', [HistorialController::class, 'store'])->name('medicos.historial.store');
+    Route::put('/medico/historial/{historial}', [HistorialController::class, 'update'])->name('medicos.historial.update');
+    Route::delete('/medico/historial/{historial}', [HistorialController::class, 'destroy'])->name('medicos.historial.destroy');
+    Route::get('/medico/historial/{historial}/pdf', [HistorialController::class, 'pdfSingle'])->name('medicos.historial.pdf');
+    Route::patch('/medico/historial/{historial}/compartir', [HistorialController::class, 'toggleCompartir'])->name('medicos.historial.compartir');
 
     // delete perfil medico
     Route::delete('/delete_medico_perfil/{medico}', [MedicalFormController::class, 'destroy'])

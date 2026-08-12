@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Medical;
 
+use App\Http\Controllers\Controller;
 use App\Models\Ciudad;
 use App\Models\Especialidades;
 use App\Models\Medico;
@@ -10,7 +11,6 @@ use App\Models\State;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Http\Controllers\Controller;
 
 class MedicoSearchController extends Controller
 {
