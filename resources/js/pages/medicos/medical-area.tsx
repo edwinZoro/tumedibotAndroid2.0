@@ -1,20 +1,4 @@
-import {React, useState }from 'react';
 import { router, Head } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import {
     PlusCircle,
     Eye,
@@ -32,7 +16,25 @@ import {
     LayoutDashboard,
     MapPin,
     FilePen,
+    FileSignature,
 } from 'lucide-react';
+import { React, useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import { ConfiguracionFirmaSheet } from '@/components/medicos/configuracion-firma-sheet';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 interface User {
@@ -83,7 +85,10 @@ interface Props {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const capitalize = (str: string | undefined) => {
-    if (!str) return '';
+    if (!str) {
+        return '';
+    }
+
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
@@ -113,21 +118,36 @@ export default function AreaMedica({
 
     // Eliminación del perfil
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [configFirmaOpen, setConfigFirmaOpen] = useState(false);
+    const [firmaConfigurada, setFirmaConfigurada] = useState<boolean | null>(
+        null,
+    );
+
+    useEffect(() => {
+        fetch('/medico/configuracion-firma')
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => {
+                if (data) {
+                    setFirmaConfigurada(data.configurado ?? false);
+                }
+            })
+            .catch(() => {});
+    }, []);
 
     const handleDeleteProfile = () => {
-      router.delete(`/delete_medico_perfil/${medico?.id}`, {
-        onSuccess: () => {
-          toast.success('Perfil médico eliminado correctamente.');
-          // Opcional: redirigir o recargar
-          setIsDeleteDialogOpen(false);
-          // Si deseas recargar la página para reflejar cambios
-          // router.reload();
-        },
-        onError: (errors) => {
-          toast.error('Error al eliminar el perfil. Inténtalo de nuevo.');
-          setIsDeleteDialogOpen(false);
-        },
-      });
+        router.delete(`/delete_medico_perfil/${medico?.id}`, {
+            onSuccess: () => {
+                toast.success('Perfil médico eliminado correctamente.');
+                // Opcional: redirigir o recargar
+                setIsDeleteDialogOpen(false);
+                // Si deseas recargar la página para reflejar cambios
+                // router.reload();
+            },
+            onError: (errors) => {
+                toast.error('Error al eliminar el perfil. Inténtalo de nuevo.');
+                setIsDeleteDialogOpen(false);
+            },
+        });
     };
 
     return (
@@ -289,35 +309,83 @@ export default function AreaMedica({
                                         </Button>
                                     </div>
 
+                                    <Button
+                                        onClick={() => setConfigFirmaOpen(true)}
+                                        variant="outline"
+                                        className="h-auto w-full flex-col gap-2 rounded-2xl border-slate-200 py-4 transition-all hover:scale-[1.02] hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50"
+                                    >
+                                        <div className="rounded-full bg-indigo-100 p-2 dark:bg-indigo-900/30">
+                                            <FileSignature className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-semibold">
+                                                Configurar Firma y
+                                                Hospital/Clínica
+                                            </span>
+                                            {firmaConfigurada === true && (
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                                    <ShieldCheck className="h-3 w-3" />
+                                                    Configurado
+                                                </span>
+                                            )}
+                                            {firmaConfigurada === false && (
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                                    Pendiente
+                                                </span>
+                                            )}
+                                        </div>
+                                    </Button>
+
                                     <Separator className="my-2 dark:bg-slate-800" />
 
-                                    <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                                    <DialogTrigger asChild>
-                                      <Button
-                                        variant="ghost"
-                                        className="w-full text-xs text-rose-500 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400"
-                                      >
-                                        <Trash2 className="mr-2 h-4 w-4" /> Eliminar Perfil Médico
-                                      </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-[425px]">
-                                      <DialogHeader>
-                                        <DialogTitle>¿Estás seguro?</DialogTitle>
-                                        <DialogDescription>
-                                          Esta acción eliminará permanentemente tu perfil médico y todos los datos asociados.
-                                          No podrás recuperarlos después.
-                                        </DialogDescription>
-                                      </DialogHeader>
-                                      <DialogFooter className="gap-2 sm:gap-0">
-                                        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-                                          Cancelar
-                                        </Button>
-                                        <Button variant="destructive" onClick={handleDeleteProfile}>
-                                          Sí, eliminar
-                                        </Button>
-                                      </DialogFooter>
-                                    </DialogContent>
-                                  </Dialog>
+                                    <Dialog
+                                        open={isDeleteDialogOpen}
+                                        onOpenChange={setIsDeleteDialogOpen}
+                                    >
+                                        <DialogTrigger asChild>
+                                            <Button
+                                                variant="ghost"
+                                                className="w-full text-xs text-rose-500 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400"
+                                            >
+                                                <Trash2 className="mr-2 h-4 w-4" />{' '}
+                                                Eliminar Perfil Médico
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="sm:max-w-[425px]">
+                                            <DialogHeader>
+                                                <DialogTitle>
+                                                    ¿Estás seguro?
+                                                </DialogTitle>
+                                                <DialogDescription>
+                                                    Esta acción eliminará
+                                                    permanentemente tu perfil
+                                                    médico y todos los datos
+                                                    asociados. No podrás
+                                                    recuperarlos después.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <DialogFooter className="gap-2 sm:gap-0">
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() =>
+                                                        setIsDeleteDialogOpen(
+                                                            false,
+                                                        )
+                                                    }
+                                                >
+                                                    Cancelar
+                                                </Button>
+                                                <Button
+                                                    variant="destructive"
+                                                    onClick={
+                                                        handleDeleteProfile
+                                                    }
+                                                >
+                                                    Sí, eliminar
+                                                </Button>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
                                 </>
                             )}
                         </CardContent>
@@ -406,6 +474,21 @@ export default function AreaMedica({
                     </Card>
                 </div>
             </main>
+
+            <ConfiguracionFirmaSheet
+                open={configFirmaOpen}
+                onClose={() => setConfigFirmaOpen(false)}
+                onSaved={() => {
+                    fetch('/medico/configuracion-firma')
+                        .then((res) => (res.ok ? res.json() : null))
+                        .then((data) => {
+                            if (data) {
+                                setFirmaConfigurada(data.configurado ?? false);
+                            }
+                        })
+                        .catch(() => {});
+                }}
+            />
         </div>
     );
 }

@@ -4,6 +4,8 @@ import {
     Calendar,
     CalendarDays,
     CheckCircle2,
+    ChevronLeft,
+    ChevronRight,
     Clock,
     FileText,
     Hourglass,
@@ -26,6 +28,7 @@ import { toast } from 'sonner';
 
 import { AgregarPacienteDialog } from '@/components/medicos/agregar-paciente-dialog';
 import { HistorialSheet } from '@/components/medicos/historial-sheet';
+import { RecetaSheet } from '@/components/medicos/receta-sheet';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -122,6 +125,7 @@ function EstadoBadge({ estado }: { estado: string }) {
         className:
             'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
     };
+
     return (
         <Badge
             className={cn(
@@ -137,6 +141,8 @@ function EstadoBadge({ estado }: { estado: string }) {
 /* ─────────────────────────────────────────────
    Panel lateral de citas de un paciente
 ───────────────────────────────────────────── */
+const CITAS_POR_PAGINA = 5;
+
 function CitasSheet({
     paciente,
     open,
@@ -150,12 +156,26 @@ function CitasSheet({
         toast('Próximamente · este módulo estará disponible.');
 
     const [historialCitaId, setHistorialCitaId] = useState<number | null>(null);
+    const [recetaCitaId, setRecetaCitaId] = useState<number | null>(null);
+    const [paginaCitas, setPaginaCitas] = useState(0);
+    const [prevPacienteId, setPrevPacienteId] = useState(paciente?.id);
+
+    if (paciente?.id !== prevPacienteId) {
+        setPrevPacienteId(paciente?.id);
+        setPaginaCitas(0);
+    }
+
+    const totalCitas = paciente?.citas.length ?? 0;
+    const totalPaginas = Math.ceil(totalCitas / CITAS_POR_PAGINA);
+    const inicio = paginaCitas * CITAS_POR_PAGINA;
+    const citasPagina =
+        paciente?.citas.slice(inicio, inicio + CITAS_POR_PAGINA) ?? [];
 
     return (
         <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
             <SheetContent
                 side="right"
-                className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-lg"
+                className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-xl"
             >
                 {/* Header */}
                 <SheetHeader className="border-b border-slate-200 bg-gradient-to-r from-blue-600 to-sky-500 px-6 py-5 dark:border-slate-700">
@@ -203,7 +223,7 @@ function CitasSheet({
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            {paciente.citas.map((cita) => (
+                            {citasPagina.map((cita) => (
                                 <div
                                     key={cita.id}
                                     className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-slate-700/60 dark:bg-slate-900/60"
@@ -233,7 +253,8 @@ function CitasSheet({
                                                     </span>
                                                 )}
                                                 <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
-                                                    {cita.tipo === 'VIDEOLLAMADA'
+                                                    {cita.tipo ===
+                                                    'VIDEOLLAMADA'
                                                         ? 'Videollamada'
                                                         : 'Consulta presencial'}
                                                 </span>
@@ -274,7 +295,8 @@ function CitasSheet({
                                         {/* Acciones */}
                                         <div className="flex flex-wrap gap-1.5 border-t border-slate-100 pt-3 dark:border-slate-800">
                                             {cita.tipo === 'VIDEOLLAMADA' &&
-                                                cita.estado === 'CONFIRMADA' && (
+                                                cita.estado ===
+                                                    'CONFIRMADA' && (
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
@@ -296,7 +318,9 @@ function CitasSheet({
                                             <Button
                                                 size="sm"
                                                 variant="outline"
-                                                onClick={() => setHistorialCitaId(cita.id)}
+                                                onClick={() =>
+                                                    setHistorialCitaId(cita.id)
+                                                }
                                                 className="h-7 rounded-xl px-2.5 text-[11px] font-semibold"
                                             >
                                                 <FileText className="mr-1 h-3 w-3" />
@@ -305,7 +329,9 @@ function CitasSheet({
                                             <Button
                                                 size="sm"
                                                 variant="outline"
-                                                onClick={proximamente}
+                                                onClick={() =>
+                                                    setRecetaCitaId(cita.id)
+                                                }
                                                 className="h-7 rounded-xl px-2.5 text-[11px] font-semibold"
                                             >
                                                 <CheckCircle2 className="mr-1 h-3 w-3 text-emerald-500" />
@@ -327,13 +353,47 @@ function CitasSheet({
                         </div>
                     )}
                 </div>
+
+                {/* Paginación de citas */}
+                {totalPaginas > 1 && (
+                    <div className="flex items-center justify-center gap-2 border-t border-slate-200 bg-slate-50/80 px-4 py-3 dark:border-slate-700 dark:bg-slate-900/40">
+                        <button
+                            onClick={() =>
+                                setPaginaCitas((p) => Math.max(0, p - 1))
+                            }
+                            disabled={paginaCitas === 0}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                        </button>
+                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            Página {paginaCitas + 1} de {totalPaginas}
+                        </span>
+                        <button
+                            onClick={() =>
+                                setPaginaCitas((p) =>
+                                    Math.min(totalPaginas - 1, p + 1),
+                                )
+                            }
+                            disabled={paginaCitas === totalPaginas - 1}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                        >
+                            <ChevronRight className="h-4 w-4" />
+                        </button>
+                    </div>
+                )}
             </SheetContent>
 
             {/* Este sheet se abre encima del CitasSheet */}
-            <HistorialSheet 
-                citaId={historialCitaId} 
-                open={historialCitaId !== null} 
-                onClose={() => setHistorialCitaId(null)} 
+            <HistorialSheet
+                citaId={historialCitaId}
+                open={historialCitaId !== null}
+                onClose={() => setHistorialCitaId(null)}
+            />
+            <RecetaSheet
+                citaId={recetaCitaId}
+                open={recetaCitaId !== null}
+                onClose={() => setRecetaCitaId(null)}
             />
         </Sheet>
     );
@@ -573,7 +633,7 @@ export default function MisPacientes({
                                                                     }
                                                                     className="group relative inline-flex flex-col items-center gap-1"
                                                                 >
-                                                                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-sky-100 shadow-sm ring-1 ring-blue-200/60 transition-all duration-200 group-hover:from-blue-100 group-hover:to-sky-200 group-hover:ring-blue-300 group-hover:shadow-md dark:from-blue-900/30 dark:to-sky-900/30 dark:ring-blue-700/40 dark:group-hover:from-blue-900/50 dark:group-hover:to-sky-900/50">
+                                                                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-sky-100 shadow-sm ring-1 ring-blue-200/60 transition-all duration-200 group-hover:from-blue-100 group-hover:to-sky-200 group-hover:shadow-md group-hover:ring-blue-300 dark:from-blue-900/30 dark:to-sky-900/30 dark:ring-blue-700/40 dark:group-hover:from-blue-900/50 dark:group-hover:to-sky-900/50">
                                                                         <CalendarDays className="h-4.5 w-4.5 text-blue-600 dark:text-sky-400" />
                                                                     </span>
                                                                     {/* Contador de citas */}
@@ -590,7 +650,8 @@ export default function MisPacientes({
                                                                         </span>
                                                                     )}
                                                                     <span className="text-[10px] font-semibold text-slate-500 group-hover:text-blue-600 dark:text-slate-400 dark:group-hover:text-sky-400">
-                                                                        Ver citas
+                                                                        Ver
+                                                                        citas
                                                                     </span>
                                                                 </button>
                                                             </TableCell>

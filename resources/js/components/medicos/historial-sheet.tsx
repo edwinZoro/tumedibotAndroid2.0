@@ -1,11 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-} from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
 import {
     Loader2,
     FileText,
@@ -15,9 +7,29 @@ import {
     Download,
     Share2,
     CheckCircle2,
+    Mail,
+    Send,
 } from 'lucide-react';
-import { HistorialForm } from './historial-form';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+} from '@/components/ui/sheet';
+import { HistorialForm } from './historial-form';
 
 interface HistorialSheetProps {
     citaId: number | null;
@@ -32,6 +44,11 @@ export function HistorialSheet({ citaId, open, onClose }: HistorialSheetProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [compartido, setCompartido] = useState(false);
     const [toggling, setToggling] = useState(false);
+    const [pacienteEmail, setPacienteEmail] = useState<string | null>(null);
+    const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+    const [emailInput, setEmailInput] = useState('');
+    const [sendingEmail, setSendingEmail] = useState(false);
+    const [medicoConfigurado, setMedicoConfigurado] = useState(true);
 
     useEffect(() => {
         if (open && citaId) {
@@ -44,12 +61,16 @@ export function HistorialSheet({ citaId, open, onClose }: HistorialSheetProps) {
 
     const fetchHistorial = async () => {
         setLoading(true);
+
         try {
             const res = await fetch(`/medico/historial/${citaId}`);
+
             if (res.ok) {
                 const data = await res.json();
                 setHistorial(data.historial);
                 setCompartido(data.historial?.compartido ?? false);
+                setPacienteEmail(data.paciente_email ?? null);
+                setMedicoConfigurado(data.medico_configurado ?? true);
                 setMedicoSettings({
                     firma: data.firma_medico,
                     sello: data.sello_medico,
@@ -68,8 +89,13 @@ export function HistorialSheet({ citaId, open, onClose }: HistorialSheetProps) {
     };
 
     const handleDelete = async () => {
-        if (!historial) return;
-        if (!confirm('¿Estás seguro de eliminar este historial?')) return;
+        if (!historial) {
+            return;
+        }
+
+        if (!confirm('¿Estás seguro de eliminar este historial?')) {
+            return;
+        }
 
         try {
             const res = await fetch(`/medico/historial/${historial.id}`, {
@@ -97,8 +123,12 @@ export function HistorialSheet({ citaId, open, onClose }: HistorialSheetProps) {
     };
 
     const handleToggleCompartir = async () => {
-        if (!historial) return;
+        if (!historial) {
+            return;
+        }
+
         setToggling(true);
+
         try {
             const res = await fetch(
                 `/medico/historial/${historial.id}/compartir`,
@@ -113,6 +143,7 @@ export function HistorialSheet({ citaId, open, onClose }: HistorialSheetProps) {
                     },
                 },
             );
+
             if (res.ok) {
                 const data = await res.json();
                 setCompartido(data.compartido);
@@ -131,11 +162,62 @@ export function HistorialSheet({ citaId, open, onClose }: HistorialSheetProps) {
         }
     };
 
+    const abrirDialogEmail = () => {
+        if (!pacienteEmail) {
+            toast.error(
+                'Este paciente no tiene un correo electrónico registrado.',
+            );
+
+            return;
+        }
+
+        setEmailInput(pacienteEmail);
+        setEmailDialogOpen(true);
+    };
+
+    const handleEnviarEmail = async () => {
+        if (!historial) {
+            return;
+        }
+
+        setSendingEmail(true);
+
+        try {
+            const res = await fetch(
+                `/medico/historial/${historial.id}/enviar-email`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN':
+                            document
+                                .querySelector('meta[name="csrf-token"]')
+                                ?.getAttribute('content') || '',
+                        Accept: 'application/json',
+                    },
+                    body: JSON.stringify({ email: emailInput }),
+                },
+            );
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                toast.success(`Historial enviado por correo a ${data.email}`);
+                setEmailDialogOpen(false);
+            } else {
+                toast.error(data.message ?? 'No se pudo enviar el correo.');
+            }
+        } catch {
+            toast.error('Error al enviar el correo.');
+        } finally {
+            setSendingEmail(false);
+        }
+    };
+
     return (
         <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
             <SheetContent
                 side="right"
-                className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl"
+                className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl"
             >
                 {/* Header */}
                 <SheetHeader className="border-b border-slate-200 bg-gradient-to-r from-emerald-600 to-teal-500 px-6 py-5 dark:border-slate-700">
@@ -171,32 +253,39 @@ export function HistorialSheet({ citaId, open, onClose }: HistorialSheetProps) {
                     ) : (
                         <>
                             {isEditing ? (
-                                <HistorialForm
-                                    citaId={citaId!}
-                                    historial={historial}
-                                    medicoFirma={medicoSettings.firma}
-                                    medicoSello={medicoSettings.sello}
-                                    medicoLogo={medicoSettings.logo}
-                                    selloHospital={
-                                        medicoSettings.sello_hospital
-                                    }
-                                    nombreHospital={
-                                        medicoSettings.nombre_hospital
-                                    }
-                                    direccionHospital={
-                                        medicoSettings.direccion_hospital
-                                    }
-                                    onSuccess={() => {
-                                        fetchHistorial();
-                                        setIsEditing(false);
-                                        onClose();
-                                    }}
-                                    onCancel={() =>
-                                        historial
-                                            ? setIsEditing(false)
-                                            : onClose()
-                                    }
-                                />
+                                <>
+                                    {!medicoConfigurado && (
+                                        <div className="mx-4 mt-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/30">
+                                            <Mail className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                                            <div>
+                                                <p className="text-sm font-bold text-amber-700 dark:text-amber-300">
+                                                    Configuración incompleta
+                                                </p>
+                                                <p className="text-xs text-amber-600 dark:text-amber-400">
+                                                    Debes configurar tu firma,
+                                                    sello y datos de
+                                                    Hospital/Clínica desde el
+                                                    Área Médica antes de crear
+                                                    un historial.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <HistorialForm
+                                        citaId={citaId!}
+                                        historial={historial}
+                                        onSuccess={() => {
+                                            fetchHistorial();
+                                            setIsEditing(false);
+                                            onClose();
+                                        }}
+                                        onCancel={() =>
+                                            historial
+                                                ? setIsEditing(false)
+                                                : onClose()
+                                        }
+                                    />
+                                </>
                             ) : historial ? (
                                 <div className="space-y-6 p-6">
                                     <div className="mb-4 flex justify-end gap-2">
@@ -229,6 +318,15 @@ export function HistorialSheet({ citaId, open, onClose }: HistorialSheetProps) {
                                         >
                                             <Download className="mr-2 h-4 w-4" />{' '}
                                             Descargar PDF
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                                            onClick={abrirDialogEmail}
+                                        >
+                                            <Mail className="mr-2 h-4 w-4" />{' '}
+                                            Enviar por email
                                         </Button>
                                         <Button
                                             variant="outline"
@@ -328,6 +426,65 @@ export function HistorialSheet({ citaId, open, onClose }: HistorialSheetProps) {
                     )}
                 </div>
             </SheetContent>
+
+            {/* Diálogo de confirmación para envío por email */}
+            <Dialog
+                open={emailDialogOpen}
+                onOpenChange={(v) => !sendingEmail && setEmailDialogOpen(v)}
+            >
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <Mail className="h-5 w-5 text-emerald-600" />
+                            Enviar historial por email
+                        </DialogTitle>
+                        <DialogDescription>
+                            Se enviará el PDF del historial clínico #
+                            {historial?.id} al correo indicado.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2 py-2">
+                        <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            Correo del paciente
+                        </label>
+                        <Input
+                            type="email"
+                            value={emailInput}
+                            onChange={(e) => setEmailInput(e.target.value)}
+                            placeholder="correo@ejemplo.com"
+                            disabled={sendingEmail}
+                        />
+                    </div>
+                    <DialogFooter className="gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEmailDialogOpen(false)}
+                            disabled={sendingEmail}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            size="sm"
+                            className="bg-emerald-600 hover:bg-emerald-700"
+                            onClick={handleEnviarEmail}
+                            disabled={sendingEmail || !emailInput.trim()}
+                        >
+                            {sendingEmail ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Enviando...
+                                </>
+                            ) : (
+                                <>
+                                    <Send className="mr-2 h-4 w-4" />
+                                    Enviar
+                                </>
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </Sheet>
     );
 }

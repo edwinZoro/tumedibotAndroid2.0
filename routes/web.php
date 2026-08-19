@@ -3,15 +3,18 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Billings\BillingController;
 use App\Http\Controllers\Billings\InvoiceController;
+use App\Http\Controllers\Medical\ConfiguracionFirmaController;
 use App\Http\Controllers\Medical\HistorialController;
 use App\Http\Controllers\Medical\MedicalAreaController;
 use App\Http\Controllers\Medical\MedicalFormController;
+use App\Http\Controllers\Medical\MedicamentoController;
 use App\Http\Controllers\Medical\MedicoArchivosController;
 use App\Http\Controllers\Medical\MedicoCitasController;
 use App\Http\Controllers\Medical\MedicoPacientesController;
 use App\Http\Controllers\Medical\MedicoReportController;
 use App\Http\Controllers\Medical\MedicoSearchController;
 use App\Http\Controllers\Medical\ProfileMedical;
+use App\Http\Controllers\Medical\RecetaController;
 use App\Http\Controllers\Paciente\ArchivosController;
 use App\Http\Controllers\Paciente\CitasController;
 use App\Http\Controllers\Paciente\DatosMedicosController;
@@ -145,7 +148,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/medico/historial/{historial}', [HistorialController::class, 'update'])->name('medicos.historial.update');
     Route::delete('/medico/historial/{historial}', [HistorialController::class, 'destroy'])->name('medicos.historial.destroy');
     Route::get('/medico/historial/{historial}/pdf', [HistorialController::class, 'pdfSingle'])->name('medicos.historial.pdf');
+    Route::post('/medico/historial/{historial}/enviar-email', [HistorialController::class, 'enviarEmail'])->name('medicos.historial.enviar-email');
     Route::patch('/medico/historial/{historial}/compartir', [HistorialController::class, 'toggleCompartir'])->name('medicos.historial.compartir');
+
+    // Configuración de firma, sello, logo y hospital del médico (global, reutilizable)
+    Route::get('/medico/configuracion-firma', [ConfiguracionFirmaController::class, 'show'])->name('medicos.configuracion-firma.show');
+    Route::put('/medico/configuracion-firma', [ConfiguracionFirmaController::class, 'update'])->name('medicos.configuracion-firma.update');
+
+    // Recetas médicas
+    Route::get('/medico/receta/{citaPaciente}', [RecetaController::class, 'index'])->name('medicos.receta.index');
+    Route::post('/medico/receta/{citaPaciente}', [RecetaController::class, 'store'])->name('medicos.receta.store');
+    Route::put('/medico/receta/{receta}', [RecetaController::class, 'update'])->name('medicos.receta.update');
+    Route::delete('/medico/receta/{receta}', [RecetaController::class, 'destroy'])->name('medicos.receta.destroy');
+    Route::patch('/medico/receta/{receta}/compartir', [RecetaController::class, 'toggleCompartir'])->name('medicos.receta.compartir');
+    Route::get('/medico/receta/{receta}/pdf', [RecetaController::class, 'pdfSingle'])->name('medicos.receta.pdf');
+    Route::post('/medico/receta/{receta}/enviar-email', [RecetaController::class, 'enviarEmail'])->name('medicos.receta.enviar-email');
+
+    // Búsqueda de medicamentos (autocompletado)
+    Route::get('/medico/medicamentos/search', [MedicamentoController::class, 'search'])->name('medicos.medicamentos.search');
 
     // delete perfil medico
     Route::delete('/delete_medico_perfil/{medico}', [MedicalFormController::class, 'destroy'])

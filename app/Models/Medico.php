@@ -62,6 +62,9 @@ class Medico extends Model
         'logo',
         'firma_medico',
         'sello_medico',
+        'sello_hospital',
+        'nombre_hospital',
+        'direccion_hospital',
     ];
 
     /**
@@ -79,6 +82,7 @@ class Medico extends Model
         'usted_es',
         'firma_medico',
         'sello_medico',
+        'sello_hospital',
     ];
 
     /**
