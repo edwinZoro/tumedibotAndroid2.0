@@ -31,12 +31,6 @@
             letter-spacing: 0.5px;
             margin: 2px 0;
         }
-        .rx-symbol {
-            font-size: 28px;
-            font-weight: bold;
-            font-family: 'Georgia', 'Times New Roman', serif;
-            padding: 4px 0 8px;
-        }
         .med-item {
             padding: 6px 0;
             border-bottom: 1px dashed #ccc;
@@ -61,7 +55,7 @@
         $c = $receta->citaPaciente;
         $medico = $receta->medico;
         $paciente = $receta->paciente;
-        $fecha = $c ? $c->fecha . ' ' . $c->hora : $receta->created_at->format('Y-m-d H:i');
+        $fecha = $c ? $c->fecha->format('d/m/Y') : $receta->created_at->format('d/m/Y');
         $medicamentos = json_decode($receta->medicamentos, true) ?: [];
     @endphp
 
@@ -94,32 +88,14 @@
     <hr>
     <h1 style="text-align: center">Receta Médica</h1>
 
-    <b>Datos del Paciente</b>
-    <hr>
-    <table style="margin-bottom: 8px;">
-        <tr>
-            <td style="width: 50%; vertical-align: top; padding-right: 10px;">
-                <strong>Receta N°:</strong> {{ $receta->id }}<br>
-                <strong>Nombre:</strong> {{ $paciente->nombre_paciente }}<br>
-                <strong>Teléfono:</strong> {{ $paciente->tlf_paciente }}<br>
-                <strong>Email:</strong> {{ $paciente->email_paciente }}<br>
-            </td>
-            <td style="width: 50%; vertical-align: top; padding-left: 10px;">
-                <strong>Edad:</strong> {{ $paciente->edad }} años<br>
-                <strong>Peso:</strong> {{ $paciente->peso }}kg<br>
-                <strong>Estatura:</strong> {{ $paciente->estatura }}m<br>
-                <strong>Fecha:</strong> {{ $fecha }}<br>
-            </td>
-        </tr>
-    </table>
+    <b>Receta N°:</b> {{ $receta->id }} &nbsp;&nbsp; <b>Fecha:</b> {{ $fecha }}
+    <br>
 
     @if($receta->diagnostico)
     <b>Diagnóstico</b>
     <hr>
     <p style="margin-bottom: 8px;">{{ $receta->diagnostico }}</p>
     @endif
-
-    <div class="rx-symbol">℞</div>
 
     <b>Medicamentos</b>
     <hr>
@@ -145,9 +121,24 @@
     @endif
 
     @if($receta->indicaciones)
+    @php
+        $indicaciones = [];
+        $decoded = json_decode($receta->indicaciones, true);
+        if (is_array($decoded)) {
+            $indicaciones = $decoded;
+        } else {
+            $indicaciones = [$receta->indicaciones];
+        }
+    @endphp
+    @if(count($indicaciones) > 0)
     <b>Indicaciones</b>
     <hr>
-    <p style="margin-bottom: 8px;">{{ $receta->indicaciones }}</p>
+    <ul style="margin-bottom: 8px; padding-left: 20px;">
+        @foreach($indicaciones as $ind)
+        <li style="margin-bottom: 4px;">{{ $ind }}</li>
+        @endforeach
+    </ul>
+    @endif
     @endif
 
     @if($receta->proxima_cita)
@@ -156,12 +147,7 @@
 
     <table style="margin-top: 25px;">
         <tr>
-            <td style="width: 50%; vertical-align: bottom; text-align: center; padding: 0 15px 0 0;">
-                <div style="height: 60px;"></div>
-                <div style="border-top: 1px solid black; width: 85%; margin: 0 auto 4px;"></div>
-                <p>Firma del paciente</p>
-            </td>
-            <td style="width: 50%; vertical-align: bottom; text-align: center; padding: 0 0 0 15px;">
+            <td style="width: 100%; vertical-align: bottom; text-align: center; padding: 0 15px;">
                 <div style="display: inline-flex; align-items: flex-end; justify-content: center; gap: 4px; height: 60px;">
                     @if(isset($firmaBase64) && $firmaBase64)
                         <img src="{{ $firmaBase64 }}" alt="Firma del Médico" style="max-height: 60px; display: block;">
@@ -170,9 +156,9 @@
                         <img src="{{ $selloBase64 }}" alt="Sello Médico" style="max-height: 60px; display: block;">
                     @endif
                 </div>
-                <div style="border-top: 1px solid black; width: 85%; margin: 0 auto 4px;"></div>
+                <div style="border-top: 1px solid black; width: 60%; margin: 0 auto 4px;"></div>
                 <p>Firma del médico</p>
-                <p style="margin: 2px 0;"><i>{{ $medico->nombre }} {{ $medico->second_name ?? "" }} {{ $medico->apellido }} {{ $medico->last_name ?? "" }}</i></p>
+                <p style="margin: 2px 0;"><i>{{ mb_convert_case(trim($medico->nombre.' '.($medico->second_name ?? '').' '.$medico->apellido.' '.($medico->last_name ?? '')), MB_CASE_TITLE, 'UTF-8') }}</i></p>
                 <p style="margin: 2px 0;">{{ $medico->especialidad->nombre_especialidad }}</p>
             </td>
         </tr>

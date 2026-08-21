@@ -1,5 +1,14 @@
 import { router } from '@inertiajs/react';
-import { Check, Loader2, Pill, Plus, Save, Search, Trash2 } from 'lucide-react';
+import {
+    Check,
+    ClipboardList,
+    Loader2,
+    Pill,
+    Plus,
+    Save,
+    Search,
+    Trash2,
+} from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -78,6 +87,34 @@ export function RecetaForm({
         }
     };
 
+    const parseIndicaciones = (raw: string | null | undefined): string[] => {
+        if (!raw) {
+            return [''];
+        }
+
+        try {
+            const parsed = JSON.parse(raw);
+
+            if (Array.isArray(parsed)) {
+                return parsed.length > 0 ? parsed : [''];
+            }
+        } catch {
+            // Not JSON — treat as legacy plain text
+        }
+
+        return [raw];
+    };
+
+    const parseProximaCita = (raw: any): string => {
+        if (!raw) {
+            return '';
+        }
+
+        const dateStr = typeof raw === 'string' ? raw : (raw?.date ?? '');
+
+        return typeof dateStr === 'string' ? dateStr.substring(0, 10) : '';
+    };
+
     const [tipoReceta, setTipoReceta] = useState(
         receta?.tipo_receta || 'simple',
     );
@@ -86,12 +123,12 @@ export function RecetaForm({
             ? parseMedicamentos(receta?.medicamentos)
             : [{ ...MED_VACIO }],
     );
-    const [indicaciones, setIndicaciones] = useState(
-        receta?.indicaciones || '',
+    const [indicaciones, setIndicaciones] = useState<string[]>(
+        parseIndicaciones(receta?.indicaciones),
     );
     const [diagnostico, setDiagnostico] = useState(receta?.diagnostico || '');
     const [proximaCita, setProximaCita] = useState(
-        receta?.proxima_cita?.date?.substring(0, 10) || '',
+        parseProximaCita(receta?.proxima_cita),
     );
     const [processing, setProcessing] = useState(false);
 
@@ -139,6 +176,20 @@ export function RecetaForm({
 
             return copy;
         });
+    };
+
+    const addIndicacion = () => {
+        setIndicaciones((prev) => [...prev, '']);
+    };
+
+    const removeIndicacion = (index: number) => {
+        setIndicaciones((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const updateIndicacion = (index: number, value: string) => {
+        setIndicaciones((prev) =>
+            prev.map((ind, i) => (i === index ? value : ind)),
+        );
     };
 
     const updateMedicamento = (
@@ -245,10 +296,15 @@ export function RecetaForm({
             return;
         }
 
+        const indicacionesList = indicaciones.filter((i) => i.trim());
+
         const payload = {
             tipo_receta: tipoReceta,
             medicamentos: JSON.stringify(medList),
-            indicaciones: indicaciones || null,
+            indicaciones:
+                indicacionesList.length > 0
+                    ? JSON.stringify(indicacionesList)
+                    : null,
             diagnostico: diagnostico || null,
             proxima_cita: proximaCita || null,
         };
@@ -585,15 +641,48 @@ export function RecetaForm({
             </div>
 
             {/* Indicaciones */}
-            <div className="space-y-2">
-                <Label htmlFor="indicaciones">Indicaciones</Label>
-                <Textarea
-                    id="indicaciones"
-                    value={indicaciones}
-                    onChange={(e) => setIndicaciones(e.target.value)}
-                    placeholder="Indicaciones generales para el paciente"
-                    className="min-h-[80px]"
-                />
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/50">
+                <div className="mb-3 flex items-center justify-between">
+                    <h3 className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-200">
+                        <ClipboardList className="h-4 w-4 text-indigo-500" />
+                        Indicaciones
+                    </h3>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={addIndicacion}
+                    >
+                        <Plus className="mr-1 h-4 w-4" /> Añadir
+                    </Button>
+                </div>
+
+                <div className="space-y-2">
+                    {indicaciones.map((ind, index) => (
+                        <div key={index} className="flex items-start gap-2">
+                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                                {index + 1}
+                            </div>
+                            <Textarea
+                                value={ind}
+                                onChange={(e) =>
+                                    updateIndicacion(index, e.target.value)
+                                }
+                                placeholder={`Indicación ${index + 1} para el paciente`}
+                                className="min-h-[60px] flex-1"
+                            />
+                            {indicaciones.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => removeIndicacion(index)}
+                                    className="mt-1 flex-shrink-0 text-rose-500 transition hover:text-rose-600"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </button>
+                            )}
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {/* Próxima cita (opcional) */}

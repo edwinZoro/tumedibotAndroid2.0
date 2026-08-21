@@ -146,13 +146,37 @@ class RecetaController extends Controller
 
         $pdfData = $this->buildPdfData($receta);
 
-        $medicoNombre = trim(($medico->nombre ?? '').' '.($medico->second_name ?? '').' '.($medico->apellido ?? '').' '.($medico->last_name ?? ''));
+        $medico->decryptAttributes();
+
+        $medicoNombre = mb_convert_case(trim(($medico->nombre ?? '').' '.($medico->second_name ?? '').' '.($medico->apellido ?? '').' '.($medico->last_name ?? '')), MB_CASE_TITLE, 'UTF-8');
+
+        $medicoEspecialidad = $medico->especialidad?->nombre_especialidad ?? null;
+        $nombreHospital = $medico->nombre_hospital ?? null;
+        $direccionHospital = $medico->direccion_hospital ?? null;
+
+        $medicamentos = json_decode($receta->medicamentos, true) ?: [];
+
+        $indicaciones = [];
+        if ($receta->indicaciones) {
+            $decoded = json_decode($receta->indicaciones, true);
+            if (is_array($decoded)) {
+                $indicaciones = $decoded;
+            } else {
+                $indicaciones = [$receta->indicaciones];
+            }
+        }
 
         Mail::to($validated['email'])->send(new RecetaMedicaMail(
             $receta,
             $pdfData,
             $paciente->nombre_paciente,
             $medicoNombre,
+            $medicoEspecialidad,
+            $nombreHospital,
+            $direccionHospital,
+            $receta->diagnostico,
+            $medicamentos,
+            $indicaciones,
         ));
 
         return response()->json([

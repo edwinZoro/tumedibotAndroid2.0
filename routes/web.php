@@ -13,6 +13,7 @@ use App\Http\Controllers\Medical\MedicoCitasController;
 use App\Http\Controllers\Medical\MedicoPacientesController;
 use App\Http\Controllers\Medical\MedicoReportController;
 use App\Http\Controllers\Medical\MedicoSearchController;
+use App\Http\Controllers\Medical\NotaController;
 use App\Http\Controllers\Medical\ProfileMedical;
 use App\Http\Controllers\Medical\RecetaController;
 use App\Http\Controllers\Paciente\ArchivosController;
@@ -163,6 +164,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/medico/receta/{receta}/compartir', [RecetaController::class, 'toggleCompartir'])->name('medicos.receta.compartir');
     Route::get('/medico/receta/{receta}/pdf', [RecetaController::class, 'pdfSingle'])->name('medicos.receta.pdf');
     Route::post('/medico/receta/{receta}/enviar-email', [RecetaController::class, 'enviarEmail'])->name('medicos.receta.enviar-email');
+
+    // Notas médicas
+    Route::get('/medico/nota/{citaPaciente}', [NotaController::class, 'index'])->name('medicos.nota.index');
+    Route::post('/medico/nota/{citaPaciente}', [NotaController::class, 'store'])->name('medicos.nota.store');
+    Route::put('/medico/nota/{nota}', [NotaController::class, 'update'])->name('medicos.nota.update');
+    Route::delete('/medico/nota/{nota}', [NotaController::class, 'destroy'])->name('medicos.nota.destroy');
+    Route::patch('/medico/nota/{nota}/compartir', [NotaController::class, 'toggleCompartir'])->name('medicos.nota.compartir');
 
     // Búsqueda de medicamentos (autocompletado)
     Route::get('/medico/medicamentos/search', [MedicamentoController::class, 'search'])->name('medicos.medicamentos.search');

@@ -2,59 +2,61 @@
 
 namespace App\Models;
 
+use App\Models\Traits\EncryptsAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Nota extends Model
 {
-    use HasFactory;
+    use EncryptsAttributes, HasFactory;
 
-    /**
-     * La tabla asociada con el modelo.
-     *
-     * @var string
-     */
     protected $table = 'notas';
 
-    /**
-     * Indica si el modelo debe tener los campos created_at y updated_at de manera automática.
-     *
-     * @var bool
-     */
-    public $timestamps = false;
-
-    /**
-     * Los atributos que son asignables en masa (Mass Assignable).
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'id_historial',
+        'id_cita_paciente',
+        'id_medico',
+        'id_paciente',
+        'contenido',
+        'compartido',
+    ];
+
+    protected $encrypted = [
         'contenido',
     ];
 
-    /**
-     * Los atributos que deben ser convertidos a tipos nativos.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'id' => 'integer',
         'id_historial' => 'integer',
+        'id_cita_paciente' => 'integer',
+        'id_medico' => 'integer',
+        'id_paciente' => 'integer',
+        'compartido' => 'boolean',
     ];
 
-    /**
-     * =========================================================================
-     * RELACIONES
-     * =========================================================================
-     */
+    public function getEncryptedFields(): array
+    {
+        return $this->encrypted;
+    }
 
-    /**
-     * Obtiene el historial clínico al que pertenece esta nota de evolución.
-     */
     public function historialPaciente(): BelongsTo
     {
         return $this->belongsTo(HistorialPaciente::class, 'id_historial');
+    }
+
+    public function citaPaciente(): BelongsTo
+    {
+        return $this->belongsTo(CitaPaciente::class, 'id_cita_paciente');
+    }
+
+    public function medico(): BelongsTo
+    {
+        return $this->belongsTo(Medico::class, 'id_medico');
+    }
+
+    public function paciente(): BelongsTo
+    {
+        return $this->belongsTo(Paciente::class, 'id_paciente');
     }
 }

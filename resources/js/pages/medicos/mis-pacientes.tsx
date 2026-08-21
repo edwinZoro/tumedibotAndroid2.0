@@ -24,10 +24,10 @@ import {
     X,
 } from 'lucide-react';
 import React, { useState } from 'react';
-import { toast } from 'sonner';
 
 import { AgregarPacienteDialog } from '@/components/medicos/agregar-paciente-dialog';
 import { HistorialSheet } from '@/components/medicos/historial-sheet';
+import { NotaSheet } from '@/components/medicos/nota-sheet';
 import { RecetaSheet } from '@/components/medicos/receta-sheet';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -152,11 +152,9 @@ function CitasSheet({
     open: boolean;
     onClose: () => void;
 }) {
-    const proximamente = () =>
-        toast('Próximamente · este módulo estará disponible.');
-
     const [historialCitaId, setHistorialCitaId] = useState<number | null>(null);
     const [recetaCitaId, setRecetaCitaId] = useState<number | null>(null);
+    const [notaCitaId, setNotaCitaId] = useState<number | null>(null);
     const [paginaCitas, setPaginaCitas] = useState(0);
     const [prevPacienteId, setPrevPacienteId] = useState(paciente?.id);
 
@@ -340,7 +338,9 @@ function CitasSheet({
                                             <Button
                                                 size="sm"
                                                 variant="outline"
-                                                onClick={proximamente}
+                                                onClick={() =>
+                                                    setNotaCitaId(cita.id)
+                                                }
                                                 className="h-7 rounded-xl px-2.5 text-[11px] font-semibold"
                                             >
                                                 <StickyNote className="mr-1 h-3 w-3 text-amber-500" />
@@ -394,6 +394,11 @@ function CitasSheet({
                 citaId={recetaCitaId}
                 open={recetaCitaId !== null}
                 onClose={() => setRecetaCitaId(null)}
+            />
+            <NotaSheet
+                citaId={notaCitaId}
+                open={notaCitaId !== null}
+                onClose={() => setNotaCitaId(null)}
             />
         </Sheet>
     );

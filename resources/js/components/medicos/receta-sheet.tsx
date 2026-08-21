@@ -213,6 +213,44 @@ export function RecetaSheet({ citaId, open, onClose }: RecetaSheetProps) {
         }
     };
 
+    const parseIndicaciones = (raw: string | null | undefined): string[] => {
+        if (!raw) {
+            return [];
+        }
+
+        try {
+            const parsed = JSON.parse(raw);
+
+            if (Array.isArray(parsed)) {
+                return parsed;
+            }
+        } catch {
+            // Not JSON — treat as legacy plain text
+        }
+
+        return [raw];
+    };
+
+    const formatDate = (raw: any): string => {
+        if (!raw) {
+            return '';
+        }
+
+        const dateStr = typeof raw === 'string' ? raw : (raw?.date ?? '');
+
+        if (typeof dateStr !== 'string' || !dateStr) {
+            return '';
+        }
+
+        const parts = dateStr.substring(0, 10).split('-');
+
+        if (parts.length === 3) {
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        return dateStr;
+    };
+
     return (
         <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
             <SheetContent
@@ -381,19 +419,9 @@ export function RecetaSheet({ citaId, open, onClose }: RecetaSheetProps) {
                                                             Próxima cita:
                                                         </span>{' '}
                                                         <span className="font-semibold">
-                                                            {receta.proxima_cita
-                                                                .date
-                                                                ? receta.proxima_cita.date
-                                                                      .substring(
-                                                                          0,
-                                                                          10,
-                                                                      )
-                                                                      .split(
-                                                                          '-',
-                                                                      )
-                                                                      .reverse()
-                                                                      .join('/')
-                                                                : receta.proxima_cita}
+                                                            {formatDate(
+                                                                receta.proxima_cita,
+                                                            )}
                                                         </span>
                                                     </div>
                                                 )}
@@ -448,9 +476,28 @@ export function RecetaSheet({ citaId, open, onClose }: RecetaSheetProps) {
                                                 <h4 className="mb-2 text-xs font-bold text-slate-500 uppercase">
                                                     Indicaciones
                                                 </h4>
-                                                <p className="text-sm text-slate-700 dark:text-slate-300">
-                                                    {receta.indicaciones}
-                                                </p>
+                                                <ol className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                                                    {parseIndicaciones(
+                                                        receta.indicaciones,
+                                                    ).map(
+                                                        (
+                                                            ind: string,
+                                                            i: number,
+                                                        ) => (
+                                                            <li
+                                                                key={i}
+                                                                className="flex gap-2"
+                                                            >
+                                                                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-[10px] font-bold text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                                                                    {i + 1}
+                                                                </span>
+                                                                <span>
+                                                                    {ind}
+                                                                </span>
+                                                            </li>
+                                                        ),
+                                                    )}
+                                                </ol>
                                             </div>
                                         )}
                                     </div>
