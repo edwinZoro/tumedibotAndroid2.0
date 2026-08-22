@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
@@ -15,9 +15,9 @@ type Props = {
     passwordRules: string;
 };
 
-// Componente interno que usa reCAPTCHA
-const RegisterForm = ({ passwordRules }: Props) => {
-    const { data, setData, post, processing, errors } = useForm({
+export default function Register({ passwordRules }: Props) {
+    // 1. Extraemos 'transform' de useForm
+    const { data, setData, post, processing, errors, transform } = useForm({
         name: '',
         email: '',
         password: '',
@@ -38,9 +38,15 @@ const RegisterForm = ({ passwordRules }: Props) => {
 
         try {
             const token = await executeRecaptcha('register');
-            setData('g-recaptcha-response', token);
             setRecaptchaError(null);
 
+            // 2. Usamos transform para inyectar el token justo antes de enviar
+            transform((currentData) => ({
+                ...currentData,
+                'g-recaptcha-response': token,
+            }));
+
+            // 3. Enviamos el formulario
             post('/register', {
                 onError: (err) => {
                     if (err['g-recaptcha-response']) {
@@ -172,28 +178,8 @@ const RegisterForm = ({ passwordRules }: Props) => {
                         Inicia sesión
                     </TextLink>
                 </div>
-                <div
-                    id="recaptcha-container"
-                    className="flex justify-center my-2"
-                />
             </form>
         </>
-    );
-};
-
-// Componente principal que envuelve con el Provider
-export default function Register({ passwordRules }: Props) {
-    return (
-        <GoogleReCaptchaProvider
-            reCaptchaKey={import.meta.env.VITE_GOOGLE_RECAPTCHA_SITE_KEY}
-            badge="inline"
-            container={{
-                element: 'recaptcha-container',
-                parameters: { badge: 'inline' },
-            }}
-        >
-            <RegisterForm passwordRules={passwordRules} />
-        </GoogleReCaptchaProvider>
     );
 }
 

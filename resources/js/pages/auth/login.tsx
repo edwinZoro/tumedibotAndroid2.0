@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
@@ -9,17 +9,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { register } from '@/routes';
-import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 import { useState } from 'react';
 
-// ── Componente interno que usa el hook de reCAPTCHA ──
-const LoginForm = ({ status, canResetPassword }: Props) => {
-    const { data, setData, post, processing, errors } = useForm({
+type Props = {
+    status?: string;
+    canResetPassword: boolean;
+};
+
+export default function Login({ status, canResetPassword }: Props) {
+    // 1. Extraemos 'transform' para inyectar el token en el envío
+    const { data, setData, post, processing, errors, transform } = useForm({
         email: '',
         password: '',
         remember: false,
-        'g-recaptcha-response': '', // token que enviaremos al backend
+        'g-recaptcha-response': '',
     });
 
     const { executeRecaptcha } = useGoogleReCaptcha();
@@ -35,10 +39,15 @@ const LoginForm = ({ status, canResetPassword }: Props) => {
 
         try {
             const token = await executeRecaptcha('login');
-            setData('g-recaptcha-response', token);
             setRecaptchaError(null);
 
-            // Enviar el formulario
+            // 2. Garantizamos que el token viaje en el payload actual
+            transform((currentData) => ({
+                ...currentData,
+                'g-recaptcha-response': token,
+            }));
+
+            // 3. Enviamos la petición
             post('/login', {
                 onError: (err) => {
                     if (err['g-recaptcha-response']) {
@@ -127,7 +136,6 @@ const LoginForm = ({ status, canResetPassword }: Props) => {
                         <div className="text-sm text-red-400">{errors['g-recaptcha-response']}</div>
                     )}
 
-
                     <Button
                         type="submit"
                         className="mt-4 w-full bg-gradient-to-r from-[#2563eb] to-[#0ea5e9] text-white shadow-lg shadow-blue-500/20 hover:from-[#1d4ed8] hover:to-[#0284c7] hover:shadow-blue-500/30 disabled:opacity-50"
@@ -150,10 +158,7 @@ const LoginForm = ({ status, canResetPassword }: Props) => {
                         Regístrate
                     </TextLink>
                 </div>
-                <div
-                  id="recaptcha-container"
-                  className="flex justify-center my-2"
-                />
+
                 {status && (
                     <div className="text-center text-sm font-medium text-green-400">
                         {status}
@@ -162,31 +167,8 @@ const LoginForm = ({ status, canResetPassword }: Props) => {
             </form>
         </>
     );
-};
-
-// ── Componente principal que envuelve con el Provider ──
-type Props = {
-    status?: string;
-    canResetPassword: boolean;
-};
-
-export default function Login({ status, canResetPassword }: Props) {
-    return (
-
-      <GoogleReCaptchaProvider
-        reCaptchaKey={import.meta.env.VITE_GOOGLE_RECAPTCHA_SITE_KEY}
-        badge="inline"                       // ← modo inline
-        container={{
-          element: 'recaptcha-container',    // ← id del contenedor
-          parameters: { badge: 'inline' },   // redundante, pero se recomienda
-        }}
-      >
-        <LoginForm status={status} canResetPassword={canResetPassword} />
-      </GoogleReCaptchaProvider>
-    );
 }
 
-// Mantenemos el layout original
 Login.layout = {
     title: (
         <>
