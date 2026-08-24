@@ -25,7 +25,9 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Correo electrónico</Label>
+                                <Label htmlFor="email" className="text-white">
+                                    Correo electrónico
+                                </Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -33,6 +35,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                     autoComplete="off"
                                     autoFocus
                                     placeholder="correo@ejemplo.com"
+                                    className="text-white placeholder:text-slate-400"
                                 />
 
                                 <InputError message={errors.email} />
@@ -54,9 +57,11 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     )}
                 </Form>
 
-                <div className="space-x-1 text-center text-sm text-muted-foreground">
+                <div className="space-x-1 text-center text-sm text-slate-400">
                     <span>O puedes volver a</span>
-                    <TextLink href={login()}>iniciar sesión</TextLink>
+                    <TextLink href={login()} className="text-white">
+                        iniciar sesión
+                    </TextLink>
                 </div>
             </div>
         </>
@@ -65,5 +70,6 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
 ForgotPassword.layout = {
     title: '¿Olvidaste tu contraseña?',
-    description: 'Ingresa tu correo electrónico para recibir un enlace de restablecimiento de contraseña',
+    description:
+        'Ingresa tu correo electrónico para recibir un enlace de restablecimiento de contraseña',
 };

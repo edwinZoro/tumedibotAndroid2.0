@@ -37,6 +37,16 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
 
+        $unreadNotifications = 0;
+        if ($user) {
+            if ($user->medico) {
+                $unreadNotifications += $user->medico->unreadNotifications()->count();
+            }
+            if ($user->paciente) {
+                $unreadNotifications += $user->paciente->unreadNotifications()->count();
+            }
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -48,6 +58,7 @@ class HandleInertiaRequests extends Middleware
                 'administration' => $request->user()?->hasPermissionTo('administration') ?? false,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'unreadNotifications' => $unreadNotifications,
         ];
     }
 }

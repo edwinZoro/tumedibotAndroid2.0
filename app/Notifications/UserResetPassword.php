@@ -24,11 +24,10 @@ class UserResetPassword extends Notification
         $url = url('/reset-password/'.$this->token);
 
         return (new MailMessage)
-            ->subject('Restablecer Contraseña - TuMediBot')
-            ->greeting('¡Hola!')
-            ->line('Recibiste este correo porque solicitaste restablecer tu contraseña.')
-            ->action('Restablecer Contraseña', $url)
-            ->line('Este enlace expirará en 60 minutos.')
-            ->line('Si no solicitaste este cambio, puedes ignorar este mensaje.');
+            ->subject('Restablece tu contraseña - TuMediBot')
+            ->view('emails.reset_password', [
+                'user' => $notifiable,
+                'url' => $url,
+            ]);
     }
 }

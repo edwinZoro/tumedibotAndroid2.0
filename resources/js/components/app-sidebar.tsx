@@ -37,8 +37,9 @@ import { archivos, citas, datosMedicos } from '@/routes/pacientes';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
-    const { can } = usePage().props;
+    const { can, unreadNotifications } = usePage().props;
     const hasFactura = can?.hasFactura ?? false;
+    const unreadCount = (unreadNotifications as number) ?? 0;
     const mainNavItems: NavItem[] = [
         {
             title: 'Buscar Médicos',
@@ -98,8 +99,9 @@ export function AppSidebar() {
         },
         {
             title: 'Notificaciones',
-            href: '#',
+            href: '/notificaciones',
             icon: Bell,
+            badge: unreadCount > 0 ? unreadCount : undefined,
         },
     ];
     // Filtrar los items visibles

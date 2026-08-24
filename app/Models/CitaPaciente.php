@@ -41,6 +41,9 @@ class CitaPaciente extends Model
         'estado',
         'estado_cita',
         'tipo',
+        'recordatorio_3d_enviado',
+        'recordatorio_1d_enviado',
+        'recordatorio_3h_enviado',
     ];
 
     /**
@@ -53,6 +56,9 @@ class CitaPaciente extends Model
         'id_paciente' => 'integer',
         'id_medico' => 'integer',
         'fecha' => 'date',
+        'recordatorio_3d_enviado' => 'boolean',
+        'recordatorio_1d_enviado' => 'boolean',
+        'recordatorio_3h_enviado' => 'boolean',
     ];
 
     /**

@@ -16,6 +16,7 @@ use App\Http\Controllers\Medical\MedicoSearchController;
 use App\Http\Controllers\Medical\NotaController;
 use App\Http\Controllers\Medical\ProfileMedical;
 use App\Http\Controllers\Medical\RecetaController;
+use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\Paciente\ArchivosController;
 use App\Http\Controllers\Paciente\CitasController;
 use App\Http\Controllers\Paciente\DatosMedicosController;
@@ -92,6 +93,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ]);
         })->name('billing.plan');
     });
+
+    // Notificaciones internas
+    Route::get('/notificaciones', [NotificacionController::class, 'index'])
+        ->name('notificaciones.index');
+    Route::patch('/notificaciones/{id}/leer', [NotificacionController::class, 'markAsRead'])
+        ->name('notificaciones.leer');
+    Route::post('/notificaciones/leer-todas', [NotificacionController::class, 'markAllRead'])
+        ->name('notificaciones.leer-todas');
+    Route::delete('/notificaciones/eliminar-todas', [NotificacionController::class, 'destroyAll'])
+        ->name('notificaciones.eliminar-todas');
 
     // Bóveda de archivos del paciente (acceso por id propio, no por rol)
     Route::get('/paciente/mis-archivos', [ArchivosController::class, 'index'])

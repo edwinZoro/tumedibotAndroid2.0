@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import {
     Collapsible,
     CollapsibleContent,
@@ -43,6 +44,16 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                 <Link href={item.href} prefetch>
                                     {item.icon && <item.icon />}
                                     <span>{item.title}</span>
+                                    {item.badge != null && item.badge > 0 && (
+                                        <Badge
+                                            variant="destructive"
+                                            className="ml-auto h-5 min-w-5 justify-center rounded-full px-1.5 text-xs"
+                                        >
+                                            {item.badge > 99
+                                                ? '99+'
+                                                : item.badge}
+                                        </Badge>
+                                    )}
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>

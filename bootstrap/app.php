@@ -33,6 +33,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Cuando termines la prueba, vuelve a dailyAt('08:00').
         $schedule->command('pedidos:generar-renovaciones')->everyMinute();
         $schedule->command('pedidos:enviar-recordatorios')->dailyAt('09:00');
+
+        // Recordatorios de citas: 3 días y 1 día antes (diario a las 09:00)
+        $schedule->command('citas:enviar-recordatorios')->dailyAt('09:00');
+        // Recordatorios de citas: 3 horas antes (cada hora en punto)
+        $schedule->command('citas:enviar-recordatorios')->hourly();
     })
     ->withEvents() // ← Ahora los listeners se registran en EventServiceProvider
     ->withExceptions(function (Exceptions $exceptions): void {
