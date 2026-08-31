@@ -157,6 +157,7 @@ class MedicalFormController extends Controller
             'apellido' => 'sometimes|string|min:2|max:255',
             'second_name' => 'sometimes|nullable|string|max:255',
             'last_name' => 'sometimes|nullable|string|max:255',
+            'cedula_medico' => 'sometimes|nullable|string|max:30',
             'sexo' => 'sometimes|string|in:MASCULINO,FEMENINO',
             'telefono' => 'sometimes|string|max:20',
             'whatsapp' => 'sometimes|nullable|string|max:20',
@@ -177,7 +178,7 @@ class MedicalFormController extends Controller
             'linkedin' => 'sometimes|nullable|string',
             'instagram' => 'sometimes|nullable|string',
             'foto' => 'sometimes|image|mimes:png,jpg,jpeg|max:5120',
-            'titulo_file' => 'sometimes|file|mimes:pdf,png,jpg,jpeg|max:5120',
+            'titulo_file' => 'sometimes|file|mimes:pdf,png,jpg,jpeg|max:10240',
         ]);
 
         $data = $validated;
@@ -240,6 +241,9 @@ class MedicalFormController extends Controller
         }
         if (array_key_exists('last_name', $data)) {
             $updateData['last_name'] = $data['last_name'];
+        }
+        if (array_key_exists('cedula_medico', $data)) {
+            $updateData['cedula_medico'] = $data['cedula_medico'] ?: null;
         }
         if (isset($data['sexo'])) {
             $updateData['sexo'] = $data['sexo'];

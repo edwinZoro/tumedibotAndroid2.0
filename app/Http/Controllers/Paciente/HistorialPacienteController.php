@@ -22,7 +22,6 @@ class HistorialPacienteController extends Controller
             'citaPaciente.medico.estado',
             'citaPaciente.medico.pais',
             'citaPaciente.medico.especialidad',
-            'notas',
             'firma'
         );
 

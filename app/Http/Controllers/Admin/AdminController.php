@@ -34,6 +34,12 @@ class AdminController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        $medicos->getCollection()->transform(function (Medico $m) {
+            $m->setAttribute('titulo_disponible', $this->rutaTitulo($m) !== null);
+
+            return $m;
+        });
+
         $facturas = $this->queryFacturas($tab === 'facturas' ? $search : '')
             ->orderByDesc('id')
             ->paginate(10)
@@ -190,6 +196,44 @@ class AdminController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Médico actualizado correctamente.']);
 
         return redirect()->route('admin.index', ['tab' => 'medicos']);
+    }
+
+    /**
+     * Descarga el archivo del título profesional cargado por el médico.
+     *
+     * Los títulos se guardaron en distintas rutas a lo largo del tiempo
+     * (el flujo actual usa el disco local: storage/app/private/public/
+     * medicos/titulos), por lo que se buscan en todas las ubicaciones
+     * conocidas antes de responder.
+     */
+    public function descargarTitulo(Medico $medico)
+    {
+        $ruta = $this->rutaTitulo($medico);
+
+        abort_unless($ruta, 404, 'El archivo del título no se encontró en este servidor (fue cargado en otra instalación).');
+
+        return response()->download($ruta, $medico->name_original ?? basename($medico->name_temp));
+    }
+
+    /**
+     * Busca el archivo del título del médico en las rutas históricas
+     * de almacenamiento y devuelve la primera coincidencia.
+     */
+    private function rutaTitulo(Medico $medico): ?string
+    {
+        if (! $medico->name_temp) {
+            return null;
+        }
+
+        $archivo = basename($medico->name_temp);
+
+        return collect([
+            storage_path('app/private/public/medicos/titulos/'.$archivo),
+            storage_path('app/public/medicos/titulos/'.$archivo),
+            public_path('imagen/'.$archivo),
+            public_path('images/'.$archivo),
+            public_path('medicos/titulos/'.$archivo),
+        ])->first(fn ($r) => is_file($r));
     }
 
     /**

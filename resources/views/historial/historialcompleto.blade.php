@@ -161,15 +161,6 @@
                 <p><span class="label">Diagnóstico:</span> {{ $historial->diagnostico }}</p>
                 <p><span class="label">Tratamiento:</span> {{ $historial->tratamiento }}</p>
 
-                @if ($historial->notas->count())
-                    <h3>Notas:</h3>
-                    <ul>
-                        @foreach ($historial->notas as $nota)
-                            <li>{{ $nota->contenido }}</li>
-                        @endforeach
-                    </ul>
-                @endif
-
                 @if ($historial->archivos->count())
                     <h3>Archivos Adjuntos:</h3>
                     <ul>

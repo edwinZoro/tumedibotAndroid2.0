@@ -1,26 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { router } from '@inertiajs/react';
-import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { toast } from 'sonner';
-
-// shadcn components
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import RichTextEditor from '@/components/RichTextEditor';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-
-// Lucide icons
+import { router } from '@inertiajs/react';
 import {
     User,
     MapPin,
@@ -34,6 +13,27 @@ import {
     Send,
     Loader2,
 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
+
+// shadcn components
+import RichTextEditor from '@/components/RichTextEditor';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+
+// Lucide icons
 
 // ─── Props desde Inertia ───────────────────────────────────────────────────────
 interface MedicoProp {
@@ -42,6 +42,7 @@ interface MedicoProp {
     apellido: string;
     second_name?: string;
     last_name?: string;
+    cedula_medico?: string;
     sexo: string;
     telefono: string;
     whatsapp?: string;
@@ -91,7 +92,8 @@ interface Especialidad {
 }
 
 // ─── Zod Schemas ──────────────────────────────────────────────────────────────
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB (foto)
+const MAX_TITULO_SIZE = 10 * 1024 * 1024; // 10MB (título profesional)
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 const ALLOWED_TITULO_TYPES = ['application/pdf', ...ALLOWED_IMAGE_TYPES];
 
@@ -100,6 +102,11 @@ const step1Schema = z.object({
     apellido: z.string().min(2, 'Campo requerido'),
     second_name: z.string().optional(),
     last_name: z.string().optional(),
+    cedula_medico: z
+        .string()
+        .max(30, 'Máximo 30 caracteres')
+        .optional()
+        .or(z.literal('')),
     sexo: z.enum(['MASCULINO', 'FEMENINO'], 'Campo requerido'),
     telefono: z
         .string()
@@ -108,6 +115,7 @@ const step1Schema = z.object({
         .refine(
             (val) => {
                 const soloDigitos = val.replace(/[\s-]/g, '');
+
                 return soloDigitos.length >= 6 && soloDigitos.length <= 20;
             },
             { message: 'El teléfono debe tener entre 6 y 20 dígitos' },
@@ -119,6 +127,7 @@ const step1Schema = z.object({
         .refine(
             (val) => {
                 const soloDigitos = val.replace(/[\s-]/g, '');
+
                 return soloDigitos.length >= 6 && soloDigitos.length <= 20;
             },
             { message: 'El whatsapp debe tener entre 6 y 20 dígitos' },
@@ -138,8 +147,12 @@ const step2Schema = z.object({
 });
 
 const toNumber = (val: unknown) => {
-    if (val === '' || val === null || val === undefined) return undefined;
+    if (val === '' || val === null || val === undefined) {
+        return undefined;
+    }
+
     const num = Number(val);
+
     return isNaN(num) ? val : num;
 };
 
@@ -198,8 +211,8 @@ const step3Schema = z.object({
             z
                 .instanceof(File)
                 .refine(
-                    (file) => file.size <= MAX_FILE_SIZE,
-                    'El archivo no debe superar los 5MB',
+                    (file) => file.size <= MAX_TITULO_SIZE,
+                    'El archivo no debe superar los 10MB',
                 )
                 .refine(
                     (file) => ALLOWED_TITULO_TYPES.includes(file.type),
@@ -425,6 +438,7 @@ export default function DoctorFormStepper({
             apellido: medico?.apellido || '',
             second_name: medico?.second_name || '',
             last_name: medico?.last_name || '',
+            cedula_medico: medico?.cedula_medico || '',
             sexo: medico?.sexo || undefined,
             telefono: medico?.telefono || '',
             whatsapp: medico?.whatsapp || '',
@@ -471,6 +485,7 @@ export default function DoctorFormStepper({
     useEffect(() => {
         const loadPaises = async () => {
             setLoading((prev) => ({ ...prev, paises: true }));
+
             try {
                 const res = await fetch('/api/paises');
                 const data = await res.json();
@@ -483,6 +498,7 @@ export default function DoctorFormStepper({
         };
         const loadEspecialidades = async () => {
             setLoading((prev) => ({ ...prev, especialidades: true }));
+
             try {
                 const res = await fetch('/api/especialidades');
                 const data = await res.json();
@@ -514,14 +530,18 @@ export default function DoctorFormStepper({
     // ── Handlers de locación (con flag keepSelection) ──
     const cargarEstados = async (paisId: string, keepSelection = false) => {
         setEstados([]);
+
         if (!paisId) {
             if (!keepSelection) {
                 setValue('estado', '');
                 setValue('ciudad', '');
             }
+
             return;
         }
+
         setLoading((prev) => ({ ...prev, estados: true }));
+
         try {
             const res = await fetch(`/api/paises/${paisId}/estados`);
             const data = await res.json();
@@ -530,6 +550,7 @@ export default function DoctorFormStepper({
                 name: e.name,
             }));
             setEstados(mapped);
+
             if (!keepSelection) {
                 setValue('estado', '');
                 setValue('ciudad', '');
@@ -539,6 +560,7 @@ export default function DoctorFormStepper({
                 const exists = mapped.some(
                     (e: any) => e.id === currentEstadoId,
                 );
+
                 if (!exists) {
                     setValue('estado', '');
                     setValue('ciudad', '');
@@ -554,13 +576,17 @@ export default function DoctorFormStepper({
 
     const cargarCiudades = async (estadoId: string, keepSelection = false) => {
         setCiudades([]);
+
         if (!estadoId) {
             if (!keepSelection) {
                 setValue('ciudad', '');
             }
+
             return;
         }
+
         setLoading((prev) => ({ ...prev, ciudades: true }));
+
         try {
             const res = await fetch(`/api/estados/${estadoId}/ciudades`);
             const data = await res.json();
@@ -569,6 +595,7 @@ export default function DoctorFormStepper({
                 name: c.name,
             }));
             setCiudades(mapped);
+
             if (!keepSelection) {
                 setValue('ciudad', '');
             } else {
@@ -576,6 +603,7 @@ export default function DoctorFormStepper({
                 const exists = mapped.some(
                     (c: any) => c.id === currentCiudadId,
                 );
+
                 if (!exists) {
                     setValue('ciudad', '');
                 }
@@ -590,7 +618,8 @@ export default function DoctorFormStepper({
     // ── Validación por paso ──
     const validateStep = async (step: 1 | 2 | 3): Promise<boolean> => {
         let fields: (keyof FormData)[] = [];
-        if (step === 1)
+
+        if (step === 1) {
             fields = [
                 'nombre',
                 'apellido',
@@ -601,7 +630,7 @@ export default function DoctorFormStepper({
                 'whatsapp',
                 'email_dr',
             ];
-        else if (step === 2)
+        } else if (step === 2) {
             fields = [
                 'pais',
                 'estado',
@@ -612,7 +641,7 @@ export default function DoctorFormStepper({
                 'linkedin',
                 'instagram',
             ];
-        else
+        } else {
             fields = [
                 'especialidad',
                 'experiencia',
@@ -625,27 +654,40 @@ export default function DoctorFormStepper({
                 'foto',
                 'titulo_file',
             ];
+        }
 
         const result = await trigger(fields as any);
+
         if (!result) {
             toast.error('Por favor, corrige los errores marcados en rojo');
             const firstError = Object.keys(errors)[0];
+
             if (firstError) {
                 // setFocus(firstError as any); // puedes descomentar si tienes un ref para el campo
             }
+
             return false;
         }
+
         return true;
     };
 
     const nextStep = async () => {
         const valid = await validateStep(currentStep);
-        if (!valid) return;
-        if (currentStep < 3) setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
+
+        if (!valid) {
+            return;
+        }
+
+        if (currentStep < 3) {
+            setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3);
+        }
     };
 
     const prevStep = () => {
-        if (currentStep > 1) setCurrentStep((prev) => (prev - 1) as 1 | 2 | 3);
+        if (currentStep > 1) {
+            setCurrentStep((prev) => (prev - 1) as 1 | 2 | 3);
+        }
     };
 
     // ── Manejo de archivos con react-hook-form ──
@@ -655,6 +697,7 @@ export default function DoctorFormStepper({
     ) => {
         const file = e.target.files?.[0];
         setValue(type, file || '', { shouldValidate: !!file });
+
         if (type === 'foto') {
             if (file) {
                 const reader = new FileReader();
@@ -677,6 +720,7 @@ export default function DoctorFormStepper({
             apellido: data.apellido,
             second_name: data.second_name || '',
             last_name: data.last_name || '',
+            cedula_medico: data.cedula_medico || '',
             sexo: data.sexo,
             telefono: data.telefono,
             whatsapp: data.whatsapp || '',
@@ -710,8 +754,13 @@ export default function DoctorFormStepper({
             formData.append(key, String(value));
         });
 
-        if (data.foto) formData.append('foto', data.foto);
-        if (data.titulo_file) formData.append('titulo_file', data.titulo_file);
+        if (data.foto) {
+            formData.append('foto', data.foto);
+        }
+
+        if (data.titulo_file) {
+            formData.append('titulo_file', data.titulo_file);
+        }
 
         try {
             const csrfToken = document
@@ -729,15 +778,20 @@ export default function DoctorFormStepper({
                 body: formData,
             });
             const responseData = await res.json();
-            if (!res.ok)
+
+            if (!res.ok) {
                 throw new Error(responseData.message || 'Error en el servidor');
+            }
+
             toast.success(
                 isEditing
                     ? 'Perfil actualizado correctamente'
                     : 'Formulario enviado correctamente',
             );
-            if (responseData.redirect)
+
+            if (responseData.redirect) {
                 window.location.href = responseData.redirect;
+            }
         } catch (error: any) {
             toast.error(error.message || 'Error al enviar');
         }
@@ -747,6 +801,7 @@ export default function DoctorFormStepper({
         const match = window.location.pathname.match(
             /\/calendar_example\/(\d+)/,
         );
+
         return match ? parseInt(match[1]) : 0;
     };
 
@@ -899,6 +954,7 @@ export default function DoctorFormStepper({
                                             const isActive =
                                                 currentStep === s.num;
                                             const isPast = currentStep > s.num;
+
                                             return (
                                                 <div
                                                     key={s.num}
@@ -1059,6 +1115,11 @@ function PasoDatosPersonales({ control }: { control: any }) {
                     name="last_name"
                     label="Segundo Apellido"
                     placeholder="Pérez"
+                />
+                <FormInput
+                    control={control}
+                    name="cedula_medico"
+                    label="Cédula Profesional"
                 />
 
                 <div className="space-y-2">
@@ -1325,7 +1386,7 @@ function PasoProfesional({
                             className="h-14 rounded-2xl border-slate-200 bg-white px-4 shadow-sm transition-all duration-200 file:mr-4 file:rounded-xl file:border-0 file:bg-amber-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-amber-700 hover:file:bg-amber-100 dark:border-slate-800 dark:bg-slate-950/50 dark:file:bg-amber-900/30 dark:file:text-amber-300"
                         />
                         <p className="text-xs text-muted-foreground">
-                            Máx. 5MB
+                            Máx. 10MB
                         </p>
                         {errors.titulo_file && (
                             <p className="text-xs font-bold text-red-500">

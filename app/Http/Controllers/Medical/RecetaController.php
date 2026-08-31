@@ -7,6 +7,7 @@ use App\Mail\RecetaMedicaMail;
 use App\Models\CitaPaciente;
 use App\Models\Medico;
 use App\Models\Receta;
+use App\Notifications\RecetaCompartidaPaciente;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -105,6 +106,12 @@ class RecetaController extends Controller
 
         $receta->compartido = ! $receta->compartido;
         $receta->save();
+
+        if ($receta->compartido && $receta->paciente) {
+            $receta->load('paciente', 'medico');
+
+            $receta->paciente->notify(new RecetaCompartidaPaciente($receta));
+        }
 
         return response()->json([
             'success' => true,

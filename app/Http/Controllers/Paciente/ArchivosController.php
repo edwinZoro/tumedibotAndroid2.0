@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Paciente;
 
 use App\Http\Controllers\Controller;
 use App\Models\Archivo;
+use App\Models\Medico;
 use App\Models\Paciente;
+use App\Notifications\ArchivoCompartidoMedico;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -114,7 +116,8 @@ class ArchivosController extends Controller
      * Otorga o revoca el acceso de los médicos a un archivo.
      *
      * Recibe la lista completa de médico_ids que deben tener acceso; cualquier
-     * acceso existente que no esté en la lista se elimina.
+     * acceso existente que no esté en la lista se elimina. Los médicos que
+     * reciben el acceso por primera vez son notificados en la app y por correo.
      */
     public function compartir(Request $request, Archivo $archivo): RedirectResponse
     {
@@ -129,7 +132,19 @@ class ArchivosController extends Controller
             'medico_ids.*' => ['integer', 'distinct', 'in:'.$medicoIdsPermitidos->implode(',')],
         ]);
 
-        $archivo->medicos()->sync($validated['medico_ids']);
+        $idsActuales = $archivo->medicos()->pluck('medicos.id');
+        $idsNuevos = collect($validated['medico_ids']);
+
+        $archivo->medicos()->sync($idsNuevos);
+
+        $idsOtorgados = $idsNuevos->diff($idsActuales);
+
+        if ($idsOtorgados->isNotEmpty()) {
+            $archivo->load('paciente');
+
+            Medico::whereIn('id', $idsOtorgados)->get()
+                ->each(fn (Medico $medico) => $medico->notify(new ArchivoCompartidoMedico($archivo)));
+        }
 
         return back()->with('success', 'Accesos actualizados correctamente.');
     }

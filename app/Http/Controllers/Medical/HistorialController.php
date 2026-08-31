@@ -8,6 +8,7 @@ use App\Models\CitaPaciente;
 use App\Models\Firma;
 use App\Models\HistorialPaciente;
 use App\Models\Medico;
+use App\Notifications\HistorialCompartidoPaciente;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -168,6 +169,12 @@ class HistorialController extends Controller
         $historial->compartido = ! $historial->compartido;
         $historial->save();
 
+        if ($historial->compartido && $historial->paciente) {
+            $historial->load('paciente', 'citaPaciente.medico');
+
+            $historial->paciente->notify(new HistorialCompartidoPaciente($historial));
+        }
+
         return response()->json([
             'compartido' => $historial->compartido,
         ]);
@@ -187,7 +194,6 @@ class HistorialController extends Controller
             'citaPaciente.medico.estado',
             'citaPaciente.medico.pais',
             'citaPaciente.medico.especialidad',
-            'notas',
             'firma'
         );
 
@@ -210,7 +216,6 @@ class HistorialController extends Controller
             'citaPaciente.medico.estado',
             'citaPaciente.medico.pais',
             'citaPaciente.medico.especialidad',
-            'notas',
             'firma'
         );
 

@@ -44,6 +44,15 @@ class CitasController extends Controller
             ->with(['historialClinico' => function ($q) {
                 $q->where('compartido', true)->select('id', 'id_cita_paciente', 'compartido');
             }])
+            ->with(['recetas' => function ($q) {
+                $q->where('compartido', true)
+                    ->select('id', 'id_cita_paciente', 'compartido')
+                    ->latest('id');
+            }])
+            ->with(['notas' => function ($q) {
+                $q->where('compartido', true)
+                    ->select('id', 'id_cita_paciente', 'contenido', 'compartido', 'created_at');
+            }])
             ->orderByDesc('fecha')
             ->orderByDesc('id')
             ->get()
@@ -56,6 +65,12 @@ class CitasController extends Controller
                 'estado_cita' => $cita->estado_cita,
                 'tipo' => $cita->tipo,
                 'historial_compartido' => $cita->historialClinico?->id,
+                'receta_compartida' => $cita->recetas->first()?->id,
+                'notas_compartidas' => $cita->notas->map(fn ($nota) => [
+                    'id' => $nota->id,
+                    'contenido' => $nota->contenido,
+                    'creado' => $nota->created_at?->toIso8601String(),
+                ])->values()->all(),
                 'medico' => $cita->medico ? [
                     'id' => $cita->medico->id,
                     'nombre' => trim(($cita->medico->nombre ?? '').' '.($cita->medico->apellido ?? '')),

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CitaPaciente;
 use App\Models\Medico;
 use App\Models\Nota;
+use App\Notifications\NotaCompartidaPaciente;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -89,6 +90,12 @@ class NotaController extends Controller
 
         $nota->compartido = ! $nota->compartido;
         $nota->save();
+
+        if ($nota->compartido && $nota->paciente) {
+            $nota->load('paciente', 'medico');
+
+            $nota->paciente->notify(new NotaCompartidaPaciente($nota));
+        }
 
         return response()->json([
             'success' => true,

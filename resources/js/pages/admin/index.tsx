@@ -7,6 +7,7 @@ import {
     Search,
     Pencil,
     ArrowLeft,
+    GraduationCap,
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import type { ChangeEvent } from 'react';
@@ -125,6 +126,9 @@ interface Medico {
     telefono: string | null;
     especialidad_id: number | null;
     user_id: number | null;
+    name_temp?: string | null;
+    name_original?: string | null;
+    titulo_disponible?: boolean;
     created_at: string;
     especialidad?: Especialidad | null;
 }
@@ -403,21 +407,53 @@ export default function AdminIndex({
                                                 ?.nombre_especialidad ?? '—'}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Button
-                                                asChild
-                                                size="sm"
-                                                variant="outline"
-                                            >
-                                                <Link
-                                                    href={
-                                                        editMedicoRoute(m.id)
-                                                            .url
-                                                    }
+                                            <div className="flex justify-end gap-2">
+                                                {m.name_temp &&
+                                                    (m.titulo_disponible ? (
+                                                        <Button
+                                                            asChild
+                                                            size="sm"
+                                                            variant="outline"
+                                                        >
+                                                            <a
+                                                                href={`/admin/medicos/${m.id}/titulo/descargar`}
+                                                                title={
+                                                                    m.name_original ??
+                                                                    'Descargar título'
+                                                                }
+                                                            >
+                                                                <GraduationCap className="size-3.5" />{' '}
+                                                                Título
+                                                            </a>
+                                                        </Button>
+                                                    ) : (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            disabled
+                                                            title="El archivo no está en este servidor (fue cargado en otra instalación)"
+                                                        >
+                                                            <GraduationCap className="size-3.5" />{' '}
+                                                            Título
+                                                        </Button>
+                                                    ))}
+                                                <Button
+                                                    asChild
+                                                    size="sm"
+                                                    variant="outline"
                                                 >
-                                                    <Pencil className="size-3.5" />{' '}
-                                                    Editar
-                                                </Link>
-                                            </Button>
+                                                    <Link
+                                                        href={
+                                                            editMedicoRoute(
+                                                                m.id,
+                                                            ).url
+                                                        }
+                                                    >
+                                                        <Pencil className="size-3.5" />{' '}
+                                                        Editar
+                                                    </Link>
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))

@@ -14,7 +14,6 @@ class Nota extends Model
     protected $table = 'notas';
 
     protected $fillable = [
-        'id_historial',
         'id_cita_paciente',
         'id_medico',
         'id_paciente',
@@ -28,7 +27,6 @@ class Nota extends Model
 
     protected $casts = [
         'id' => 'integer',
-        'id_historial' => 'integer',
         'id_cita_paciente' => 'integer',
         'id_medico' => 'integer',
         'id_paciente' => 'integer',
@@ -38,11 +36,6 @@ class Nota extends Model
     public function getEncryptedFields(): array
     {
         return $this->encrypted;
-    }
-
-    public function historialPaciente(): BelongsTo
-    {
-        return $this->belongsTo(HistorialPaciente::class, 'id_historial');
     }
 
     public function citaPaciente(): BelongsTo

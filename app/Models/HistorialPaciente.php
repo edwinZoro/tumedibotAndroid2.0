@@ -114,14 +114,6 @@ class HistorialPaciente extends Model
     }
 
     /**
-     * Obtiene las notas de evolución médica asociadas a este historial.
-     */
-    public function notas(): HasMany
-    {
-        return $this->hasMany(Nota::class, 'id_historial');
-    }
-
-    /**
      * Obtiene los archivos adjuntos (exámenes, imágenes, PDFs) del paciente de este historial.
      */
     public function archivos(): HasMany

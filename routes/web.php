@@ -21,6 +21,7 @@ use App\Http\Controllers\Paciente\ArchivosController;
 use App\Http\Controllers\Paciente\CitasController;
 use App\Http\Controllers\Paciente\DatosMedicosController;
 use App\Http\Controllers\Paciente\HistorialPacienteController;
+use App\Http\Controllers\Paciente\RecetaPacienteController;
 use App\Http\Controllers\VideoCallController;
 use App\Models\Especialidades;
 use App\Models\Pais;
@@ -126,6 +127,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/paciente/historial/{historial}/pdf', [HistorialPacienteController::class, 'pdfSingle'])
         ->name('pacientes.historial.pdf');
 
+    // PDF de la receta médica compartida por el médico
+    Route::get('/paciente/receta/{receta}/pdf', [RecetaPacienteController::class, 'pdfSingle'])
+        ->name('pacientes.receta.pdf');
+
     // Descarga y vista en línea (dueño del archivo o médico con acceso otorgado)
     Route::get('/archivos/{archivo}/descargar', [ArchivosController::class, 'descargar'])
         ->name('archivos.descargar');
@@ -206,6 +211,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/medicos/{medico}/editar', [AdminController::class, 'editMedico'])->name('admin.medicos.edit');
         Route::put('/medicos/{medico}', [AdminController::class, 'updateMedico'])->name('admin.medicos.update');
+        Route::get('/medicos/{medico}/titulo/descargar', [AdminController::class, 'descargarTitulo'])->name('admin.medicos.titulo.descargar');
 
         Route::get('/facturas/{factura}/editar', [AdminController::class, 'editFactura'])->name('admin.facturas.edit');
         Route::put('/facturas/{factura}', [AdminController::class, 'updateFactura'])->name('admin.facturas.update');

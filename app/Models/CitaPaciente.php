@@ -100,6 +100,22 @@ class CitaPaciente extends Model
     }
 
     /**
+     * Obtiene las recetas médicas creadas para esta cita.
+     */
+    public function recetas(): HasMany
+    {
+        return $this->hasMany(Receta::class, 'id_cita_paciente');
+    }
+
+    /**
+     * Obtiene las notas de evolución creadas para esta cita.
+     */
+    public function notas(): HasMany
+    {
+        return $this->hasMany(Nota::class, 'id_cita_paciente');
+    }
+
+    /**
      * Obtiene los datos de la videollamada vinculada a esta cita (si aplica).
      */
     public function video_call(): HasOne

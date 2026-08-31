@@ -107,16 +107,6 @@
     @if($historial->conclusiones)
     <strong>Conclusiones:</strong> {{ $historial->conclusiones }}<br>
     @endif
-    <strong>Notas:</strong>
-    @if($historial->notas && count($historial->notas) > 0)
-    <ul>
-        @foreach($historial->notas as $nota)
-        <li>{{ $nota->contenido }}</li>
-        @endforeach
-    </ul>
-    @else
-    No hay notas registradas.
-    @endif
 
     <table style="margin-top: 25px;">
         <tr>

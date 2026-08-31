@@ -1,14 +1,17 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { format, isSameDay, parseISO } from 'date-fns';
+import { format, formatDistanceToNow, isSameDay, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
     Building2,
     Calendar as CalendarIcon,
     CheckCircle2,
+    ChevronDown,
     ClipboardList,
     Clock,
     Hourglass,
     Loader2,
+    NotebookPen,
+    Pill,
     Plus,
     Search,
     ShieldCheck,
@@ -88,6 +91,12 @@ interface MedicoCita {
     foto?: string | null;
 }
 
+interface NotaCompartida {
+    id: number;
+    contenido: string;
+    creado: string | null;
+}
+
 interface CitaProp {
     id: number;
     fecha: string | null;
@@ -97,6 +106,8 @@ interface CitaProp {
     estado_cita?: string | null;
     tipo?: string | null;
     historial_compartido?: number | null;
+    receta_compartida?: number | null;
+    notas_compartidas?: NotaCompartida[];
     medico?: MedicoCita | null;
 }
 
@@ -576,96 +587,175 @@ function CancelarCita({ cita }: { cita: CitaProp }) {
 }
 
 function TarjetaCita({ cita }: { cita: CitaProp }) {
+    const [notasAbiertas, setNotasAbiertas] = useState(false);
     const sinAgenda = !cita.fecha;
+    const notas = cita.notas_compartidas ?? [];
+    const tieneDocumentos =
+        cita.historial_compartido || cita.receta_compartida || notas.length > 0;
 
     return (
-        <div className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200/80 bg-white/80 p-4 shadow-sm backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">
-            <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 shadow-sm">
-                    {cita.tipo === 'VIDEOLLAMADA' ? (
-                        <Video className="h-5 w-5 text-white" />
-                    ) : (
-                        <Building2 className="h-5 w-5 text-white" />
-                    )}
-                </div>
-                <div>
-                    <p className="flex flex-wrap items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-100">
-                        {sinAgenda ? (
-                            <>
-                                <Hourglass className="h-3.5 w-3.5 text-amber-500" />
-                                Pendiente de agenda
-                            </>
+        <div className="rounded-2xl border border-slate-200/80 bg-white/80 p-4 shadow-sm backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">
+            <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 shadow-sm">
+                        {cita.tipo === 'VIDEOLLAMADA' ? (
+                            <Video className="h-5 w-5 text-white" />
                         ) : (
-                            <>
-                                <Clock className="h-3.5 w-3.5 text-sky-500" />
-                                {hora12(cita.hora)}
-                            </>
+                            <Building2 className="h-5 w-5 text-white" />
                         )}
-                        <Badge
-                            className={cn(
-                                'border-transparent text-[10px] font-bold uppercase',
-                                cita.estado_cita === 'CONFIRMADA'
-                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
-                                    : 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
+                    </div>
+                    <div>
+                        <p className="flex flex-wrap items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-100">
+                            {sinAgenda ? (
+                                <>
+                                    <Hourglass className="h-3.5 w-3.5 text-amber-500" />
+                                    Pendiente de agenda
+                                </>
+                            ) : (
+                                <>
+                                    <Clock className="h-3.5 w-3.5 text-sky-500" />
+                                    {hora12(cita.hora)}
+                                </>
                             )}
-                        >
-                            {cita.estado_cita ?? 'PENDIENTE'}
-                        </Badge>
-                    </p>
-                    <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        <Stethoscope className="h-3.5 w-3.5 text-blue-500" />
-                        {cita.medico?.nombre ?? 'Médico'}
-                        {cita.medico?.especialidad ? (
-                            <span className="font-medium text-slate-400">
-                                · {cita.medico.especialidad}
-                            </span>
-                        ) : null}
-                    </p>
-                    {cita.motivo_consulta && (
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                            {cita.motivo_consulta}
+                            <Badge
+                                className={cn(
+                                    'border-transparent text-[10px] font-bold uppercase',
+                                    cita.estado_cita === 'CONFIRMADA'
+                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
+                                        : 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
+                                )}
+                            >
+                                {cita.estado_cita ?? 'PENDIENTE'}
+                            </Badge>
                         </p>
-                    )}
+                        <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            <Stethoscope className="h-3.5 w-3.5 text-blue-500" />
+                            {cita.medico?.nombre ?? 'Médico'}
+                            {cita.medico?.especialidad ? (
+                                <span className="font-medium text-slate-400">
+                                    · {cita.medico.especialidad}
+                                </span>
+                            ) : null}
+                        </p>
+                        {cita.motivo_consulta && (
+                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                {cita.motivo_consulta}
+                            </p>
+                        )}
+                    </div>
+                </div>
+                <div className="flex shrink-0 flex-col items-end gap-2">
+                    {cita.tipo === 'VIDEOLLAMADA' &&
+                        cita.estado_cita === 'CONFIRMADA' && (
+                            <Button
+                                size="sm"
+                                asChild
+                                className="rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 font-semibold shadow-md hover:from-blue-500 hover:to-sky-400"
+                            >
+                                <Link
+                                    href={
+                                        videollamada({
+                                            cita: cita.id,
+                                        }).url
+                                    }
+                                >
+                                    <Video className="mr-1.5 h-4 w-4" />
+                                    Entrar a videollamada
+                                </Link>
+                            </Button>
+                        )}
+                    <CancelarCita cita={cita} />
                 </div>
             </div>
-            <div className="flex shrink-0 flex-col items-end gap-2">
-                {cita.historial_compartido && (
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        className="rounded-xl border-sky-200 text-sky-600 hover:bg-sky-50"
-                        onClick={() =>
-                            window.open(
-                                `/paciente/historial/${cita.historial_compartido}/pdf`,
-                                '_blank',
-                            )
-                        }
-                    >
-                        <FileText className="mr-1.5 h-4 w-4" />
-                        Ver informe médico
-                    </Button>
-                )}
-                {cita.tipo === 'VIDEOLLAMADA' &&
-                    cita.estado_cita === 'CONFIRMADA' && (
+
+            {tieneDocumentos && (
+                <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-200/80 pt-3 dark:border-slate-700/60">
+                    <span className="mr-1 hidden text-[10px] font-bold tracking-widest text-slate-400 uppercase sm:inline dark:text-slate-500">
+                        Compartido:
+                    </span>
+
+                    {cita.historial_compartido && (
                         <Button
                             size="sm"
-                            asChild
-                            className="rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 font-semibold shadow-md hover:from-blue-500 hover:to-sky-400"
+                            variant="outline"
+                            className="gap-1.5 rounded-xl border-sky-200 text-sky-600 hover:bg-sky-50 dark:border-sky-800 dark:text-sky-400 dark:hover:bg-sky-950/40"
+                            onClick={() =>
+                                window.open(
+                                    `/paciente/historial/${cita.historial_compartido}/pdf`,
+                                    '_blank',
+                                )
+                            }
                         >
-                            <Link
-                                href={
-                                    videollamada({
-                                        cita: cita.id,
-                                    }).url
-                                }
-                            >
-                                <Video className="mr-1.5 h-4 w-4" />
-                                Entrar a videollamada
-                            </Link>
+                            <FileText className="h-4 w-4" />
+                            Informe médico
                         </Button>
                     )}
-                <CancelarCita cita={cita} />
-            </div>
+
+                    {cita.receta_compartida && (
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1.5 rounded-xl border-violet-200 text-violet-600 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-950/40"
+                            onClick={() =>
+                                window.open(
+                                    `/paciente/receta/${cita.receta_compartida}/pdf`,
+                                    '_blank',
+                                )
+                            }
+                        >
+                            <Pill className="h-4 w-4" />
+                            Receta médica
+                        </Button>
+                    )}
+
+                    {notas.length > 0 && (
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className={cn(
+                                'gap-1.5 rounded-xl border-teal-200 text-teal-600 hover:bg-teal-50 dark:border-teal-800 dark:text-teal-400 dark:hover:bg-teal-950/40',
+                                notasAbiertas &&
+                                    'bg-teal-50 dark:bg-teal-950/40',
+                            )}
+                            onClick={() => setNotasAbiertas((v) => !v)}
+                        >
+                            <NotebookPen className="h-4 w-4" />
+                            {notas.length === 1
+                                ? 'Nota'
+                                : `Notas (${notas.length})`}
+                            <ChevronDown
+                                className={cn(
+                                    'h-3.5 w-3.5 transition-transform',
+                                    notasAbiertas && 'rotate-180',
+                                )}
+                            />
+                        </Button>
+                    )}
+                </div>
+            )}
+
+            {notasAbiertas && notas.length > 0 && (
+                <div className="mt-3 space-y-2">
+                    {notas.map((nota) => (
+                        <div
+                            key={nota.id}
+                            className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/40"
+                        >
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-700 dark:text-slate-300">
+                                {nota.contenido}
+                            </p>
+                            {nota.creado && (
+                                <p className="mt-1.5 text-[11px] text-slate-400 dark:text-slate-500">
+                                    {formatDistanceToNow(
+                                        new Date(nota.creado),
+                                        { addSuffix: true, locale: es },
+                                    )}
+                                </p>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

@@ -33,6 +33,7 @@ class Medico extends Model
         'apellido',
         'second_name',
         'last_name',
+        'cedula_medico',
         'sexo',
         'telefono',
         'whatsapp',
