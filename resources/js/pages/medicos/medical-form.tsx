@@ -20,6 +20,7 @@ import { z } from 'zod';
 // shadcn components
 import RichTextEditor from '@/components/RichTextEditor';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import Footer from '@/components/footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -922,24 +923,7 @@ window.location.href = responseData.redirect;
                 </main>
             </div>
 
-            {/* Footer */}
-            <footer className="relative z-10 mt-auto w-full border-t border-slate-200/50 bg-white/30 py-6 text-center text-sm text-slate-500 backdrop-blur-xl dark:border-slate-800/50 dark:bg-[#080e1c]/40 dark:text-slate-400">
-                <div className="flex flex-col items-center gap-3">
-                    <div className="flex items-center gap-2 text-blue-600 dark:text-sky-400">
-                        <ShieldCheck className="h-4 w-4" />
-                        <span className="text-[10px] font-bold tracking-widest uppercase">
-                            Transacción Cifrada de Extremo a Extremo
-                        </span>
-                    </div>
-                    <p>
-                        &copy; {new Date().getFullYear()} —{' '}
-                        <strong className="text-slate-700 dark:text-slate-300">
-                            TuMediBot
-                        </strong>
-                        . Todos los derechos reservados.
-                    </p>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

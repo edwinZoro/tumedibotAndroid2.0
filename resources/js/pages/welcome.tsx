@@ -1,15 +1,13 @@
 import { Head, Link, usePage } from '@inertiajs/react';
+import { useEffect, useRef } from 'react';
 import { login, register } from '@/routes';
 import { dashboard } from '@/routes';
-import { useEffect, useRef, useState } from 'react';
+import Footer from '@/components/footer';
 import '../../css/welcome.css';
 
 export default function Welcome() {
     const { auth } = usePage<{ auth: { user: unknown } }>().props;
     const navbarRef = useRef<HTMLElement>(null);
-    const navLinksRef = useRef<HTMLElement>(null);
-    const mobileBtnRef = useRef<HTMLButtonElement>(null);
-    const [mobileOpen, setMobileOpen] = useState(false);
 
     // Sticky navbar on scroll
     useEffect(() => {
@@ -23,18 +21,9 @@ export default function Welcome() {
             }
         };
         window.addEventListener('scroll', handleScroll);
+
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
-
-    // Toggle mobile menu
-    const toggleMobileMenu = () => {
-        setMobileOpen((prev) => !prev);
-    };
-
-    const closeMobileMenu = () => {
-        setMobileOpen(false);
-    };
-
 
     // Scroll animations (Intersection Observer)
     useEffect(() => {
@@ -242,50 +231,31 @@ export default function Welcome() {
                 <header className="navbar" id="navbar" ref={navbarRef}>
                     <div className="nav-container container">
                         <a href="#inicio" className="logo">
-                            <i className="fa-solid fa-heart-pulse"></i> TuMedi
-                            <span>Bot</span>
+                            <i className="fa-solid fa-heart-pulse"></i>
+                            <b className="logo-text">
+                                TuMedi<span>Bot</span>
+                            </b>
                         </a>
 
                         <nav
-                            className={`nav-links${mobileOpen ? 'active' : ''}`}
+                            className="nav-links"
                             id="nav-links"
-                            ref={navLinksRef}
                             aria-label="Navegación principal"
                         >
-                            <a
-                                href="#inicio"
-                                className="nav-link active"
-                                onClick={closeMobileMenu}
-                            >
+                            <a href="#inicio" className="nav-link active">
                                 Inicio
                             </a>
-                            <a
-                                href="#servicios"
-                                className="nav-link"
-                                onClick={closeMobileMenu}
-                            >
+                            <a href="#servicios" className="nav-link">
                                 Servicios
                             </a>
-                            <a
-                                href="#especialistas"
-                                className="nav-link"
-                                onClick={closeMobileMenu}
-                            >
+                            <a href="#especialistas" className="nav-link">
                                 Especialistas
                             </a>
-                            <a
-                                href="#como-funciona"
-                                className="nav-link"
-                                onClick={closeMobileMenu}
-                            >
+                            <a href="#como-funciona" className="nav-link">
                                 ¿Cómo funciona?
                             </a>
                             {auth?.user && (
-                                <Link
-                                    href={dashboard()}
-                                    className="nav-link"
-                                    onClick={closeMobileMenu}
-                                >
+                                <Link href={dashboard()} className="nav-link">
                                     Principal
                                 </Link>
                             )}
@@ -306,7 +276,6 @@ export default function Welcome() {
                                         className="btn btn-outline"
                                     >
                                         Iniciar Sesión
-
                                     </Link>
                                     <Link
                                         href={register().url}
@@ -317,17 +286,6 @@ export default function Welcome() {
                                 </>
                             )}
                         </div>
-
-                        <button
-                            className="mobile-menu-btn"
-                            id="mobile-menu-btn"
-                            ref={mobileBtnRef}
-                            onClick={toggleMobileMenu}
-                        >
-                            <i
-                                className={`fa-solid ${mobileOpen ? 'fa-xmark' : 'fa-bars'}`}
-                            ></i>
-                        </button>
                     </div>
                 </header>
 
@@ -648,67 +606,7 @@ export default function Welcome() {
                     </section>
                 </main>
 
-                <footer className="footer">
-                    <div className="footer-container container">
-                        <div className="footer-col">
-                            <a href="#" className="logo footer-logo">
-                                <i className="fa-solid fa-heart-pulse"></i>{' '}
-                                TuMedi<span>Bot</span>
-                            </a>
-                            <p>
-                                TuMediBot es la plataforma líder en
-                                telemedicina, conectando a pacientes con los
-                                mejores especialistas del mundo en segundos.
-                            </p>
-                            <div
-                                className="social-links"
-                                aria-label="Redes sociales TuMediBot"
-                            >
-                                <a href="#" aria-label="Facebook">
-                                    <i className="fa-brands fa-facebook-f"></i>
-                                </a>
-                                <a href="#" aria-label="TikTok">
-                                    <i className="fa-brands fa-tiktok"></i>
-                                </a>
-                                <a href="#" aria-label="Instagram">
-                                    <i className="fa-brands fa-instagram"></i>
-                                </a>
-                                <a href="#" aria-label="LinkedIn">
-                                    <i className="fa-brands fa-linkedin-in"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div className="footer-col">
-                            <h4>Compañía</h4>
-                            <a href="#">Sobre Nosotros</a>
-                            <a href="#">Carreras</a>
-                            <a href="#">Blog Médico</a>
-                            <a href="#">Contacto</a>
-                        </div>
-                        <div className="footer-col">
-                            <h4>Servicios</h4>
-                            <a href="#">Videoconsultas</a>
-                            <a href="#">Recetas Electrónicas</a>
-                            <a href="#">Segunda Opinión</a>
-                            <a href="#">Planes de Salud</a>
-                        </div>
-                        <div className="footer-col">
-                            <h4>Legal</h4>
-                            <a href="#">Términos de Servicio</a>
-                            <a href="#">Política de Privacidad</a>
-                            <a href="#">Política de Cookies</a>
-                            <a href="#">Seguridad de Datos</a>
-                        </div>
-                    </div>
-                    <div className="footer-bottom">
-                        <div className="container">
-                            <p>
-                                &copy; 2026 TuMediBot. Todos los derechos
-                                reservados.
-                            </p>
-                        </div>
-                    </div>
-                </footer>
+                <Footer />
             </div>
         </>
     );

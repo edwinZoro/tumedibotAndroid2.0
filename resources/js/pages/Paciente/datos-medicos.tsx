@@ -15,6 +15,8 @@ import {
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
+import Footer from '@/components/footer';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -433,7 +435,7 @@ export default function DatosMedicos({ paciente }: Props) {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-12 text-slate-900 antialiased transition-colors duration-300 dark:bg-[#0b1121] dark:text-slate-100">
+        <div className="flex min-h-screen flex-col justify-between bg-slate-50 text-slate-900 antialiased transition-colors duration-300 dark:bg-[#0b1121] dark:text-slate-100">
             <Head title="Datos Médicos · TuMediBot" />
 
             {/* ══ HERO ═══════════════════════════════════════════════════════ */}
@@ -496,6 +498,8 @@ export default function DatosMedicos({ paciente }: Props) {
                     </Card>
                 )}
             </main>
+
+            <Footer />
         </div>
     );
 }

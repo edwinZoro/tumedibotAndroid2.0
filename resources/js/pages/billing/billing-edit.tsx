@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import Footer from '@/components/footer';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
@@ -655,21 +656,7 @@ export default function EditarFacturacion({ user, factura }: Props) {
                 </main>
             </div>
 
-            <footer className="relative z-10 mt-auto w-full border-t border-slate-200/50 bg-white/30 py-6 text-center text-sm text-slate-500 backdrop-blur-xl dark:border-slate-800/50 dark:bg-[#080e1c]/40 dark:text-slate-400">
-                <div className="flex flex-col items-center gap-3">
-                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-                        <ShieldCheck className="h-4 w-4" />
-                        <span className="text-[10px] font-bold tracking-widest uppercase">
-                            Datos seguros y cifrados
-                        </span>
-                    </div>
-                    <p>
-                        &copy; {new Date().getFullYear()} —{' '}
-                        <strong className="text-slate-700 dark:text-slate-300">TuMediBot</strong>
-                        . Todos los derechos reservados.
-                    </p>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

@@ -21,6 +21,8 @@ import {
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
+import Footer from '@/components/footer';
+
 import {
     AlertDialog,
     AlertDialogAction,
@@ -684,7 +686,7 @@ export default function MisArchivos({
     medicos,
 }: Props) {
     return (
-        <div className="min-h-screen bg-slate-50 pb-12 text-slate-900 antialiased transition-colors duration-300 dark:bg-[#0b1121] dark:text-slate-100">
+        <div className="flex min-h-screen flex-col justify-between bg-slate-50 text-slate-900 antialiased transition-colors duration-300 dark:bg-[#0b1121] dark:text-slate-100">
             <Head title="Mis Archivos · TuMediBot" />
 
             {/* ══ HERO ═══════════════════════════════════════════════════════ */}
@@ -751,6 +753,8 @@ export default function MisArchivos({
                     <TablaArchivos archivos={archivos} medicos={medicos} />
                 )}
             </main>
+
+            <Footer />
         </div>
     );
 }

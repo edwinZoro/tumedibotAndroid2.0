@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Copy, CheckCircle, AlertCircle, X, Coins } from 'lucide-react';
+import Footer from '@/components/footer';
 
 // ─── Datos de criptomonedas ──────────────────────────────────────────────
 const cryptos = [
@@ -106,7 +107,7 @@ export default function CryptoPayment() {
     <>
       <Head title="Pagar con Crypto - TuMediBot" />
 
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 py-8 md:py-16">
+      <div className="flex min-h-screen flex-col justify-between bg-gradient-to-b from-background to-muted/30 pt-8 md:pt-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           {/* Encabezado */}
           <div className="mx-auto mb-10 max-w-3xl text-center">
@@ -216,6 +217,8 @@ export default function CryptoPayment() {
             </Badge>
           </div>
         </div>
+
+        <Footer />
       </div>
 
       {/* Snackbar */}

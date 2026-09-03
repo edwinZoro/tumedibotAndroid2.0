@@ -1,6 +1,7 @@
 import React from 'react';
 import { Head, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
+import Footer from '@/components/footer';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -312,6 +313,7 @@ export default function SoyDoctor() {
                     </div>
                 </div>
             </div>
+            <Footer />
         </>
     );
 }

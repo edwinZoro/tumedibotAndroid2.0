@@ -253,15 +253,6 @@
     gap: 1rem;
 }
 
-.welcome-page .mobile-menu-btn {
-    display: none;
-    background: none;
-    border: none;
-    color: var(--clr-text);
-    font-size: 2rem;
-    cursor: pointer;
-}
-
 /* Hero Section */
 .welcome-page .hero {
     position: relative;
@@ -779,39 +770,73 @@
         font-size: 2.5rem;
     }
 
-    .welcome-page .nav-links {
-        position: absolute;
-        top: 100%;
-        left: 0;
+    .welcome-page .navbar {
+        position: static;
+        padding: 1.25rem 0 1rem;
+    }
+
+    .welcome-page .navbar.scrolled {
+        padding: 1.25rem 0 1rem;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border-bottom: none;
+    }
+
+    .welcome-page .nav-container {
+        flex-wrap: wrap;
+        justify-content: center;
+        row-gap: 1rem;
+    }
+
+    .welcome-page .logo {
+        order: 1;
         width: 100%;
-        background: rgba(15, 23, 42, 0.95);
-        backdrop-filter: blur(16px);
-        flex-direction: column;
-        gap: 0;
-        padding: 1rem 0;
-        clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
-        transition: var(--transition);
-    }
-
-    .welcome-page .nav-links.active {
-        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-    }
-
-    .welcome-page .nav-link {
-        padding: 1rem 2rem;
-        display: block;
+        justify-content: center;
     }
 
     .welcome-page .nav-actions {
+        order: 2;
+        width: 100%;
+    }
+
+    .welcome-page .nav-actions .btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    .welcome-page .nav-links {
+        order: 3;
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.35rem 1.4rem;
+        padding: 0;
+    }
+
+    .welcome-page .nav-link {
+        padding: 0.35rem 0;
+        font-size: 0.9rem;
+    }
+
+    .welcome-page .hero {
+        padding: 48px 0 80px;
+        min-height: auto;
+    }
+
+    .welcome-page .hero-content p {
         display: none;
     }
 
-    .welcome-page .mobile-menu-btn {
-        display: block;
+    .welcome-page .badge {
+        display: none;
     }
 
     .welcome-page .hero-buttons {
         flex-direction: column;
+        margin-top: 1.5rem;
     }
 
     .welcome-page .hero-stats {

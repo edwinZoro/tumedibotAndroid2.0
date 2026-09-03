@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { perfil_medico } from '@/routes';
 import medicos from '@/routes/medicos';
 import { citas } from '@/routes/pacientes';
+import Footer from '@/components/footer';
 import {
     Card,
     CardContent,
@@ -639,6 +640,7 @@ export default function Search({
                     ))}
                 </div>
             </div>
+            <Footer />
         </>
     );
 }

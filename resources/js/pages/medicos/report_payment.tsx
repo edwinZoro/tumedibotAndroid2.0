@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import Footer from '@/components/footer';
 import {
     Table,
     TableBody,
@@ -206,7 +207,7 @@ export default function PaymentOverview({
     };
 
     return (
-        <div className="flex flex-col gap-6 p-4 md:p-6">
+        <div className="flex min-h-screen flex-col justify-between p-4 md:p-6">
             {/* ══ 1. PANEL DE SALDOS (Billetera) ══ */}
             <Card className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-md dark:border-slate-800 dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-800 dark:text-white dark:shadow-xl">
                 <CardHeader className="pb-2">
@@ -695,6 +696,8 @@ export default function PaymentOverview({
                     )}
                 </CardContent>
             </Card>
+
+            <Footer />
         </div>
     );
 }

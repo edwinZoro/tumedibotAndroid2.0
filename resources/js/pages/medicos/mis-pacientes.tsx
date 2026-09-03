@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import React, { useState } from 'react';
 
+import Footer from '@/components/footer';
+
 import { AgregarPacienteDialog } from '@/components/medicos/agregar-paciente-dialog';
 import { HistorialSheet } from '@/components/medicos/historial-sheet';
 import { NotaSheet } from '@/components/medicos/nota-sheet';
@@ -429,7 +431,7 @@ export default function MisPacientes({
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-12 text-slate-900 antialiased transition-colors duration-300 dark:bg-[#0b1121] dark:text-slate-100">
+        <div className="flex min-h-screen flex-col justify-between bg-slate-50 text-slate-900 antialiased transition-colors duration-300 dark:bg-[#0b1121] dark:text-slate-100">
             <Head title="Mis Pacientes · TuMediBot" />
 
             {/* Hero */}
@@ -710,6 +712,8 @@ export default function MisPacientes({
                 open={dialogoAbierto}
                 onOpenChange={setDialogoAbierto}
             />
+
+            <Footer />
         </div>
     );
 }

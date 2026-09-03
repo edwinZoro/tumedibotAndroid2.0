@@ -23,6 +23,7 @@ import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import Footer from '@/components/footer';
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar';
 import {
     Card,
@@ -456,7 +457,7 @@ export default function CitasAgenda({
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-12 text-slate-900 antialiased transition-colors duration-300 dark:bg-[#0b1121] dark:text-slate-100">
+        <div className="flex min-h-screen flex-col justify-between bg-slate-50 text-slate-900 antialiased transition-colors duration-300 dark:bg-[#0b1121] dark:text-slate-100">
             <Head title="Citas (Agenda) · TuMediBot" />
 
             <section className="relative overflow-hidden bg-blue-50/50 pt-12 pb-16 lg:pt-16 lg:pb-20 dark:bg-[#0b1121]">
@@ -791,6 +792,8 @@ export default function CitasAgenda({
                 open={fechaDialogo}
                 onOpenChange={setFechaDialogo}
             />
+
+            <Footer />
         </div>
     );
 }

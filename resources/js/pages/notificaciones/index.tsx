@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Footer from '@/components/footer';
 import { cn } from '@/lib/utils';
 
 interface NotificacionData {
@@ -374,7 +375,7 @@ export default function NotificacionesIndex({ notificaciones }: Props) {
         <>
             <Head title="Notificaciones" />
 
-            <div className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900 antialiased transition-colors duration-300 sm:py-10 dark:bg-[#0b1121] dark:text-slate-100">
+            <div className="flex min-h-screen flex-col justify-between bg-slate-50 px-4 py-8 text-slate-900 antialiased transition-colors duration-300 sm:py-10 dark:bg-[#0b1121] dark:text-slate-100">
                 <div className="mx-auto w-full max-w-3xl space-y-6">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
@@ -868,6 +869,8 @@ export default function NotificacionesIndex({ notificaciones }: Props) {
                         </>
                     )}
                 </div>
+
+                <Footer />
             </div>
         </>
     );

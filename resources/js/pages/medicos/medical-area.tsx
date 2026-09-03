@@ -21,6 +21,7 @@ import {
 import { React, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { ConfiguracionFirmaSheet } from '@/components/medicos/configuracion-firma-sheet';
+import Footer from '@/components/footer';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -134,6 +135,44 @@ export default function AreaMedica({
             .catch(() => {});
     }, []);
 
+    useEffect(() => {
+        const date = new Date();
+        const cacheBust = `${date.getFullYear()}${date.getMonth()}${date.getDate()}`;
+
+        window.LHC_API = {
+            args: {
+                mode: 'widget',
+                lhc_base_url:
+                    'https://pruebas.tumedibot.com/livehelper/index.php/',
+                wheight: 450,
+                wwidth: 350,
+                pheight: 520,
+                pwidth: 500,
+                leaveamessage: true,
+                check_messages: false,
+                lang: 'esp/',
+            },
+        };
+
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.setAttribute('crossorigin', 'anonymous');
+        script.async = true;
+        script.src = `https://pruebas.tumedibot.com/livehelper/design/defaulttheme/js/widgetv2/index.js?${cacheBust}`;
+        document.body.appendChild(script);
+
+        return () => {
+            script.remove();
+            document
+                .querySelectorAll<HTMLElement>('[id^="lhc_"]')
+                .forEach((element) => {
+                    if (element.id !== 'lhc_status_container_page') {
+                        element.remove();
+                    }
+                });
+        };
+    }, []);
+
     const handleDeleteProfile = () => {
         router.delete(`/delete_medico_perfil/${medico?.id}`, {
             onSuccess: () => {
@@ -143,7 +182,7 @@ export default function AreaMedica({
                 // Si deseas recargar la página para reflejar cambios
                 // router.reload();
             },
-            onError: (errors) => {
+            onError: () => {
                 toast.error('Error al eliminar el perfil. Inténtalo de nuevo.');
                 setIsDeleteDialogOpen(false);
             },
@@ -489,6 +528,13 @@ export default function AreaMedica({
                         .catch(() => {});
                 }}
             />
+
+            <div
+                id="lhc_status_container_page"
+                className="fixed right-5 bottom-5 z-50"
+            />
+
+            <Footer />
         </div>
     );
 }

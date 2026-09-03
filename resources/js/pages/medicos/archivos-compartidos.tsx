@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 
+import Footer from '@/components/footer';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -200,7 +202,7 @@ export default function ArchivosCompartidos({
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-12 text-slate-900 antialiased transition-colors duration-300 dark:bg-[#0b1121] dark:text-slate-100">
+        <div className="flex min-h-screen flex-col justify-between bg-slate-50 text-slate-900 antialiased transition-colors duration-300 dark:bg-[#0b1121] dark:text-slate-100">
             <Head title="Archivos Compartidos · TuMediBot" />
 
             {/* ══ HERO ═══════════════════════════════════════════════════════ */}
@@ -528,6 +530,8 @@ export default function ArchivosCompartidos({
                     </CardContent>
                 </Card>
             </main>
+
+            <Footer />
         </div>
     );
 }
