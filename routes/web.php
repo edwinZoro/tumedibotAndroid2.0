@@ -29,6 +29,7 @@ use App\Models\State;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+Route::post('/enviar_correo', [ProfileMedical::class, 'enviarMensajeDoctor'])->name('enviar_correo');
 
 Route::prefix('medicos')->group(function () {
     Route::get('area-medico', [MedicalAreaController::class, 'show'])->name('medicos.area');

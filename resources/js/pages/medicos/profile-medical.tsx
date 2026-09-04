@@ -260,26 +260,43 @@ export default function MedicoPerfil({ medico, user }: MedicoPerfilProps) {
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     ) => {
         const { name, value } = e.target;
+        if (name === 'message' && value.length > 200) {
+            return;
+        }
         setContactForm((p) => ({ ...p, [name]: value }));
     };
 
     const submitContactForm = async (e: React.FormEvent) => {
         e.preventDefault();
         const newErrors: string[] = [];
-        if (!contactForm.name) newErrors.push('El nombre es requerido');
-        if (!contactForm.email) newErrors.push('El correo es requerido');
-        if (!contactForm.phone) newErrors.push('El teléfono es requerido');
-        if (!contactForm.message) newErrors.push('El mensaje es requerido');
+
+        if (!contactForm.name.trim()) newErrors.push('El nombre completo es obligatorio');
+        if (!contactForm.email.trim()) {
+            newErrors.push('El correo electrónico es obligatorio');
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactForm.email.trim())) {
+            newErrors.push('Ingrese un correo electrónico válido');
+        }
+        if (!contactForm.phone.trim()) newErrors.push('El número de teléfono es obligatorio');
+        if (!contactForm.message.trim()) {
+            newErrors.push('El mensaje es obligatorio');
+        } else if (contactForm.message.length > 200) {
+            newErrors.push('El mensaje no puede exceder los 200 caracteres');
+        }
+        if (!contactForm.email_doctor) {
+            newErrors.push('El correo del médico no está configurado');
+        }
+
         if (newErrors.length > 0) {
             setErrors(newErrors);
+            toast.error('Por favor corrige los campos requeridos');
             return;
         }
 
         setErrors([]);
         setLoading(true);
         try {
-            await axios.post('/enviar_correo', contactForm);
-            alert('Mensaje enviado: Tu mensaje ha sido enviado exitosamente');
+            const response = await axios.post('/enviar_correo', contactForm);
+            toast.success(response.data?.message || 'Tu mensaje ha sido enviado exitosamente al médico');
             setContactForm({
                 name: '',
                 email: '',
@@ -289,11 +306,11 @@ export default function MedicoPerfil({ medico, user }: MedicoPerfilProps) {
             });
         } catch (error: any) {
             const apiErrors = error.response?.data?.errors;
-            setErrors(
-                apiErrors
-                    ? (Object.values(apiErrors).flat() as string[])
-                    : ['Ocurrió un error al enviar el mensaje'],
-            );
+            const errList = apiErrors
+                ? (Object.values(apiErrors).flat() as string[])
+                : [error.response?.data?.message || 'Ocurrió un error al enviar el mensaje'];
+            setErrors(errList);
+            toast.error(errList[0] || 'Ocurrió un error al enviar el mensaje');
         } finally {
             setLoading(false);
         }
@@ -765,19 +782,31 @@ export default function MedicoPerfil({ medico, user }: MedicoPerfilProps) {
                                     )}
 
                                     <div className="space-y-1">
-                                        <label
-                                            htmlFor="message"
-                                            className="text-[11px] font-bold tracking-widest text-slate-400 uppercase"
-                                        >
-                                            Mensaje / Consulta
-                                        </label>
+                                        <div className="flex items-center justify-between">
+                                            <label
+                                                htmlFor="message"
+                                                className="text-[11px] font-bold tracking-widest text-slate-400 uppercase"
+                                            >
+                                                Mensaje / Consulta
+                                            </label>
+                                            <span
+                                                className={`text-[11px] font-semibold ${
+                                                    contactForm.message.length >= 200
+                                                        ? 'text-rose-500 font-bold'
+                                                        : 'text-slate-400'
+                                                }`}
+                                            >
+                                                {contactForm.message.length}/200
+                                            </span>
+                                        </div>
                                         <Textarea
                                             id="message"
                                             name="message"
                                             rows={4}
+                                            maxLength={200}
                                             value={contactForm.message}
                                             onChange={handleInputChange}
-                                            placeholder="Escribe tu consulta aquí..."
+                                            placeholder="Escribe tu consulta aquí (máx. 200 caracteres)..."
                                             className="rounded-xl border-slate-200 bg-slate-50 focus-visible:ring-sky-500/30 dark:border-slate-800 dark:bg-slate-950"
                                         />
                                     </div>
