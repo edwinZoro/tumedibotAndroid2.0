@@ -17,6 +17,7 @@ import {
     MapPin,
     FilePen,
     FileSignature,
+    HelpCircle,
 } from 'lucide-react';
 import { React, useState, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -161,12 +162,29 @@ export default function AreaMedica({
         script.src = `https://pruebas.tumedibot.com/livehelper/design/defaulttheme/js/widgetv2/index.js?${cacheBust}`;
         document.body.appendChild(script);
 
+        // ── LiveHelper FAQ Embed ──
+        (window as any).LHCFAQOptions = {
+            url: window.location.href,
+            identifier: '',
+        };
+
+        const faqScript = document.createElement('script');
+        faqScript.type = 'text/javascript';
+        faqScript.async = true;
+        faqScript.src =
+            'https://pruebas.tumedibot.com/livehelper/index.php/esp/faq/embed';
+        document.body.appendChild(faqScript);
+
         return () => {
             script.remove();
+            faqScript.remove();
             document
                 .querySelectorAll<HTMLElement>('[id^="lhc_"]')
                 .forEach((element) => {
-                    if (element.id !== 'lhc_status_container_page') {
+                    if (
+                        element.id !== 'lhc_status_container_page' &&
+                        element.id !== 'lhc_faq_embed_container'
+                    ) {
                         element.remove();
                     }
                 });
@@ -509,6 +527,36 @@ export default function AreaMedica({
                                     </div>
                                 ))
                             )}
+                        </CardContent>
+                    </Card>
+
+                    {/* ── Preguntas Frecuentes (LiveHelper FAQ Embed) ── */}
+                    <Card className="overflow-hidden rounded-3xl border-slate-200/80 bg-white/80 shadow-lg backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">
+                        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-500" />
+                        <CardHeader className="border-b border-slate-100 bg-slate-50/50 pb-4 dark:border-slate-800 dark:bg-slate-800/20">
+                            <CardTitle className="flex items-center gap-3 text-base font-bold">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-100 dark:bg-sky-900/40">
+                                    <HelpCircle className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                                        Preguntas Frecuentes y Soporte
+                                    </h3>
+                                    <p className="text-xs font-normal text-slate-500 dark:text-slate-400">
+                                        Respuestas rápidas para el profesional médico y soporte de la plataforma
+                                    </p>
+                                </div>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                            <div className="min-h-[140px] rounded-2xl border border-slate-100 bg-slate-50/50 p-4 shadow-inner dark:border-slate-800 dark:bg-slate-950/40">
+                                <div id="lhc_faq_embed_container">
+                                    <div className="flex items-center justify-center gap-2 py-8 text-xs font-medium text-slate-400">
+                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-sky-500 border-t-transparent" />
+                                        <span>Cargando Preguntas Frecuentes...</span>
+                                    </div>
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
