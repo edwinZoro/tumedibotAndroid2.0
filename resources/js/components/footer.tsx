@@ -219,7 +219,7 @@ export function Footer() {
                         </span>
                         <span className="flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold text-sky-700 dark:border-sky-900/50 dark:bg-sky-950/40 dark:text-sky-400">
                             <Lock className="h-3.5 w-3.5" />
-                            Encriptación HIPAA
+                            Datos Cifrados
                         </span>
                     </div>
                 </div>

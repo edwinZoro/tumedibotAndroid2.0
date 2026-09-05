@@ -42,6 +42,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { login } from '@/routes';
 
+// Agrega estas importaciones en la parte superior (si no las tienes)
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+
 // ─── Interfaces ────────────────────────────────────────────────────────────────
 interface Especialidad {
     nombre_especialidad: string;
@@ -83,9 +93,11 @@ interface Medico {
     experiencia: number;
 }
 
+// Actualiza tu interfaz MedicoPerfilProps
 interface MedicoPerfilProps {
     medico: Medico;
     user: number;
+    hasMedicalData: boolean; // <-- Nueva prop
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
@@ -164,8 +176,9 @@ function SocialPill({
 }
 
 // ─── Main Component ────────────────────────────────────────────────────────────
-export default function MedicoPerfil({ medico, user }: MedicoPerfilProps) {
+export default function MedicoPerfil({ medico, user, hasMedicalData }: MedicoPerfilProps) {
     const [dialogoAbierto, setDialogoAbierto] = useState(false);
+    const [alertaDatosAbierta, setAlertaDatosAbierta] = useState(false); // <-- Nuevo estado
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);
     const [activeTab, setActiveTab] = useState<
@@ -178,6 +191,14 @@ export default function MedicoPerfil({ medico, user }: MedicoPerfilProps) {
         message: '',
         email_doctor: medico.correo || '',
     });
+    // Nueva función para el botón de agendar
+    const handleAgendarClick = () => {
+        if (!hasMedicalData) {
+            setAlertaDatosAbierta(true); // Abre la alerta si faltan datos
+        } else {
+            setDialogoAbierto(true); // Abre el formulario de cita si todo está bien
+        }
+    };
 
     // ── Computed values ──
     const doctorTitle = useMemo(() => {
@@ -453,7 +474,7 @@ export default function MedicoPerfil({ medico, user }: MedicoPerfilProps) {
                         <div className="shrink-0 pb-2">
                             <Button
                                 size="lg"
-                                onClick={() => setDialogoAbierto(true)}
+                                onClick={handleAgendarClick} // <-- Usar la nueva función
                                 className="group relative cursor-pointer overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-sky-500 px-8 py-6 text-base font-bold text-white shadow-lg shadow-blue-500/25 transition-all duration-300 hover:scale-105 hover:shadow-blue-500/40"
                             >
                                 <span className="absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/10 transition-transform duration-500 group-hover:translate-x-full" />
@@ -705,7 +726,7 @@ export default function MedicoPerfil({ medico, user }: MedicoPerfilProps) {
 
                                 <Button
                                     size="lg"
-                                    onClick={() => setDialogoAbierto(true)}
+                                    onClick={handleAgendarClick} // <-- Usar la nueva función
                                     className="group relative mt-6 w-full cursor-pointer overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 py-6 text-sm font-bold text-white shadow-lg shadow-blue-500/25 transition-all duration-300 hover:scale-[1.02] hover:from-blue-500 hover:to-sky-400"
                                 >
                                     <span className="absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/10 transition-transform duration-500 group-hover:translate-x-full" />
@@ -841,6 +862,42 @@ export default function MedicoPerfil({ medico, user }: MedicoPerfilProps) {
                 open={dialogoAbierto}
                 onOpenChange={setDialogoAbierto}
             />
+
+            {/* NUEVO: Modal de Alerta por datos faltantes */}
+            <Dialog open={alertaDatosAbierta} onOpenChange={setAlertaDatosAbierta}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-rose-500">
+                            <ShieldCheck className="h-5 w-5" />
+                            Datos Médicos Requeridos
+                        </DialogTitle>
+                        <DialogDescription className="text-slate-600 dark:text-slate-300">
+                            Para poder agendar una consulta con el <strong>{doctorTitle} {medico.nombre} {medico.apellido}</strong>,
+                            primero debes completar tu perfil médico básico.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                         <p className="text-sm text-center text-slate-500">
+                             Esto nos permite garantizar que el médico cuente con tu información de contacto correcta antes de la cita.
+                         </p>
+                    </div>
+
+                    <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4">
+                        <Button
+                            variant="outline"
+                            onClick={() => setAlertaDatosAbierta(false)}
+                        >
+                            Cancelar
+                        </Button>
+                        <Link href="/paciente/datos-medicos" className="w-full sm:w-auto">
+                            <Button className="w-full bg-gradient-to-r from-blue-600 to-sky-500 text-white hover:from-blue-500 hover:to-sky-400 shadow-md">
+                                Completar mis datos
+                            </Button>
+                        </Link>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             <Footer />
         </div>

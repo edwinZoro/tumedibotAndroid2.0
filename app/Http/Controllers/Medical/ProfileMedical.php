@@ -8,6 +8,7 @@ use App\Models\Medico;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use App\Models\Paciente;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,9 +22,19 @@ class ProfileMedical extends Controller
         $medico = Medico::with(['especialidad', 'pais', 'estado', 'ciudad'])->findOrFail($id);
         $user = auth()->id() ?? 0;
 
+        // Verificamos si el usuario actual tiene sus datos médicos completos
+        $hasMedicalData = false;
+        if ($user) {
+            $paciente = Paciente::where('user_id', $user)->first();
+            if ($paciente && !empty($paciente->nombre_paciente) && !empty($paciente->tlf_paciente)) {
+                $hasMedicalData = true;
+            }
+        }
+
         return Inertia::render('medicos/profile-medical', [
             'medico' => $medico,
             'user' => $user,
+            'hasMedicalData' => $hasMedicalData, // <-- AGREGA ESTA LÍNEA
         ]);
     }
 
