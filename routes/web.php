@@ -26,10 +26,23 @@ use App\Http\Controllers\VideoCallController;
 use App\Models\Especialidades;
 use App\Models\Pais;
 use App\Models\State;
+use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 Route::post('/enviar_correo', [ProfileMedical::class, 'enviarMensajeDoctor'])->name('enviar_correo');
+// Ruta pública accesible para cualquier visitante
+Route::get('/terminos-de-servicio', function () {
+    return Inertia::render('policys/terms');
+})->name('terms');
+
+Route::get('/politica-de-privacidad', function () {
+    return Inertia::render('policys/privacy');
+})->name('privacy');
+
+Route::get('/politica-de-cookies', function () {
+    return Inertia::render('policys/cookies');
+})->name('cookies');
 
 Route::prefix('medicos')->group(function () {
     Route::get('area-medico', [MedicalAreaController::class, 'show'])->name('medicos.area');

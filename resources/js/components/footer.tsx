@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Link } from '@inertiajs/react';
 import {
     HeartPulse,
@@ -169,7 +170,7 @@ export function Footer() {
                         <ul className="space-y-2.5 text-sm">
                             <li>
                                 <a
-                                    href="#"
+                                    href="/terminos-de-servicio"
                                     className="text-slate-500 transition-colors hover:text-blue-600 dark:text-slate-400 dark:hover:text-white"
                                 >
                                     Términos de Servicio
@@ -177,7 +178,7 @@ export function Footer() {
                             </li>
                             <li>
                                 <a
-                                    href="#"
+                                    href='/politica-de-privacidad'
                                     className="text-slate-500 transition-colors hover:text-blue-600 dark:text-slate-400 dark:hover:text-white"
                                 >
                                     Política de Privacidad
@@ -185,7 +186,7 @@ export function Footer() {
                             </li>
                             <li>
                                 <a
-                                    href="#"
+                                    href='/politica-de-cookies'
                                     className="text-slate-500 transition-colors hover:text-blue-600 dark:text-slate-400 dark:hover:text-white"
                                 >
                                     Política de Cookies
