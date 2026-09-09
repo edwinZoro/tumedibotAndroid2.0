@@ -89,6 +89,18 @@ Route::prefix('api')->group(function () {
     Route::post('/reporte-pago', [MedicoReportController::class, 'store']);
 });
 
+Route::get('/medicalfoo/mispacientes', function () {
+    return inertia('medicalfoo/mispacientes');
+})->name('medicalfoo.mispacientes');
+
+Route::get('/medicalfoo/miagenda', function () {
+    return inertia('medicalfoo/miagenda');
+})->name('medicalfoo.miagenda');
+
+Route::get('/medicalfoo/archivos', function () {
+    return inertia('medicalfoo/archivos');
+})->name('medicalfoo.archivos');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/ListadoDeMedicosDeLatinoamericaTumedibot', [MedicoSearchController::class, 'index'])->name('dashboard');
 

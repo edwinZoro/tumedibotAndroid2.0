@@ -2,7 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
 import { login, register } from '@/routes';
 import { dashboard } from '@/routes';
-import Footer from '@/components/footer';
+import WelcomeFooter from '@/components/welcome-footer';
 import '../../css/welcome.css';
 
 export default function Welcome() {
@@ -606,7 +606,7 @@ export default function Welcome() {
                     </section>
                 </main>
 
-                <Footer />
+                <WelcomeFooter />
             </div>
         </>
     );
