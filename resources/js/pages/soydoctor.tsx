@@ -33,6 +33,12 @@ const plans = [
             'Habilitar Chat de Soporte',
             'Aparecer en listados de busqueda',
             'Configurar Calendario de Citas',
+            'Compartir archivos',
+            'Crear Recetas Médicas',
+            'Enviar recetas a pacientes',
+            'Videoconsultas',
+            'Crear Historial Médico',
+            'Crear Contenido en Blog de Noticias',
         ],
         icon: (
             <path
@@ -62,6 +68,12 @@ const plans = [
             'Habilitar Chat de Soporte',
             'Aparecer en listados de busqueda',
             'Configurar Calendario de Citas',
+            'Compartir archivos',
+            'Crear Recetas Médicas',
+            'Enviar recetas a pacientes',
+            'Videoconsultas',
+            'Crear Historial Médico',
+            'Crear Contenido en Blog de Noticias',
         ],
         icon: (
             <>
@@ -92,6 +104,12 @@ const plans = [
             'Habilitar Chat de Soporte',
             'Aparecer en listados de busqueda',
             'Configurar Calendario de Citas',
+            'Compartir archivos',
+            'Crear Recetas Médicas',
+            'Enviar recetas a pacientes',
+            'Videoconsultas',
+            'Crear Historial Médico',
+            'Crear Contenido en Blog de Noticias',
         ],
         icon: (
             <path
