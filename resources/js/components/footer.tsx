@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import React from 'react';
 import { soydoctor } from '@/routes';
+import { toast } from 'sonner';
 
 interface FooterProps {
     auth?: {
@@ -263,13 +264,21 @@ export function Footer({ auth: propsAuth }: FooterProps) {
                                     href: '/notificaciones',
                                 },
                                 {
-                                    label: 'Centro de Ayuda',
-                                    href: '/#servicios',
+                                    label: 'Contacto',
+                                    href: '#',
+                                    title: 'tumedibot@gmail.com',
+                                    onClick: (e: any) => {
+                                        e.preventDefault();
+                                        navigator.clipboard.writeText('tumedibot@gmail.com');
+                                        toast.success('Correo copiado exitosamente');
+                                    }
                                 },
                             ].map((item, idx) => (
                                 <li key={idx}>
                                     <Link
                                         href={item.href}
+                                        title={item.title}
+                                        onClick={item.onClick}
                                         className="group inline-flex items-center gap-1 text-slate-600 transition-all duration-200 hover:translate-x-1 hover:text-blue-600 dark:text-slate-400 dark:hover:text-sky-400"
                                     >
                                         <ChevronRight className="h-3.5 w-3.5 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100 dark:text-sky-400" />

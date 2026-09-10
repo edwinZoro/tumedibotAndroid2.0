@@ -131,6 +131,9 @@ class MedicalFormController extends Controller
             $user->save();
         }
 
+        // ─── 🌐 Sincronizar con WordPress ────────────────────────────────────
+        \App\Jobs\SyncDoctorToWordPress::dispatch($medico);
+
         // ─── ✅ Respuesta JSON (coincide con lo que espera el frontend) ────
         return response()->json([
             'success' => true,

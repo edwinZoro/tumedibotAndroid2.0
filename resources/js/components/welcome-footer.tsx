@@ -1,4 +1,6 @@
+import React from 'react';
 import { Link } from '@inertiajs/react';
+import { toast } from 'sonner';
 import { soydoctor } from '@/routes';
 
 interface WelcomeFooterProps {
@@ -65,7 +67,16 @@ export function WelcomeFooter({ auth }: WelcomeFooterProps) {
                 },
                 { label: 'Política de Cookies', href: '/politica-de-cookies' },
                 { label: 'Notificaciones', href: '/notificaciones' },
-                { label: 'Centro de Ayuda', href: '/#servicios' },
+                {
+                    label: 'Contacto',
+                    href: '#',
+                    title: 'tumedibot@gmail.com',
+                    onClick: (e: any) => {
+                        e.preventDefault();
+                        navigator.clipboard.writeText('tumedibot@gmail.com');
+                        toast.success('Correo copiado exitosamente');
+                    }
+                },
             ],
         },
     ];
@@ -153,6 +164,7 @@ export function WelcomeFooter({ auth }: WelcomeFooterProps) {
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="wf-link"
+                                                title={(link as any).title}
                                             >
                                                 <i className="fa-solid fa-chevron-right wf-link-icon" />
                                                 {link.label}
@@ -162,6 +174,8 @@ export function WelcomeFooter({ auth }: WelcomeFooterProps) {
                                             <Link
                                                 href={link.href}
                                                 className="wf-link"
+                                                title={(link as any).title}
+                                                onClick={(link as any).onClick}
                                             >
                                                 <i className="fa-solid fa-chevron-right wf-link-icon" />
                                                 {link.label}
