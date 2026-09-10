@@ -101,6 +101,22 @@ Route::get('/medicalfoo/archivos', function () {
     return inertia('medicalfoo/archivos');
 })->name('medicalfoo.archivos');
 
+Route::get('/patientfoo/video', function () {
+    return inertia('patientfoo/video');
+})->name('patientfoo.video');
+
+Route::get('/patientfoo/medicaldata', function () {
+    return inertia('patientfoo/medicaldata');
+})->name('patientfoo.medicaldata');
+
+Route::get('/patientfoo/myfiles', function () {
+    return inertia('patientfoo/myfiles');
+})->name('patientfoo.myfiles');
+
+Route::get('/patientfoo/myappoinments', function () {
+    return inertia('patientfoo/myappoinments');
+})->name('patientfoo.myappoinments');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/ListadoDeMedicosDeLatinoamericaTumedibot', [MedicoSearchController::class, 'index'])->name('dashboard');
 

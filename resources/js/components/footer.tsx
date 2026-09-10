@@ -151,24 +151,24 @@ export function Footer({ auth: propsAuth }: FooterProps) {
                         <ul className="space-y-2.5 text-sm">
                             {[
                                 {
+                                    label: 'Datos Médicos',
+                                    href: '/patientfoo/medicaldata',
+                                },
+                                {
+                                    label: 'Mis Archivos',
+                                    href: '/patientfoo/myfiles',
+                                },
+                                {
+                                    label: 'Mis Citas',
+                                    href: '/patientfoo/myappoinments',
+                                },
+                                {
                                     label: 'Buscar Médicos',
                                     href: '/medicos/search',
                                 },
                                 {
                                     label: 'Videoconsultas',
-                                    href: '/paciente/mis-citas',
-                                },
-                                {
-                                    label: 'Mis Citas',
-                                    href: '/paciente/mis-citas',
-                                },
-                                {
-                                    label: 'Mis Archivos Médicos',
-                                    href: '/paciente/mis-archivos',
-                                },
-                                {
-                                    label: 'Datos Médicos',
-                                    href: '/paciente/datos-medicos',
+                                    href: '/patientfoo/video',
                                 },
                             ].map((item, idx) => (
                                 <li key={idx}>
