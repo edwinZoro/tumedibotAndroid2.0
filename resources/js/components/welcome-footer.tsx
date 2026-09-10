@@ -85,19 +85,19 @@ export function WelcomeFooter({ auth }: WelcomeFooterProps) {
         {
             label: 'Facebook',
             icon: 'fa-facebook-f',
-            href: 'https://facebook.com',
+            href: 'https://www.facebook.com/share/1CGD6369BK/',
         },
         {
             label: 'Instagram',
             icon: 'fa-instagram',
-            href: 'https://instagram.com',
+            href: 'https://www.instagram.com/tumedibot?stkn=ZW52cjY5cXlqYnBh',
         },
         {
             label: 'LinkedIn',
             icon: 'fa-linkedin-in',
             href: 'https://linkedin.com',
         },
-        { label: 'TikTok', icon: 'fa-tiktok', href: 'https://tiktok.com' },
+        { label: 'TikTok', icon: 'fa-tiktok', href: 'https://www.tiktok.com/@tumedibot?_r=1&_t=ZS-99cfPjVf3Tk' },
     ];
 
     return (

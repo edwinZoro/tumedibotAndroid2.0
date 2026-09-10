@@ -106,7 +106,7 @@ export function Footer({ auth: propsAuth }: FooterProps) {
                             </span>
                             <div className="flex items-center gap-3">
                                 <a
-                                    href="https://facebook.com"
+                                    href="https://www.facebook.com/share/1CGD6369BK/"
                                     target="_blank"
                                     rel="noreferrer"
                                     aria-label="Facebook"
@@ -115,7 +115,7 @@ export function Footer({ auth: propsAuth }: FooterProps) {
                                     <Facebook className="h-4.5 w-4.5 transition-transform group-hover:scale-110" />
                                 </a>
                                 <a
-                                    href="https://instagram.com"
+                                    href="https://www.instagram.com/tumedibot?stkn=ZW52cjY5cXlqYnBh"
                                     target="_blank"
                                     rel="noreferrer"
                                     aria-label="Instagram"
@@ -133,7 +133,7 @@ export function Footer({ auth: propsAuth }: FooterProps) {
                                     <Linkedin className="h-4.5 w-4.5 transition-transform group-hover:scale-110" />
                                 </a>
                                 <a
-                                    href="https://tiktok.com"
+                                    href="https://www.tiktok.com/@tumedibot?_r=1&_t=ZS-99cfPjVf3Tk"
                                     target="_blank"
                                     rel="noreferrer"
                                     aria-label="TikTok"
