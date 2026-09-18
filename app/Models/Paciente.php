@@ -125,4 +125,13 @@ class Paciente extends Model
     {
         return $this->notifications()->whereNull('read_at');
     }
+
+    /**
+     * Recordatorios de medicamentos configurados por el paciente.
+     */
+    public function recordatoriosMedicamentos(): HasMany
+    {
+        return $this->hasMany(RecordatorioMedicamento::class, 'paciente_id');
+    }
 }
+

@@ -22,6 +22,7 @@ use App\Http\Controllers\Paciente\CitasController;
 use App\Http\Controllers\Paciente\DatosMedicosController;
 use App\Http\Controllers\Paciente\HistorialPacienteController;
 use App\Http\Controllers\Paciente\RecetaPacienteController;
+use App\Http\Controllers\Paciente\RecordatorioMedicamentoController;
 use App\Http\Controllers\VideoCallController;
 use App\Models\Especialidades;
 use App\Models\Pais;
@@ -117,6 +118,10 @@ Route::get('/patientfoo/myappoinments', function () {
     return inertia('patientfoo/myappoinments');
 })->name('patientfoo.myappoinments');
 
+Route::get('/patientfoo/mymedicines', function () {
+    return inertia('patientfoo/mymedicines');
+})->name('patientfoo.mymedicines');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/ListadoDeMedicosDeLatinoamericaTumedibot', [MedicoSearchController::class, 'index'])->name('dashboard');
 
@@ -165,6 +170,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/paciente/mis-citas/{cita}', [CitasController::class, 'destroy'])
         ->name('pacientes.citas.destroy');
 
+    // Recordatorios de medicamentos del paciente
+    Route::get('/paciente/mis-medicamentos', [RecordatorioMedicamentoController::class, 'index'])
+        ->name('pacientes.medicamentos');
+    Route::get('/api/medicamentos/buscar', [RecordatorioMedicamentoController::class, 'searchMedicamentos'])
+        ->name('pacientes.medicamentos.buscar');
+    Route::post('/paciente/mis-medicamentos', [RecordatorioMedicamentoController::class, 'store'])
+        ->name('pacientes.medicamentos.store');
+    Route::patch('/paciente/mis-medicamentos/{recordatorio}/toggle', [RecordatorioMedicamentoController::class, 'toggle'])
+        ->name('pacientes.medicamentos.toggle');
+    Route::delete('/paciente/mis-medicamentos/{recordatorio}', [RecordatorioMedicamentoController::class, 'destroy'])
+        ->name('pacientes.medicamentos.destroy');
+
     // PDF del historial clínico compartido por el médico
     Route::get('/paciente/historial/{historial}/pdf', [HistorialPacienteController::class, 'pdfSingle'])
         ->name('pacientes.historial.pdf');
@@ -200,6 +217,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('medicos.pacientes');
     Route::post('/medico/mis-pacientes/paciente', [MedicoPacientesController::class, 'storePaciente'])
         ->name('medicos.pacientes.store');
+
+    // Crear nueva cita completa para un paciente del consultorio (desde Mis Pacientes)
+    Route::post('/medico/mis-pacientes/{paciente}/cita', [MedicoPacientesController::class, 'storeCita'])
+        ->name('medicos.pacientes.cita.store');
+
+    // Asignar / actualizar fecha de una cita existente (desde Mis Pacientes)
+    Route::put('/medico/mis-pacientes/cita/{cita}/fecha', [MedicoPacientesController::class, 'asignarFechaCita'])
+        ->name('medicos.pacientes.cita.fecha');
 
     // Historial Clínico
     Route::get('/medico/historial/{citaPaciente}', [HistorialController::class, 'index'])->name('medicos.historial.index');

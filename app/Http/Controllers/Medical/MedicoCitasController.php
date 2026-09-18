@@ -37,6 +37,10 @@ class MedicoCitasController extends Controller
 
         $citasQuery = CitaPaciente::query()
             ->where('id_medico', $medico->id)
+            ->whereHas('paciente.medicos', function ($q) use ($medico) {
+                $q->where('medicos.id', $medico->id)
+                  ->where('medico_paciente.origen', 'paciente');
+            })
             ->with('paciente:id,nombre_paciente,email_paciente,tlf_paciente')
             ->orderByRaw('CASE WHEN fecha IS NULL THEN 0 ELSE 1 END')
             ->orderByDesc('fecha')
@@ -55,8 +59,13 @@ class MedicoCitasController extends Controller
             ->through(fn (CitaPaciente $cita) => $this->mapCita($cita));
 
         // Todas las citas con fecha (para calendario y lista del día, sin paginar)
+        // Solo de pacientes que solicitaron por la app (origen = 'paciente')
         $agenda = CitaPaciente::query()
             ->where('id_medico', $medico->id)
+            ->whereHas('paciente.medicos', function ($q) use ($medico) {
+                $q->where('medicos.id', $medico->id)
+                  ->where('medico_paciente.origen', 'paciente');
+            })
             ->whereNotNull('fecha')
             ->with('paciente:id,nombre_paciente,email_paciente,tlf_paciente')
             ->orderBy('fecha')

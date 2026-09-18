@@ -105,9 +105,8 @@ const step1Schema = z.object({
     last_name: z.string().optional(),
     cedula_medico: z
         .string()
-        .max(30, 'Máximo 30 caracteres')
-        .optional()
-        .or(z.literal('')),
+        .min(1, 'Campo requerido')
+        .max(30, 'Máximo 30 caracteres'),
     sexo: z.enum(['MASCULINO', 'FEMENINO'], 'Campo requerido'),
     telefono: z
         .string()
@@ -184,11 +183,11 @@ const step3Schema = z.object({
     perfil_med: z
         .string()
         .min(100, 'Mínimo 100 caracteres')
-        .max(800, 'Máximo 1500 caracteres'),
+        .max(1500, 'Máximo 1500 caracteres'),
     tratamientos: z
         .string()
         .min(100, 'Mínimo 100 caracteres')
-        .max(800, 'Máximo 1500 caracteres'),
+        .max(1500, 'Máximo 1500 caracteres'),
     codigo: z.string().optional(),
     // Validación de archivos (opcional para edición)
     foto: z
@@ -478,7 +477,7 @@ export default function DoctorFormStepper({
         trigger,
         formState,
     } = form;
-    const { errors } = formState;
+    const { errors, isSubmitting } = formState;
     const paisWatch = watch('pais');
     const estadoWatch = watch('estado');
 
@@ -906,11 +905,10 @@ export default function DoctorFormStepper({
                                         {[1, 2, 3].map((s) => (
                                             <div
                                                 key={s}
-                                                className={`h-1.5 rounded-full transition-all duration-500 ${
-                                                    currentStep >= s
+                                                className={`h-1.5 rounded-full transition-all duration-500 ${currentStep >= s
                                                         ? 'w-8 bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]'
                                                         : 'w-2 bg-slate-200 dark:bg-slate-800'
-                                                }`}
+                                                    }`}
                                             />
                                         ))}
                                     </div>
@@ -928,8 +926,8 @@ export default function DoctorFormStepper({
                                                     currentStep === 1
                                                         ? '0%'
                                                         : currentStep === 2
-                                                          ? '50%'
-                                                          : '100%',
+                                                            ? '50%'
+                                                            : '100%',
                                             }}
                                         />
                                     </div>
@@ -969,13 +967,12 @@ export default function DoctorFormStepper({
                                                             </>
                                                         )}
                                                         <div
-                                                            className={`relative flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all duration-500 ${
-                                                                isActive
+                                                            className={`relative flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all duration-500 ${isActive
                                                                     ? 'scale-110 border-amber-500 bg-white text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.4)] dark:bg-[#0f1a2e]'
                                                                     : isPast
-                                                                      ? 'border-transparent bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-md'
-                                                                      : 'border-slate-200 bg-white text-slate-300 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-600'
-                                                            }`}
+                                                                        ? 'border-transparent bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-md'
+                                                                        : 'border-slate-200 bg-white text-slate-300 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-600'
+                                                                }`}
                                                         >
                                                             <s.icon
                                                                 className={`h-5 w-5 ${isActive ? 'animate-bounce' : ''} [animation-duration:2s]`}
@@ -983,13 +980,12 @@ export default function DoctorFormStepper({
                                                         </div>
                                                     </div>
                                                     <span
-                                                        className={`text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 md:text-[11px] ${
-                                                            isActive
+                                                        className={`text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 md:text-[11px] ${isActive
                                                                 ? 'text-amber-600 dark:text-amber-400'
                                                                 : isPast
-                                                                  ? 'text-slate-700 dark:text-slate-300'
-                                                                  : 'text-slate-400 dark:text-slate-600'
-                                                        }`}
+                                                                    ? 'text-slate-700 dark:text-slate-300'
+                                                                    : 'text-slate-400 dark:text-slate-600'
+                                                            }`}
                                                     >
                                                         {s.label}
                                                     </span>
@@ -1036,13 +1032,23 @@ export default function DoctorFormStepper({
                                         {currentStep === 3 && (
                                             <Button
                                                 type="submit"
-                                                className="group relative h-14 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 px-10 text-base font-extrabold text-white shadow-xl shadow-emerald-500/20 transition-all duration-300 hover:scale-105 hover:shadow-emerald-500/40"
+                                                disabled={isSubmitting}
+                                                className="group relative h-14 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 px-10 text-base font-extrabold text-white shadow-xl shadow-emerald-500/20 transition-all duration-300 hover:scale-105 hover:shadow-emerald-500/40 disabled:opacity-70 disabled:pointer-events-none"
                                             >
                                                 <span className="absolute inset-0 -translate-x-full skew-x-[-20deg] bg-white/20 transition-transform duration-500 group-hover:translate-x-full" />
-                                                <Send className="mr-3 h-5 w-5 animate-pulse" />
-                                                {isEditing
-                                                    ? 'Actualizar'
-                                                    : 'Enviar'}
+                                                {isSubmitting ? (
+                                                    <>
+                                                        <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+                                                        Guardando...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Send className="mr-3 h-5 w-5 animate-pulse" />
+                                                        {isEditing
+                                                            ? 'Actualizar'
+                                                            : 'Enviar'}
+                                                    </>
+                                                )}
                                             </Button>
                                         )}
 
@@ -1103,7 +1109,29 @@ function PasoDatosPersonales({ control }: { control: any }) {
                 <FormInput
                     control={control}
                     name="cedula_medico"
-                    label="Cédula Profesional"
+                    label="Cédula Profesional *"
+                />
+                <FormInput
+                    control={control}
+                    name="email_dr"
+                    label="Correo Electrónico *"
+                    placeholder="dr@example.com"
+                    type="email"
+                />
+
+                <FormInput
+                    control={control}
+                    name="telefono"
+                    label="Teléfono *"
+                    placeholder="+58 412 1234567"
+                    inputMode="tel"
+                />
+                <FormInput
+                    control={control}
+                    name="whatsapp"
+                    label="WhatsApp"
+                    placeholder="+58 412 1234567"
+                    inputMode="tel"
                 />
 
                 <div className="space-y-2">
@@ -1119,7 +1147,7 @@ function PasoDatosPersonales({ control }: { control: any }) {
                                     onValueChange={field.onChange}
                                     value={field.value}
                                 >
-                                    <SelectTrigger className="h-14 rounded-2xl border-slate-200 bg-white px-4 shadow-sm transition-all duration-200 hover:border-slate-300 focus:border-amber-500 focus:ring-amber-500/50 dark:border-slate-800 dark:bg-slate-950/50 dark:hover:border-slate-700">
+                                    <SelectTrigger className="w-full h-14 rounded-2xl border-slate-200 bg-white px-4 shadow-sm transition-all duration-200 hover:border-slate-300 focus:border-amber-500 focus:ring-amber-500/50 dark:border-slate-800 dark:bg-slate-950/50 dark:hover:border-slate-700">
                                         <SelectValue placeholder="Seleccionar" />
                                     </SelectTrigger>
                                     <SelectContent className="rounded-2xl border-slate-200 shadow-xl dark:border-slate-800">
@@ -1146,28 +1174,6 @@ function PasoDatosPersonales({ control }: { control: any }) {
                         )}
                     />
                 </div>
-
-                <FormInput
-                    control={control}
-                    name="telefono"
-                    label="Teléfono *"
-                    placeholder="+58 412 1234567"
-                    inputMode="tel"
-                />
-                <FormInput
-                    control={control}
-                    name="whatsapp"
-                    label="WhatsApp"
-                    placeholder="+58 412 1234567"
-                    inputMode="tel"
-                />
-                <FormInput
-                    control={control}
-                    name="email_dr"
-                    label="Correo Electrónico *"
-                    placeholder="dr@example.com"
-                    type="email"
-                />
             </div>
         </div>
     );
@@ -1425,7 +1431,7 @@ function PasoProfesional({
                                         onChange={field.onChange}
                                         placeholder="Describe tu experiencia, formación y enfoque profesional..."
                                         minLength={100}
-                                        maxLength={800}
+                                        maxLength={1500}
                                         className={
                                             fieldState.error
                                                 ? 'border-red-500'
@@ -1457,7 +1463,7 @@ function PasoProfesional({
                                         onChange={field.onChange}
                                         placeholder="Describa los tratamientos que ofrece..."
                                         minLength={100}
-                                        maxLength={800}
+                                        maxLength={1500}
                                         className={
                                             fieldState.error
                                                 ? 'border-red-500'

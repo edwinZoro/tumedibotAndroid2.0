@@ -164,6 +164,10 @@ export function Footer({ auth: propsAuth }: FooterProps) {
                                     href: '/patientfoo/myappoinments',
                                 },
                                 {
+                                    label: 'Mis Medicamentos',
+                                    href: '/patientfoo/mymedicines',
+                                },
+                                {
                                     label: 'Buscar Médicos',
                                     href: '/medicos/search',
                                 },

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CitaPaciente;
 use App\Models\Medico;
 use App\Models\Paciente;
+use App\Notifications\CitaAgendadaPaciente;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -136,7 +137,77 @@ class MedicoPacientesController extends Controller
             'estado_cita' => 'PENDIENTE',
         ]);
 
-        return back()->with('success', 'Paciente añadido. Ahora puedes asignarle fecha y hora desde Citas (Agenda).');
+        return back()->with('success', 'Paciente añadido. Ya puedes asignarle una cita desde el panel de citas.');
+    }
+
+    /**
+     * Crea una nueva cita completa (con fecha y hora) para un paciente
+     * que ya pertenece al consultorio del médico autenticado.
+     * La cita queda CONFIRMADA de inmediato.
+     */
+    public function storeCita(Request $request, Paciente $paciente): RedirectResponse
+    {
+        $medico = $this->medicoAutenticado();
+
+        abort_unless($medico, 403, 'No tienes perfil de médico.');
+
+        // Verificar que el paciente pertenece a este médico
+        $pertenece = $medico->pacientes()->where('pacientes.id', $paciente->id)->exists();
+        abort_unless($pertenece, 403, 'Este paciente no pertenece a tu consultorio.');
+
+        $validated = $request->validate([
+            'motivo_consulta' => ['required', 'string', 'min:3', 'max:255'],
+            'tipo'            => ['required', 'string', 'in:CONSULTA,VIDEOLLAMADA'],
+            'fecha'           => ['required', 'date', 'after_or_equal:today'],
+            'hora'            => ['required', 'date_format:H:i'],
+            'sintomas'        => ['nullable', 'string', 'max:255'],
+        ], [
+            'fecha.after_or_equal' => 'La fecha debe ser hoy o una fecha futura.',
+            'hora.date_format'     => 'La hora debe tener formato HH:MM (ej: 09:30).',
+        ]);
+
+        CitaPaciente::create([
+            'id_paciente'    => $paciente->id,
+            'id_medico'      => $medico->id,
+            'fecha'          => $validated['fecha'],
+            'hora'           => $validated['hora'],
+            'motivo_consulta' => $validated['motivo_consulta'],
+            'sintomas'       => $validated['sintomas'] ?? null,
+            'tipo'           => $validated['tipo'],
+            'estado_cita'    => 'CONFIRMADA',
+        ]);
+
+        return back()->with('success', 'Cita creada y confirmada correctamente.');
+    }
+
+    /**
+     * Asigna (o actualiza) fecha y hora a una cita existente de un paciente
+     * del consultorio. Solo el médico propietario puede hacerlo.
+     */
+    public function asignarFechaCita(Request $request, CitaPaciente $cita): RedirectResponse
+    {
+        $medico = $this->medicoAutenticado();
+
+        abort_unless($medico && $cita->id_medico === $medico->id, 403, 'No autorizado.');
+
+        $validated = $request->validate([
+            'fecha' => ['required', 'date', 'after_or_equal:today'],
+            'hora'  => ['required', 'date_format:H:i'],
+        ]);
+
+        $cita->update([
+            'fecha'      => $validated['fecha'],
+            'hora'       => $validated['hora'],
+            'estado_cita' => 'CONFIRMADA',
+        ]);
+
+        // Notificar al paciente si tiene cuenta en la app
+        $cita->load(['paciente', 'medico']);
+        if ($cita->paciente && $cita->paciente->user_id) {
+            $cita->paciente->notify(new CitaAgendadaPaciente($cita));
+        }
+
+        return back()->with('success', 'Fecha de cita actualizada correctamente.');
     }
 
     protected function medicoAutenticado(): ?Medico

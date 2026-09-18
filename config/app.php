@@ -123,4 +123,18 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Versión de Políticas Legales
+    |--------------------------------------------------------------------------
+    |
+    | Esta versión se graba en consent_logs cada vez que un usuario acepta
+    | los documentos legales. Increméntala (ej: "v2.0") cada vez que actualices
+    | de forma significativa los Términos, Privacidad o Cookies, para poder
+    | identificar bajo qué versión firmó cada usuario.
+    |
+    */
+
+    'policy_version' => env('POLICY_VERSION', 'v1.0'),
+
 ];

@@ -6,6 +6,7 @@ import {
     FolderLock,
     Home,
     LifeBuoy,
+    Pill,
     Search,
     Stethoscope,
     UserPlus,
@@ -33,7 +34,7 @@ import {
     pacientes as pacientesMedico,
     report,
 } from '@/routes/medicos';
-import { archivos, citas, datosMedicos } from '@/routes/pacientes';
+import { archivos, citas, datosMedicos, medicamentos } from '@/routes/pacientes';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
@@ -62,6 +63,7 @@ export function AppSidebar() {
                     icon: FolderLock,
                 }, // Exámenes y Rayos X subidos por él
                 { title: 'Mis Citas', href: citas(), icon: Calendar },
+                { title: 'Mis Medicamentos', href: medicamentos(), icon: Pill },
             ],
         },
         {

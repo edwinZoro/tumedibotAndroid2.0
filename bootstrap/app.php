@@ -38,6 +38,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('citas:enviar-recordatorios')->dailyAt('09:00');
         // Recordatorios de citas: 3 horas antes (cada hora en punto)
         $schedule->command('citas:enviar-recordatorios')->hourly();
+
+        // Recordatorios de medicamentos (cada 30 minutos)
+        $schedule->command('medicamentos:enviar-recordatorios')->everyThirtyMinutes();
     })
     ->withEvents() // ← Ahora los listeners se registran en EventServiceProvider
     ->withExceptions(function (Exceptions $exceptions): void {

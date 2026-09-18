@@ -1,9 +1,10 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
@@ -23,6 +24,7 @@ export default function Register({ passwordRules }: Props) {
         password: '',
         password_confirmation: '',
         'g-recaptcha-response': '',
+        privacy_accepted: false,
     });
 
     const { executeRecaptcha } = useGoogleReCaptcha();
@@ -148,6 +150,55 @@ export default function Register({ passwordRules }: Props) {
                         <InputError message={errors.password_confirmation} />
                     </div>
 
+                    {/* Consentimiento legal obligatorio */}
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-start gap-3">
+                            <Checkbox
+                                id="privacy_accepted"
+                                checked={data.privacy_accepted}
+                                onCheckedChange={(checked) =>
+                                    setData('privacy_accepted', checked === true)
+                                }
+                                tabIndex={5}
+                                className="mt-0.5 border-[#334155] data-[state=checked]:bg-[#2563eb] data-[state=checked]:border-[#2563eb]"
+                            />
+                            <label
+                                htmlFor="privacy_accepted"
+                                className="cursor-pointer text-sm leading-relaxed text-[#94a3b8] select-none"
+                            >
+                                He leído y acepto los{' '}
+                                <Link
+                                    href="/terminos-de-servicio"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-medium text-[#60a5fa] underline-offset-2 hover:text-[#93c5fd] hover:underline transition-colors"
+                                >
+                                    Términos de Servicio
+                                </Link>
+                                ,{' '}
+                                <Link
+                                    href="/politica-de-privacidad"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-medium text-[#60a5fa] underline-offset-2 hover:text-[#93c5fd] hover:underline transition-colors"
+                                >
+                                    Política de Privacidad
+                                </Link>{' '}
+                                y la{' '}
+                                <Link
+                                    href="/politica-de-cookies"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-medium text-[#60a5fa] underline-offset-2 hover:text-[#93c5fd] hover:underline transition-colors"
+                                >
+                                    Política de Cookies
+                                </Link>{' '}
+                                de TuMediBot.
+                            </label>
+                        </div>
+                        <InputError message={errors.privacy_accepted} />
+                    </div>
+
                     {/* Errores de reCAPTCHA */}
                     {recaptchaError && (
                         <div className="text-sm text-red-400">{recaptchaError}</div>
@@ -159,8 +210,8 @@ export default function Register({ passwordRules }: Props) {
                     <Button
                         type="submit"
                         className="mt-2 w-full bg-gradient-to-r from-[#2563eb] to-[#0ea5e9] text-white shadow-lg shadow-blue-500/20 hover:from-[#1d4ed8] hover:to-[#0284c7] hover:shadow-blue-500/30 disabled:opacity-50"
-                        tabIndex={5}
-                        disabled={processing}
+                        tabIndex={6}
+                        disabled={processing || !data.privacy_accepted}
                         data-test="register-user-button"
                     >
                         {processing && <Spinner />}
@@ -172,7 +223,7 @@ export default function Register({ passwordRules }: Props) {
                     ¿Ya tienes cuenta?{' '}
                     <TextLink
                         href={login()}
-                        tabIndex={6}
+                        tabIndex={7}
                         className="text-[#60a5fa] hover:text-[#93c5fd]"
                     >
                         Inicia sesión

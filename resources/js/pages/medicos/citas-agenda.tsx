@@ -479,8 +479,8 @@ export default function CitasAgenda({
                                     Citas (Agenda)
                                 </h1>
                                 <p className="mt-1 flex items-center justify-center gap-1 text-sm font-medium text-sky-600 md:justify-start dark:text-sky-400">
-                                    <Sparkles className="h-4 w-4" /> Solo ves
-                                    las citas que te agendaron a ti
+                                    <Sparkles className="h-4 w-4" /> Solicitudes de
+                                    pacientes que te agendaron desde la app
                                 </p>
                             </div>
                         </div>
@@ -578,11 +578,10 @@ export default function CitasAgenda({
                                     <div>
                                         <CardTitle className="flex items-center gap-2 text-lg font-bold">
                                             <UserRound className="h-5 w-5 text-sky-500" />
-                                            Cita de Paciente / solicitudes
+                                            Solicitudes de pacientes (app)
                                         </CardTitle>
                                         <CardDescription className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                                            Nombre, correo y teléfono · asigna
-                                            fecha cuando estés listo
+                                            Pacientes que te encontraron en Buscar Médicos · asigna fecha cuando estés listo
                                         </CardDescription>
                                     </div>
                                 </CardHeader>
@@ -613,12 +612,11 @@ export default function CitasAgenda({
                                         <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white/60 px-6 py-10 text-center dark:border-slate-700 dark:bg-slate-900/40">
                                             <Hourglass className="h-8 w-8 text-slate-300" />
                                             <p className="text-sm font-semibold text-slate-500">
-                                                Aún no tienes citas
+                                                Sin solicitudes de la app
                                             </p>
                                             <p className="text-xs text-slate-400">
-                                                Registra pacientes de
-                                                consultorio desde Mis Pacientes
-                                                o espera solicitudes.
+                                                Los pacientes que te busquen en la app aparecerán aquí. Para citas de consultorio, usa{' '}
+                                                <span className="font-semibold text-sky-500">Mis Pacientes</span>.
                                             </p>
                                         </div>
                                     ) : (

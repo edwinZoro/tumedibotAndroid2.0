@@ -1,4 +1,6 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { format, parseISO } from 'date-fns';
+import { es } from 'date-fns/locale';
 import {
     Activity,
     Calendar,
@@ -9,8 +11,10 @@ import {
     Clock,
     FileText,
     Hourglass,
+    Loader2,
     Mail,
     Phone,
+    Plus,
     Ruler,
     Search,
     ShieldCheck,
@@ -33,6 +37,7 @@ import { NotaSheet } from '@/components/medicos/nota-sheet';
 import { RecetaSheet } from '@/components/medicos/receta-sheet';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Calendar as CalendarPicker, CalendarDayButton } from '@/components/ui/calendar';
 import {
     Card,
     CardContent,
@@ -40,7 +45,27 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import {
     Sheet,
     SheetContent,
@@ -94,6 +119,303 @@ interface Props {
     tieneMedico: boolean;
     pacientes: PaginatedPacientes;
     filters?: { q?: string };
+}
+
+const HORARIOS = [
+    '07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30',
+    '11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30',
+    '15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30',
+    '19:00','19:30','20:00',
+];
+
+function hora12(hora: string | null | undefined): string {
+    if (!hora) return '—';
+    const [h, m] = hora.split(':').map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return hora;
+    const periodo = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${h12}:${String(m).padStart(2, '0')} ${periodo}`;
+}
+
+/* ─────────────────────────────────────────────
+   Diálogo: Crear nueva cita completa
+───────────────────────────────────────────── */
+function NuevaCitaDialog({
+    paciente,
+    open,
+    onOpenChange,
+}: {
+    paciente: PacienteProp | null;
+    open: boolean;
+    onOpenChange: (v: boolean) => void;
+}) {
+    const form = useForm({
+        motivo_consulta: '',
+        tipo: 'CONSULTA' as 'CONSULTA' | 'VIDEOLLAMADA',
+        fecha: '',
+        hora: '',
+        sintomas: '',
+    });
+
+    React.useEffect(() => {
+        if (open) {
+            form.reset();
+            form.clearErrors();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [open]);
+
+    const fechaHoy = new Date();
+    fechaHoy.setHours(0, 0, 0, 0);
+
+    const submit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!paciente) return;
+        form.post(`/medico/mis-pacientes/${paciente.id}/cita`, {
+            preserveScroll: true,
+            onSuccess: () => onOpenChange(false),
+        });
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[520px]">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-sky-500" />
+                        Nueva cita — {paciente?.nombre}
+                    </DialogTitle>
+                </DialogHeader>
+
+                <form onSubmit={submit} className="mt-2 space-y-4">
+                    {/* Motivo */}
+                    <div className="space-y-1.5">
+                        <Label className="text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">
+                            Motivo de consulta *
+                        </Label>
+                        <Input
+                            value={form.data.motivo_consulta}
+                            onChange={(e) => form.setData('motivo_consulta', e.target.value)}
+                            placeholder="Ej: Control mensual, dolor de cabeza..."
+                            className="rounded-2xl"
+                            required
+                        />
+                        {form.errors.motivo_consulta && (
+                            <p className="px-1 text-xs font-bold text-red-500">{form.errors.motivo_consulta}</p>
+                        )}
+                    </div>
+
+                    {/* Síntomas */}
+                    <div className="space-y-1.5">
+                        <Label className="text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">
+                            Síntomas (opcional)
+                        </Label>
+                        <Input
+                            value={form.data.sintomas}
+                            onChange={(e) => form.setData('sintomas', e.target.value)}
+                            placeholder="Ej: fiebre, mareos, tos..."
+                            className="rounded-2xl"
+                        />
+                    </div>
+
+                    {/* Tipo */}
+                    <div className="space-y-1.5">
+                        <Label className="text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">
+                            Tipo de cita *
+                        </Label>
+                        <Select
+                            value={form.data.tipo}
+                            onValueChange={(v) => form.setData('tipo', v as 'CONSULTA' | 'VIDEOLLAMADA')}
+                        >
+                            <SelectTrigger className="h-11 rounded-2xl">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="CONSULTA">Consulta presencial</SelectItem>
+                                <SelectItem value="VIDEOLLAMADA">Videollamada</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Fecha + Hora en fila */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                            <Label className="text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">
+                                Fecha *
+                            </Label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className={cn(
+                                            'h-11 w-full justify-start rounded-2xl font-normal',
+                                            !form.data.fecha && 'text-muted-foreground',
+                                        )}
+                                    >
+                                        <Calendar className="mr-2 h-4 w-4" />
+                                        {form.data.fecha
+                                            ? format(parseISO(form.data.fecha), "d 'de' MMM yyyy", { locale: es })
+                                            : 'Seleccionar'}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <CalendarPicker
+                                        mode="single"
+                                        selected={form.data.fecha ? parseISO(form.data.fecha) : undefined}
+                                        onSelect={(date) =>
+                                            form.setData('fecha', date ? format(date, 'yyyy-MM-dd') : '')
+                                        }
+                                        disabled={(date) => date < fechaHoy}
+                                        autoFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            {form.errors.fecha && (
+                                <p className="px-1 text-xs font-bold text-red-500">{form.errors.fecha}</p>
+                            )}
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label className="text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">
+                                Hora *
+                            </Label>
+                            <Select
+                                value={form.data.hora}
+                                onValueChange={(v) => form.setData('hora', v)}
+                            >
+                                <SelectTrigger className="h-11 rounded-2xl">
+                                    <SelectValue placeholder="HH:MM" />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-52">
+                                    {HORARIOS.map((h) => (
+                                        <SelectItem key={h} value={h}>{hora12(h)}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {form.errors.hora && (
+                                <p className="px-1 text-xs font-bold text-red-500">{form.errors.hora}</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <DialogFooter className="mt-6">
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                            Cancelar
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={form.processing || !form.data.fecha || !form.data.hora || !form.data.motivo_consulta}
+                            className="bg-gradient-to-r from-blue-600 to-sky-500 shadow-md hover:from-blue-500 hover:to-sky-400"
+                        >
+                            {form.processing ? (
+                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Guardando...</>
+                            ) : (
+                                <><Calendar className="mr-2 h-4 w-4" />Crear cita</>
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+/* ─────────────────────────────────────────────
+   Diálogo: Asignar / editar fecha de cita existente
+───────────────────────────────────────────── */
+function AsignarFechaCitaDialog({
+    citaId,
+    open,
+    onOpenChange,
+}: {
+    citaId: number | null;
+    open: boolean;
+    onOpenChange: (v: boolean) => void;
+}) {
+    const form = useForm({ fecha: '', hora: '' });
+
+    React.useEffect(() => {
+        if (open) { form.reset(); form.clearErrors(); }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [open]);
+
+    const fechaHoy = new Date();
+    fechaHoy.setHours(0, 0, 0, 0);
+
+    const submit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!citaId) return;
+        form.put(`/medico/mis-pacientes/cita/${citaId}/fecha`, {
+            preserveScroll: true,
+            onSuccess: () => onOpenChange(false),
+        });
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[400px]">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-sky-500" />
+                        Asignar fecha y hora
+                    </DialogTitle>
+                </DialogHeader>
+                <form onSubmit={submit} className="mt-2 space-y-4">
+                    <div className="space-y-1.5">
+                        <Label className="text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">Fecha *</Label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    type="button" variant="outline"
+                                    className={cn('h-11 w-full justify-start rounded-2xl font-normal', !form.data.fecha && 'text-muted-foreground')}
+                                >
+                                    <Calendar className="mr-2 h-4 w-4" />
+                                    {form.data.fecha
+                                        ? format(parseISO(form.data.fecha), "d 'de' MMM yyyy", { locale: es })
+                                        : 'Seleccionar fecha'}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <CalendarPicker
+                                    mode="single"
+                                    selected={form.data.fecha ? parseISO(form.data.fecha) : undefined}
+                                    onSelect={(date) => form.setData('fecha', date ? format(date, 'yyyy-MM-dd') : '')}
+                                    disabled={(date) => date < fechaHoy}
+                                    autoFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                        {form.errors.fecha && <p className="px-1 text-xs font-bold text-red-500">{form.errors.fecha}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <Label className="text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">Hora *</Label>
+                        <Select value={form.data.hora} onValueChange={(v) => form.setData('hora', v)}>
+                            <SelectTrigger className="h-11 rounded-2xl"><SelectValue placeholder="Elige una hora" /></SelectTrigger>
+                            <SelectContent className="max-h-52">
+                                {HORARIOS.map((h) => <SelectItem key={h} value={h}>{hora12(h)}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        {form.errors.hora && <p className="px-1 text-xs font-bold text-red-500">{form.errors.hora}</p>}
+                    </div>
+
+                    <DialogFooter className="mt-4">
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+                        <Button
+                            type="submit"
+                            disabled={form.processing || !form.data.fecha || !form.data.hora}
+                            className="bg-gradient-to-r from-blue-600 to-sky-500 shadow-md hover:from-blue-500 hover:to-sky-400"
+                        >
+                            {form.processing
+                                ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Guardando...</>
+                                : 'Confirmar fecha'}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
 }
 
 /* ─────────────────────────────────────────────
@@ -159,6 +481,8 @@ function CitasSheet({
     const [notaCitaId, setNotaCitaId] = useState<number | null>(null);
     const [paginaCitas, setPaginaCitas] = useState(0);
     const [prevPacienteId, setPrevPacienteId] = useState(paciente?.id);
+    const [nuevaCitaOpen, setNuevaCitaOpen] = useState(false);
+    const [asignarCitaId, setAsignarCitaId] = useState<number | null>(null);
 
     if (paciente?.id !== prevPacienteId) {
         setPrevPacienteId(paciente?.id);
@@ -190,22 +514,28 @@ function CitasSheet({
                                 </SheetTitle>
                                 <p className="text-[11px] font-medium text-white/70">
                                     {paciente?.citas.length ?? 0} cita
-                                    {(paciente?.citas.length ?? 0) !== 1
-                                        ? 's'
-                                        : ''}{' '}
-                                    registrada
-                                    {(paciente?.citas.length ?? 0) !== 1
-                                        ? 's'
-                                        : ''}
+                                    {(paciente?.citas.length ?? 0) !== 1 ? 's' : ''}{' '}
+                                    registrada{(paciente?.citas.length ?? 0) !== 1 ? 's' : ''}
                                 </p>
                             </div>
                         </div>
-                        <button
-                            onClick={onClose}
-                            className="rounded-lg p-1 text-white/70 transition hover:bg-white/10 hover:text-white"
-                        >
-                            <X className="h-4 w-4" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            {/* Botón Nueva Cita */}
+                            <Button
+                                size="sm"
+                                onClick={() => setNuevaCitaOpen(true)}
+                                className="h-8 rounded-xl bg-white/20 px-3 text-[11px] font-bold text-white hover:bg-white/30"
+                            >
+                                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                                Nueva cita
+                            </Button>
+                            <button
+                                onClick={onClose}
+                                className="rounded-lg p-1 text-white/70 transition hover:bg-white/10 hover:text-white"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
                     </div>
                 </SheetHeader>
 
@@ -294,9 +624,20 @@ function CitasSheet({
 
                                         {/* Acciones */}
                                         <div className="flex flex-wrap gap-1.5 border-t border-slate-100 pt-3 dark:border-slate-800">
+                                            {/* Asignar / cambiar fecha si no tiene o es PENDIENTE */}
+                                            {(!cita.fecha || cita.estado === 'PENDIENTE') && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => setAsignarCitaId(cita.id)}
+                                                    className="h-7 rounded-xl border-sky-200 bg-sky-50 px-2.5 text-[11px] font-semibold text-sky-700 hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-900/30 dark:text-sky-300"
+                                                >
+                                                    <Clock className="mr-1 h-3 w-3" />
+                                                    {cita.fecha ? 'Cambiar fecha' : 'Asignar fecha'}
+                                                </Button>
+                                            )}
                                             {cita.tipo === 'VIDEOLLAMADA' &&
-                                                cita.estado ===
-                                                    'CONFIRMADA' && (
+                                                cita.estado === 'CONFIRMADA' && (
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
@@ -386,7 +727,6 @@ function CitasSheet({
                 )}
             </SheetContent>
 
-            {/* Este sheet se abre encima del CitasSheet */}
             <HistorialSheet
                 citaId={historialCitaId}
                 open={historialCitaId !== null}
@@ -401,6 +741,20 @@ function CitasSheet({
                 citaId={notaCitaId}
                 open={notaCitaId !== null}
                 onClose={() => setNotaCitaId(null)}
+            />
+
+            {/* Diálogo nueva cita completa */}
+            <NuevaCitaDialog
+                paciente={paciente}
+                open={nuevaCitaOpen}
+                onOpenChange={setNuevaCitaOpen}
+            />
+
+            {/* Diálogo asignar fecha a cita existente */}
+            <AsignarFechaCitaDialog
+                citaId={asignarCitaId}
+                open={asignarCitaId !== null}
+                onOpenChange={(v) => { if (!v) setAsignarCitaId(null); }}
             />
         </Sheet>
     );

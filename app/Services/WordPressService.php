@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 class WordPressService
 {
+    protected string $baseUrl;
     protected string $apiUrl;
     protected string $apiUser;
     protected string $apiPassword;
@@ -14,9 +15,9 @@ class WordPressService
     public function __construct()
     {
         // Use configured URL, ensuring it ends without trailing slash and appends /wp-json/wp/v2
-        $baseUrl = rtrim(env('WP_API_URL', 'https://noticias.tumedibot.com/wp'), '/');
-        $this->apiUrl = $baseUrl . '/wp-json/wp/v2';
-        $this->apiUser = env('WP_API_USER', 'John Andrade');
+        $this->baseUrl = rtrim(env('WP_API_URL', 'https://noticias.tumedibot.com/wp'), '/');
+        $this->apiUrl = $this->baseUrl . '/wp-json/wp/v2';
+        $this->apiUser = env('WP_API_USER', 'admin');
         $this->apiPassword = env('WP_API_PASSWORD', 'm3C0 of3C oEW4 hbWK yOYr QJUo');
     }
 
@@ -50,7 +51,7 @@ class WordPressService
                 Log::info('WordPress User Created Successfully', ['email' => $email, 'wp_id' => $response->json('id')]);
                 
                 // Enviar el correo de bienvenida usando Laravel Mail
-                $loginUrl = $baseUrl . '/wp-login.php';
+                $loginUrl = $this->baseUrl . '/wp-login.php';
                 \Illuminate\Support\Facades\Mail::to($email)->send(
                     new \App\Mail\WordPressWelcomeMail($firstName, $username, $randomPassword, $loginUrl)
                 );

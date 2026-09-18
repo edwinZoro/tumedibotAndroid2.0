@@ -9,6 +9,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -73,6 +74,15 @@ class User extends Authenticatable implements PasskeyUser
         // Nota: Si Paciente hereda directamente de User por relaciones de negocio,
         // mantén la clave foránea 'user_id' en la tabla 'pacientes'.
         return $this->hasOne(Paciente::class, 'user_id');
+    }
+
+    /**
+     * Obtiene el historial completo de consentimientos del usuario.
+     */
+    public function consentLogs(): HasMany
+    {
+        return $this->hasMany(ConsentLog::class, 'user_id')
+            ->orderBy('accepted_at', 'desc');
     }
 
     /**
