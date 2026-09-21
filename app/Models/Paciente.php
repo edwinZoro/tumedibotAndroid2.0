@@ -94,6 +94,24 @@ class Paciente extends Model
     }
 
     /**
+     * Relación con los médicos que pueden ver sus archivos (mucha a mucha)
+     */
+    public function medicosConAccesoArchivos(): BelongsToMany
+    {
+        return $this->belongsToMany(Medico::class, 'archivo_medico_acceso', 'archivo_id', 'medico_id')
+            ->withPivot(['otorgado_en', 'created_at', 'updated_at']);
+    }
+
+    /**
+     * Relación con los médicos con los que comparte su vista IoMT
+     */
+    public function medicosIoMT(): BelongsToMany
+    {
+        return $this->belongsToMany(Medico::class, 'iomt_medico_acceso', 'paciente_id', 'medico_id')
+            ->withTimestamps();
+    }
+
+    /**
      * Obtiene los archivos (exámenes, radiologías, recetas) de la bóveda del paciente.
      */
     public function archivos(): HasMany

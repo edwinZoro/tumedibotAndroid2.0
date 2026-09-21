@@ -73,13 +73,22 @@ const Snackbar = ({ open, message, type, onClose }: SnackbarState & { onClose: (
   );
 };
 
+// ─── Props ───────────────────────────────────────────────────────────────
+interface Props {
+  planPrecio?: number;
+  tituloPlan?: string;
+}
+
 // ─── Componente principal ────────────────────────────────────────────────
-export default function CryptoPayment() {
+export default function CryptoPayment({ planPrecio = 0, tituloPlan = '' }: Props) {
   const [snackbar, setSnackbar] = useState<SnackbarState>({
     open: false,
     message: '',
     type: 'success',
   });
+
+  // Calcular total con IVA (16%)
+  const totalConIva = planPrecio > 0 ? (planPrecio * 1.16).toFixed(2) : null;
 
   const copyAddress = async (address: string) => {
     try {
@@ -131,10 +140,23 @@ export default function CryptoPayment() {
           {/* ─── Nueva sección: Pago por Binance ────────────────────────── */}
           <div className="mb-10">
             <Card className="overflow-hidden border border-amber-200/60 bg-white/80 shadow-lg backdrop-blur-sm transition-all hover:shadow-xl dark:border-amber-800/40 dark:bg-slate-900/50">
-              <CardHeader className="bg-gradient-to-r from-amber-400 to-orange-500 p-4 text-white">
-                <CardTitle className="flex items-center gap-2 text-base font-bold tracking-wide">
-                  <Coins className="h-5 w-5" />
-                  Paga con Binance
+              <CardHeader className="bg-gradient-to-r from-amber-400 to-orange-500 p-5 text-white">
+                <CardTitle className="flex flex-col gap-1">
+                  <span className="flex items-center gap-2 text-base font-bold tracking-wide">
+                    <Coins className="h-5 w-5 shrink-0" />
+                    Paga con Binance BPay
+                  </span>
+                  {totalConIva && (
+                    <span className="mt-1 flex items-baseline gap-1 text-sm font-medium text-white/90">
+                      el total de:
+                      <span className="ml-1 text-2xl font-extrabold tracking-tight text-white drop-shadow">
+                        ${totalConIva}
+                      </span>
+                      <span className="text-xs font-normal text-white/75">
+                        (IVA 16% incluido)
+                      </span>
+                    </span>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col items-center space-y-4 p-5">

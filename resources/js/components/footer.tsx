@@ -175,6 +175,10 @@ export function Footer({ auth: propsAuth }: FooterProps) {
                                     label: 'Videoconsultas',
                                     href: '/patientfoo/video',
                                 },
+                                {
+                                    label: 'Monitorización IoMT',
+                                    href: '/patientfoo/iomt-info',
+                                },
                             ].map((item, idx) => (
                                 <li key={idx}>
                                     <Link
@@ -230,6 +234,14 @@ export function Footer({ auth: propsAuth }: FooterProps) {
                                 {
                                     label: 'Archivos Compartidos',
                                     href: '/medicalfoo/archivos',
+                                },
+                                {
+                                    label: 'Videoconsultas',
+                                    href: '/medicalfoo/video',
+                                },
+                                {
+                                    label: 'Monitorización IoMT',
+                                    href: '/medicalfoo/iomt-info',
                                 },
                             ].map((item, idx) => (
                                 <li key={idx}>

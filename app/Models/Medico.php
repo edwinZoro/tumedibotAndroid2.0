@@ -229,4 +229,13 @@ class Medico extends Model
             ->withPivot(['origen', 'visible', 'created_at', 'updated_at'])
             ->withTimestamps();
     }
+
+    /**
+     * Relación con pacientes a los que se ha dado acceso a datos de IoMT.
+     */
+    public function pacientesIoMT(): BelongsToMany
+    {
+        return $this->belongsToMany(Paciente::class, 'iomt_medico_acceso', 'medico_id', 'paciente_id')
+            ->withTimestamps();
+    }
 }

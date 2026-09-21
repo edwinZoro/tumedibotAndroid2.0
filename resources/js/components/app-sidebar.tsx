@@ -13,6 +13,7 @@ import {
     UserRound,
     Users,
     CreditCard,
+    Activity,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
@@ -64,6 +65,7 @@ export function AppSidebar() {
                 }, // Exámenes y Rayos X subidos por él
                 { title: 'Mis Citas', href: citas(), icon: Calendar },
                 { title: 'Mis Medicamentos', href: medicamentos(), icon: Pill },
+                { title: 'Monitoreo IoMT', href: '/paciente/monitoreo-iomt', icon: Activity },
             ],
         },
         {
@@ -90,6 +92,7 @@ export function AppSidebar() {
                     icon: FolderLock,
                 },
                 { title: 'Reportar Pagos', href: report(), icon: CreditCard },
+                { title: 'Monitorización IoMT', href: '/medico/monitorizacion-iomt', icon: Activity },
                 { title: 'Soporte Técnico', href: '#', icon: LifeBuoy },
             ],
         },

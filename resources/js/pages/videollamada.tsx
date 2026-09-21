@@ -1,10 +1,19 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
 import { JitsiMeeting } from '@jitsi/react-sdk';
-import { ArrowLeft, Loader2, Video } from 'lucide-react';
-import React from 'react';
+import { ArrowLeft, Loader2, Video, FileText, StickyNote, Plus, ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { HistorialSheet } from '@/components/medicos/historial-sheet';
+import { NotaSheet } from '@/components/medicos/nota-sheet';
+import { RecetaSheet } from '@/components/medicos/receta-sheet';
 import type { BreadcrumbItem } from '@/types';
 
 interface CitaProp {
@@ -38,6 +47,10 @@ export default function Videollamada({
     nombreUsuario,
     cita,
 }: Props) {
+    const [historialOpen, setHistorialOpen] = useState(false);
+    const [notaOpen, setNotaOpen] = useState(false);
+    const [recetaOpen, setRecetaOpen] = useState(false);
+
     const salir = () => {
         if (window.history.length > 1) {
             window.history.back();
@@ -74,15 +87,43 @@ export default function Videollamada({
                         </p>
                     </div>
                 </div>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={salir}
-                    className="shrink-0 rounded-xl"
-                >
-                    <ArrowLeft className="mr-1.5 h-4 w-4" />
-                    Salir
-                </Button>
+                
+                <div className="flex items-center gap-2">
+                    {rol === 'medico' && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="shrink-0 rounded-xl">
+                                    <FileText className="mr-1.5 h-4 w-4 text-blue-500" />
+                                    Expediente Clínico
+                                    <ChevronDown className="ml-1 h-3.5 w-3.5" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuItem onClick={() => setHistorialOpen(true)}>
+                                    <FileText className="mr-2 h-4 w-4 text-emerald-500" />
+                                    <span>Historial Clínico</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setRecetaOpen(true)}>
+                                    <Plus className="mr-2 h-4 w-4 text-purple-500" />
+                                    <span>Nueva Receta</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setNotaOpen(true)}>
+                                    <StickyNote className="mr-2 h-4 w-4 text-amber-500" />
+                                    <span>Notas Clínicas</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={salir}
+                        className="shrink-0 rounded-xl"
+                    >
+                        <ArrowLeft className="mr-1.5 h-4 w-4" />
+                        Salir
+                    </Button>
+                </div>
             </div>
 
             {/* Contenedor del iframe — ocupa todo el alto restante */}
@@ -138,6 +179,26 @@ export default function Videollamada({
                     }}
                 />
             </div>
+
+            {rol === 'medico' && (
+                <>
+                    <HistorialSheet
+                        citaId={cita.id}
+                        open={historialOpen}
+                        onClose={() => setHistorialOpen(false)}
+                    />
+                    <NotaSheet
+                        citaId={cita.id}
+                        open={notaOpen}
+                        onClose={() => setNotaOpen(false)}
+                    />
+                    <RecetaSheet
+                        citaId={cita.id}
+                        open={recetaOpen}
+                        onClose={() => setRecetaOpen(false)}
+                    />
+                </>
+            )}
         </AppLayout>
     );
 }
