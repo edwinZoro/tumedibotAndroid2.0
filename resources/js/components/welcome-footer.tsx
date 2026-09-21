@@ -28,30 +28,36 @@ export function WelcomeFooter({ auth }: WelcomeFooterProps) {
         {
             heading: 'Pacientes',
             links: [
-                { label: 'Datos Médicos', href: '/patientfoo/medicaldata' },
-                { label: 'Mis Archivos', href: '/patientfoo/myfiles' },
-                { label: 'Mis Citas', href: '/patientfoo/myappoinments' },
-                { label: 'Buscar Médicos', href: '/medicos/search' },
-                { label: 'Videoconsultas', href: '/patientfoo/video' },
+                { label: 'Datos Médicos', href: '/patientfoo/medicaldata', icon: 'fa-notes-medical' },
+                { label: 'Mis Archivos', href: '/patientfoo/myfiles', icon: 'fa-folder-open' },
+                { label: 'Mis Citas', href: '/patientfoo/myappoinments', icon: 'fa-calendar-check' },
+                { label: 'Mis Medicamentos', href: '/patientfoo/mymedicines', icon: 'fa-pills' },
+                { label: 'Buscar Médicos', href: '/medicos/search', icon: 'fa-user-doctor' },
+                { label: 'Videoconsultas', href: '/patientfoo/video', icon: 'fa-video' },
+                { label: 'Monitorización IoMT', href: '/patientfoo/iomt-info', icon: 'fa-microchip' },
             ],
         },
         {
             heading: 'Médicos',
             links: [
                 ...(!isDoctor && !hasFactura
-                    ? [{ label: 'Unirse como Doctor', href: soydoctor().url }]
+                    ? [{ label: 'Unirse como Doctor', href: soydoctor().url, icon: 'fa-user-plus' }]
                     : []),
                 {
                     label: 'Portal Médico',
                     href: 'https://noticias.tumedibot.com/wp/',
                     external: true,
+                    icon: 'fa-globe',
                 },
-                { label: 'Mis Pacientes', href: '/medicalfoo/mispacientes' },
-                { label: 'Agenda de Citas', href: '/medicalfoo/miagenda' },
+                { label: 'Mis Pacientes', href: '/medicalfoo/mispacientes', icon: 'fa-users' },
+                { label: 'Agenda de Citas', href: '/medicalfoo/miagenda', icon: 'fa-calendar-days' },
                 {
                     label: 'Archivos Compartidos',
                     href: '/medicalfoo/archivos',
+                    icon: 'fa-share-nodes',
                 },
+                { label: 'Videoconsultas', href: '/medicalfoo/video', icon: 'fa-video' },
+                { label: 'Monitorización IoMT', href: '/medicalfoo/iomt-info', icon: 'fa-microchip' },
             ],
         },
         {
@@ -60,17 +66,20 @@ export function WelcomeFooter({ auth }: WelcomeFooterProps) {
                 {
                     label: 'Términos de Servicio',
                     href: '/terminos-de-servicio',
+                    icon: 'fa-file-contract',
                 },
                 {
                     label: 'Política de Privacidad',
                     href: '/politica-de-privacidad',
+                    icon: 'fa-shield-halved',
                 },
-                { label: 'Política de Cookies', href: '/politica-de-cookies' },
-                { label: 'Notificaciones', href: '/notificaciones' },
+                { label: 'Política de Cookies', href: '/politica-de-cookies', icon: 'fa-cookie-bite' },
+                { label: 'Notificaciones', href: '/notificaciones', icon: 'fa-bell' },
                 {
                     label: 'Contacto',
                     href: '#',
                     title: 'tumedibot@gmail.com',
+                    icon: 'fa-envelope',
                     onClick: (e: any) => {
                         e.preventDefault();
                         navigator.clipboard.writeText('tumedibot@gmail.com');
@@ -167,7 +176,10 @@ export function WelcomeFooter({ auth }: WelcomeFooterProps) {
                                                 title={(link as any).title}
                                             >
                                                 <i className="fa-solid fa-chevron-right wf-link-icon" />
-                                                {link.label}
+                                                {(link as any).icon && (
+                                                    <i className={`fa-solid ${(link as any).icon} mr-2.5 opacity-80`} />
+                                                )}
+                                                <span>{link.label}</span>
                                                 <i className="fa-solid fa-arrow-up-right-from-square wf-link-external ml-1" />
                                             </a>
                                         ) : (
@@ -178,7 +190,10 @@ export function WelcomeFooter({ auth }: WelcomeFooterProps) {
                                                 onClick={(link as any).onClick}
                                             >
                                                 <i className="fa-solid fa-chevron-right wf-link-icon" />
-                                                {link.label}
+                                                {(link as any).icon && (
+                                                    <i className={`fa-solid ${(link as any).icon} mr-2.5 opacity-80`} />
+                                                )}
+                                                <span>{link.label}</span>
                                             </Link>
                                         )}
                                     </li>

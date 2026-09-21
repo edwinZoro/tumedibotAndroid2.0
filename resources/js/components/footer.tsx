@@ -9,6 +9,22 @@ import {
     ArrowUp,
     ChevronRight,
     ExternalLink,
+    Activity,
+    FolderOpen,
+    Calendar,
+    Pill,
+    UserSearch,
+    Video,
+    Cpu,
+    UserPlus,
+    Globe,
+    Users,
+    CalendarDays,
+    Share2,
+    FileText,
+    Cookie,
+    Bell,
+    Mail,
 } from 'lucide-react';
 import React from 'react';
 import { soydoctor } from '@/routes';
@@ -154,42 +170,53 @@ export function Footer({ auth: propsAuth }: FooterProps) {
                                 {
                                     label: 'Datos Médicos',
                                     href: '/patientfoo/medicaldata',
+                                    icon: Activity,
                                 },
                                 {
                                     label: 'Mis Archivos',
                                     href: '/patientfoo/myfiles',
+                                    icon: FolderOpen,
                                 },
                                 {
                                     label: 'Mis Citas',
                                     href: '/patientfoo/myappoinments',
+                                    icon: Calendar,
                                 },
                                 {
                                     label: 'Mis Medicamentos',
                                     href: '/patientfoo/mymedicines',
+                                    icon: Pill,
                                 },
                                 {
                                     label: 'Buscar Médicos',
                                     href: '/medicos/search',
+                                    icon: UserSearch,
                                 },
                                 {
                                     label: 'Videoconsultas',
                                     href: '/patientfoo/video',
+                                    icon: Video,
                                 },
                                 {
                                     label: 'Monitorización IoMT',
                                     href: '/patientfoo/iomt-info',
+                                    icon: Cpu,
                                 },
-                            ].map((item, idx) => (
-                                <li key={idx}>
-                                    <Link
-                                        href={item.href}
-                                        className="group inline-flex items-center gap-1 text-slate-600 transition-all duration-200 hover:translate-x-1 hover:text-blue-600 dark:text-slate-400 dark:hover:text-sky-400"
-                                    >
-                                        <ChevronRight className="h-3.5 w-3.5 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100 dark:text-sky-400" />
-                                        <span>{item.label}</span>
-                                    </Link>
-                                </li>
-                            ))}
+                            ].map((item, idx) => {
+                                const Icon = item.icon;
+                                return (
+                                    <li key={idx}>
+                                        <Link
+                                            href={item.href}
+                                            className="group inline-flex items-center gap-1.5 text-slate-600 transition-all duration-200 hover:translate-x-1 hover:text-blue-600 dark:text-slate-400 dark:hover:text-sky-400"
+                                        >
+                                            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100 dark:text-sky-400" />
+                                            <Icon className="h-4 w-4 shrink-0 mr-1.5 text-slate-500 transition-colors group-hover:text-blue-600 dark:text-slate-400 dark:group-hover:text-sky-400" />
+                                            <span>{item.label}</span>
+                                        </Link>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
 
@@ -202,9 +229,10 @@ export function Footer({ auth: propsAuth }: FooterProps) {
                                 <li>
                                     <Link
                                         href={soydoctor().url}
-                                        className="group inline-flex items-center gap-1 text-slate-600 transition-all duration-200 hover:translate-x-1 hover:text-blue-600 dark:text-slate-400 dark:hover:text-sky-400"
+                                        className="group inline-flex items-center gap-1.5 text-slate-600 transition-all duration-200 hover:translate-x-1 hover:text-blue-600 dark:text-slate-400 dark:hover:text-sky-400"
                                     >
-                                        <ChevronRight className="h-3.5 w-3.5 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100 dark:text-sky-400" />
+                                        <ChevronRight className="h-3.5 w-3.5 shrink-0 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100 dark:text-sky-400" />
+                                        <UserPlus className="h-4 w-4 shrink-0 mr-1.5 text-slate-500 transition-colors group-hover:text-blue-600 dark:text-slate-400 dark:group-hover:text-sky-400" />
                                         <span>Unirse como Doctor</span>
                                     </Link>
                                 </li>
@@ -215,9 +243,10 @@ export function Footer({ auth: propsAuth }: FooterProps) {
                                     target="_blank"
                                     rel="noreferrer"
                                     aria-label="Portal Médico"
-                                    className="group inline-flex items-center gap-1 text-slate-600 transition-all duration-200 hover:translate-x-1 hover:text-blue-600 dark:text-slate-400 dark:hover:text-sky-400"
+                                    className="group inline-flex items-center gap-1.5 text-slate-600 transition-all duration-200 hover:translate-x-1 hover:text-blue-600 dark:text-slate-400 dark:hover:text-sky-400"
                                 >
-                                    <ChevronRight className="h-3.5 w-3.5 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100 dark:text-sky-400" />
+                                    <ChevronRight className="h-3.5 w-3.5 shrink-0 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100 dark:text-sky-400" />
+                                    <Globe className="h-4 w-4 shrink-0 mr-1.5 text-slate-500 transition-colors group-hover:text-blue-600 dark:text-slate-400 dark:group-hover:text-sky-400" />
                                     <span>Portal Médico</span>
                                     <ExternalLink className="h-3.5 w-3.5 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100 dark:text-sky-400" />
                                 </a>
@@ -226,34 +255,43 @@ export function Footer({ auth: propsAuth }: FooterProps) {
                                 {
                                     label: 'Mis Pacientes',
                                     href: '/medicalfoo/mispacientes',
+                                    icon: Users,
                                 },
                                 {
                                     label: 'Agenda de Citas',
                                     href: '/medicalfoo/miagenda',
+                                    icon: CalendarDays,
                                 },
                                 {
                                     label: 'Archivos Compartidos',
                                     href: '/medicalfoo/archivos',
+                                    icon: Share2,
                                 },
                                 {
                                     label: 'Videoconsultas',
                                     href: '/medicalfoo/video',
+                                    icon: Video,
                                 },
                                 {
                                     label: 'Monitorización IoMT',
                                     href: '/medicalfoo/iomt-info',
+                                    icon: Cpu,
                                 },
-                            ].map((item, idx) => (
-                                <li key={idx}>
-                                    <Link
-                                        href={item.href}
-                                        className="group inline-flex items-center gap-1 text-slate-600 transition-all duration-200 hover:translate-x-1 hover:text-blue-600 dark:text-slate-400 dark:hover:text-sky-400"
-                                    >
-                                        <ChevronRight className="h-3.5 w-3.5 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100 dark:text-sky-400" />
-                                        <span>{item.label}</span>
-                                    </Link>
-                                </li>
-                            ))}
+                            ].map((item, idx) => {
+                                const Icon = item.icon;
+                                return (
+                                    <li key={idx}>
+                                        <Link
+                                            href={item.href}
+                                            className="group inline-flex items-center gap-1.5 text-slate-600 transition-all duration-200 hover:translate-x-1 hover:text-blue-600 dark:text-slate-400 dark:hover:text-sky-400"
+                                        >
+                                            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100 dark:text-sky-400" />
+                                            <Icon className="h-4 w-4 shrink-0 mr-1.5 text-slate-500 transition-colors group-hover:text-blue-600 dark:text-slate-400 dark:group-hover:text-sky-400" />
+                                            <span>{item.label}</span>
+                                        </Link>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
 
@@ -266,42 +304,51 @@ export function Footer({ auth: propsAuth }: FooterProps) {
                                 {
                                     label: 'Términos de Servicio',
                                     href: '/terminos-de-servicio',
+                                    icon: FileText,
                                 },
                                 {
                                     label: 'Política de Privacidad',
                                     href: '/politica-de-privacidad',
+                                    icon: ShieldCheck,
                                 },
                                 {
                                     label: 'Política de Cookies',
                                     href: '/politica-de-cookies',
+                                    icon: Cookie,
                                 },
                                 {
                                     label: 'Notificaciones',
                                     href: '/notificaciones',
+                                    icon: Bell,
                                 },
                                 {
                                     label: 'Contacto',
                                     href: '#',
                                     title: 'tumedibot@gmail.com',
+                                    icon: Mail,
                                     onClick: (e: any) => {
                                         e.preventDefault();
                                         navigator.clipboard.writeText('tumedibot@gmail.com');
                                         toast.success('Correo copiado exitosamente');
                                     }
                                 },
-                            ].map((item, idx) => (
-                                <li key={idx}>
-                                    <Link
-                                        href={item.href}
-                                        title={item.title}
-                                        onClick={item.onClick}
-                                        className="group inline-flex items-center gap-1 text-slate-600 transition-all duration-200 hover:translate-x-1 hover:text-blue-600 dark:text-slate-400 dark:hover:text-sky-400"
-                                    >
-                                        <ChevronRight className="h-3.5 w-3.5 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100 dark:text-sky-400" />
-                                        <span>{item.label}</span>
-                                    </Link>
-                                </li>
-                            ))}
+                            ].map((item, idx) => {
+                                const Icon = item.icon;
+                                return (
+                                    <li key={idx}>
+                                        <Link
+                                            href={item.href}
+                                            title={item.title}
+                                            onClick={item.onClick}
+                                            className="group inline-flex items-center gap-1.5 text-slate-600 transition-all duration-200 hover:translate-x-1 hover:text-blue-600 dark:text-slate-400 dark:hover:text-sky-400"
+                                        >
+                                            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-blue-500 opacity-0 transition-opacity group-hover:opacity-100 dark:text-sky-400" />
+                                            <Icon className="h-4 w-4 shrink-0 mr-1.5 text-slate-500 transition-colors group-hover:text-blue-600 dark:text-slate-400 dark:group-hover:text-sky-400" />
+                                            <span>{item.label}</span>
+                                        </Link>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
                 </div>
