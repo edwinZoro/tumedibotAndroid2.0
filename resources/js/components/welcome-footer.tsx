@@ -172,12 +172,12 @@ export function WelcomeFooter({ auth }: WelcomeFooterProps) {
                                                 href={link.href}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="wf-link"
+                                                className="wf-link mx-2"
                                                 title={(link as any).title}
                                             >
                                                 <i className="fa-solid fa-chevron-right wf-link-icon" />
                                                 {(link as any).icon && (
-                                                    <i className={`fa-solid ${(link as any).icon} mr-2.5 opacity-80`} />
+                                                    <i className={`fa-solid ${(link as any).icon}  opacity-80`} />
                                                 )}
                                                 <span>{link.label}</span>
                                                 <i className="fa-solid fa-arrow-up-right-from-square wf-link-external ml-1" />
@@ -191,7 +191,7 @@ export function WelcomeFooter({ auth }: WelcomeFooterProps) {
                                             >
                                                 <i className="fa-solid fa-chevron-right wf-link-icon" />
                                                 {(link as any).icon && (
-                                                    <i className={`fa-solid ${(link as any).icon} mr-2.5 opacity-80`} />
+                                                    <i className={`fa-solid ${(link as any).icon} opacity-80`} />
                                                 )}
                                                 <span>{link.label}</span>
                                             </Link>

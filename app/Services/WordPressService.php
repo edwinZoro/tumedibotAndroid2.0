@@ -23,7 +23,7 @@ class WordPressService
 
     /**
      * Create a user in WordPress with the 'author' role.
-     * 
+     *
      * @param string $email
      * @param string $username
      * @param string $firstName
@@ -44,12 +44,12 @@ class WordPressService
                     'last_name'  => $lastName,
                     'email'      => $email,
                     'password'   => $randomPassword,
-                    'roles'      => ['author'],
+                    'roles'      => ['contributor'],
                 ]);
 
             if ($response->successful()) {
                 Log::info('WordPress User Created Successfully', ['email' => $email, 'wp_id' => $response->json('id')]);
-                
+
                 // Enviar el correo de bienvenida usando Laravel Mail
                 $loginUrl = $this->baseUrl . '/wp-login.php';
                 \Illuminate\Support\Facades\Mail::to($email)->send(
