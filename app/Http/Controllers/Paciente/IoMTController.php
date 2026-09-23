@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\IoMTData;
 use App\Models\Paciente;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class IoMTController extends Controller
 {
@@ -69,7 +69,7 @@ class IoMTController extends Controller
         $user = Auth::user();
         $paciente = Paciente::where('user_id', $user->id)->firstOrFail();
 
-        $iomt = new IoMTData();
+        $iomt = new IoMTData;
         $iomt->paciente_id = $paciente->id;
         $iomt->device_type = $request->device_type;
         $iomt->encrypted_data = $request->data; // El mutator encriptará automáticamente el array JSON
@@ -99,5 +99,44 @@ class IoMTController extends Controller
         $paciente->medicosIoMT()->sync($idsNuevos);
 
         return redirect()->back()->with('success', 'Accesos de monitoreo IoMT actualizados correctamente.');
+    }
+
+    /**
+     * Actualiza un registro IoMT existente.
+     */
+    public function update(Request $request, IoMTData $iomt)
+    {
+        $user = Auth::user();
+        $paciente = Paciente::where('user_id', $user->id)->firstOrFail();
+
+        if ($iomt->paciente_id !== $paciente->id) {
+            abort(403, 'No tienes permiso para editar este registro.');
+        }
+
+        $request->validate([
+            'data' => 'required|array',
+        ]);
+
+        $iomt->encrypted_data = $request->data;
+        $iomt->save();
+
+        return redirect()->back()->with('success', 'Registro de dispositivo actualizado correctamente.');
+    }
+
+    /**
+     * Elimina un registro IoMT existente.
+     */
+    public function destroy(IoMTData $iomt)
+    {
+        $user = Auth::user();
+        $paciente = Paciente::where('user_id', $user->id)->firstOrFail();
+
+        if ($iomt->paciente_id !== $paciente->id) {
+            abort(403, 'No tienes permiso para eliminar este registro.');
+        }
+
+        $iomt->delete();
+
+        return redirect()->back()->with('success', 'Registro de dispositivo eliminado correctamente.');
     }
 }

@@ -235,16 +235,10 @@ export function HistorialSheet({ citaId, open, onClose }: HistorialSheetProps) {
                                 </p>
                             </div>
                         </div>
-                        <button
-                            onClick={onClose}
-                            className="rounded-lg p-1 text-white/70 transition hover:bg-white/10 hover:text-white"
-                        >
-                            <X className="h-4 w-4" />
-                        </button>
                     </div>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto pb-24">
                     {loading ? (
                         <div className="flex h-full flex-col items-center justify-center text-slate-500">
                             <Loader2 className="mb-4 h-8 w-8 animate-spin" />
@@ -287,8 +281,8 @@ export function HistorialSheet({ citaId, open, onClose }: HistorialSheetProps) {
                                     />
                                 </>
                             ) : historial ? (
-                                <div className="space-y-6 p-6">
-                                    <div className="mb-4 flex justify-end gap-2">
+                                <div className="space-y-6 p-4 sm:p-6">
+                                    <div className="mb-4 flex flex-wrap justify-center sm:justify-end gap-2">
                                         <Button
                                             variant="outline"
                                             size="sm"

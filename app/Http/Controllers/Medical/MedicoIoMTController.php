@@ -6,9 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\IoMTData;
 use App\Models\Medico;
 use App\Models\Paciente;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class MedicoIoMTController extends Controller
 {
@@ -24,7 +23,7 @@ class MedicoIoMTController extends Controller
         $pacientesCompartiendo = $medico->pacientesIoMT()->get();
 
         return Inertia::render('medicos/iomt-list', [
-            'pacientes' => $pacientesCompartiendo
+            'pacientes' => $pacientesCompartiendo,
         ]);
     }
 
@@ -37,7 +36,7 @@ class MedicoIoMTController extends Controller
         $medico = Medico::where('user_id', $user->id)->firstOrFail();
 
         // Validar que el paciente haya compartido explícitamente su IoMT con este médico
-        if (!$medico->pacientesIoMT()->where('pacientes.id', $paciente->id)->exists()) {
+        if (! $medico->pacientesIoMT()->where('pacientes.id', $paciente->id)->exists()) {
             return redirect()->route('medicos.iomt.index')->with('error', 'El paciente no está compartiendo sus datos o no tienes acceso.');
         }
 
@@ -63,7 +62,7 @@ class MedicoIoMTController extends Controller
         return Inertia::render('Paciente/iomt', [ // Reutilizamos la vista del paciente, o podemos crear una nueva (medicos/iomt-view)
             'iomtData' => $groupedData,
             'isDoctorView' => true,
-            'paciente' => $paciente
+            'paciente' => $paciente,
         ]);
     }
 }

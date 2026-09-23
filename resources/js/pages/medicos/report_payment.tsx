@@ -207,7 +207,7 @@ export default function PaymentOverview({
     };
 
     return (
-        <div className="flex min-h-screen flex-col justify-between p-4 md:p-6">
+        <div className="flex min-h-screen flex-col justify-between gap-4 p-4 md:gap-6 md:p-6">
             {/* ══ 1. PANEL DE SALDOS (Billetera) ══ */}
             <Card className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-md dark:border-slate-800 dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-800 dark:text-white dark:shadow-xl">
                 <CardHeader className="pb-2">
@@ -256,7 +256,7 @@ export default function PaymentOverview({
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div className="grid grid-cols-1 gap-3 pt-2">
                         <Button
                             asChild
                             variant="secondary"
@@ -267,13 +267,13 @@ export default function PaymentOverview({
                                 Pago
                             </a>
                         </Button>
-                        <Button
+                        {/* <Button
                             asChild
                             variant="outline"
                             className="h-11 rounded-xl border-slate-300 font-bold text-slate-700 hover:bg-slate-50 dark:border-white/20 dark:text-white dark:hover:bg-white/10"
                         >
                             <a href={medicalBalanceRoute}>Saldo Citas</a>
-                        </Button>
+                        </Button> */}
                     </div>
                 </CardContent>
             </Card>
@@ -305,7 +305,7 @@ export default function PaymentOverview({
                         </div>
                     </div>
 
-                    <div className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white/80 p-1 shadow-sm backdrop-blur-sm dark:border-slate-800/60 dark:bg-slate-900/80">
+                    <div className="overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200/60 bg-white/80 p-1 shadow-sm backdrop-blur-sm dark:border-slate-800/60 dark:bg-slate-900/80">
                         <Table>
                             <TableHeader className="bg-slate-50 dark:bg-slate-950/50">
                                 <TableRow className="border-slate-200 hover:bg-transparent dark:border-slate-800">
@@ -388,12 +388,12 @@ export default function PaymentOverview({
 
             {/* ══ 3. MIS PEDIDOS (siempre visible) ══ */}
             <Card className="rounded-3xl border-slate-200/80 bg-white/80 shadow-lg backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardHeader className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
                     <CardTitle className="flex items-center gap-2 text-lg font-bold">
                         <ShoppingCart className="h-5 w-5 text-indigo-500" />
                         Mis Pedidos
                     </CardTitle>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-4 sm:gap-2">
                         {factura.length > 0 && factura[0].plan && (
                             <Button
                                 asChild
@@ -426,7 +426,7 @@ export default function PaymentOverview({
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-2">
-                    <div className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white/50 dark:border-slate-800/60 dark:bg-slate-950/30">
+                    <div className="overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200/60 bg-white/50 dark:border-slate-800/60 dark:bg-slate-950/30">
                         <Table>
                             <TableHeader className="bg-slate-50/80 dark:bg-slate-900/80">
                                 <TableRow className="border-slate-200 dark:border-slate-800">
@@ -575,7 +575,7 @@ export default function PaymentOverview({
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-2">
-                    <div className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white/50 dark:border-slate-800/60 dark:bg-slate-950/30">
+                    <div className="overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200/60 bg-white/50 dark:border-slate-800/60 dark:bg-slate-950/30">
                         <Table>
                             <TableHeader className="bg-slate-50/80 dark:bg-slate-900/80">
                                 <TableRow className="border-slate-200 dark:border-slate-800">

@@ -621,7 +621,7 @@ export default function CitasAgenda({
                                         </div>
                                     ) : (
                                         <>
-                                            <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/50">
+                                            <div className="overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200/80 bg-white/80 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/50">
                                                 <Table>
                                                     <TableHeader className="bg-slate-50/80 dark:bg-slate-800/20">
                                                         <TableRow className="hover:bg-transparent">

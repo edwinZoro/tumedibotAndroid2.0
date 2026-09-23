@@ -44,6 +44,7 @@ class IoMTData extends Model
 
         try {
             $decrypted = Crypt::decryptString($this->encrypted_data);
+
             return json_decode($decrypted, true);
         } catch (\Exception $e) {
             return null;

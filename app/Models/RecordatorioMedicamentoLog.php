@@ -11,6 +11,7 @@ class RecordatorioMedicamentoLog extends Model
     use HasFactory;
 
     protected $table = 'recordatorio_medicamento_logs';
+
     public $timestamps = false;
 
     protected $fillable = [

@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Http\Request;
 
 /**
  * Modelo de auditoría de consentimientos legales.
@@ -11,13 +13,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Registra cada vez que un usuario acepta los documentos legales
  * (Términos de Servicio, Política de Privacidad, Política de Cookies).
  *
- * @property int         $id
- * @property int         $user_id
- * @property string      $type            'terms' | 'privacy' | 'cookies' | 'all'
- * @property string      $policy_version  Ej: "v1.0"
- * @property string|null $ip_address      IP del cliente
- * @property string|null $user_agent      Navegador/dispositivo
- * @property \Carbon\Carbon $accepted_at  Timestamp exacto de la aceptación
+ * @property int $id
+ * @property int $user_id
+ * @property string $type 'terms' | 'privacy' | 'cookies' | 'all'
+ * @property string $policy_version Ej: "v1.0"
+ * @property string|null $ip_address IP del cliente
+ * @property string|null $user_agent Navegador/dispositivo
+ * @property Carbon $accepted_at Timestamp exacto de la aceptación
  */
 class ConsentLog extends Model
 {
@@ -48,7 +50,7 @@ class ConsentLog extends Model
      * Conversiones de tipos.
      */
     protected $casts = [
-        'user_id'    => 'integer',
+        'user_id' => 'integer',
         'accepted_at' => 'datetime',
     ];
 
@@ -76,24 +78,24 @@ class ConsentLog extends Model
      * - Cloudflare (CF-Connecting-IP)
      * - Servidor directo
      *
-     * @param  int    $userId        ID del usuario recién creado
-     * @param  \Illuminate\Http\Request $request  Request HTTP de Fortify
-     * @param  string $type          Tipo de consentimiento (default: 'all')
-     * @param  string $policyVersion Versión de la política (default: config)
+     * @param  int  $userId  ID del usuario recién creado
+     * @param  Request  $request  Request HTTP de Fortify
+     * @param  string  $type  Tipo de consentimiento (default: 'all')
+     * @param  string  $policyVersion  Versión de la política (default: config)
      */
     public static function record(
         int $userId,
-        \Illuminate\Http\Request $request,
+        Request $request,
         string $type = 'all',
         ?string $policyVersion = null,
     ): static {
         return static::create([
-            'user_id'        => $userId,
-            'type'           => $type,
+            'user_id' => $userId,
+            'type' => $type,
             'policy_version' => $policyVersion ?? config('app.policy_version', 'v1.0'),
-            'ip_address'     => static::resolveClientIp($request),
-            'user_agent'     => $request->userAgent(),
-            'accepted_at'    => now(),
+            'ip_address' => static::resolveClientIp($request),
+            'user_agent' => $request->userAgent(),
+            'accepted_at' => now(),
         ]);
     }
 
@@ -106,7 +108,7 @@ class ConsentLog extends Model
      *  3. El primer IP de X-Forwarded-For (load balancer / proxy genérico)
      *  4. IP directa de la conexión TCP
      */
-    public static function resolveClientIp(\Illuminate\Http\Request $request): ?string
+    public static function resolveClientIp(Request $request): ?string
     {
         // 1. Cloudflare pone la IP real del visitante en este header
         if ($cfIp = $request->header('CF-Connecting-IP')) {

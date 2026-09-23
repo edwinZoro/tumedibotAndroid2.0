@@ -238,16 +238,10 @@ return;
                                 </p>
                             </div>
                         </div>
-                        <button
-                            onClick={onClose}
-                            className="rounded-lg p-1 text-white/70 transition hover:bg-white/10 hover:text-white"
-                        >
-                            <X className="h-4 w-4" />
-                        </button>
                     </div>
                 </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex-1 overflow-y-auto p-6 pb-24">
                     {loading ? (
                         <div className="flex h-full flex-col items-center justify-center text-slate-500">
                             <Loader2 className="mb-4 h-8 w-8 animate-spin" />
@@ -279,7 +273,7 @@ return;
                                         className="min-h-[80px] resize-none border-amber-200 focus-visible:ring-amber-400 dark:border-amber-800"
                                         autoFocus
                                     />
-                                    <div className="mt-2 flex justify-end gap-2">
+                                    <div className="mt-2 flex flex-wrap justify-end gap-2">
                                         <Button
                                             variant="outline"
                                             size="sm"
@@ -334,7 +328,7 @@ return;
                                                     className="min-h-[80px] resize-none"
                                                     autoFocus
                                                 />
-                                                <div className="mt-2 flex justify-end gap-2">
+                                                <div className="mt-2 flex flex-wrap justify-end gap-2">
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
@@ -364,7 +358,7 @@ return;
                                             </>
                                         ) : (
                                             <>
-                                                <div className="mb-2 flex items-start justify-between gap-2">
+                                                <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
                                                     <div className="flex items-center gap-2">
                                                         <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 text-[10px] font-bold text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
                                                             {nota.id}

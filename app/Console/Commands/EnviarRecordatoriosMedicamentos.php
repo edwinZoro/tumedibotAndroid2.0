@@ -25,7 +25,7 @@ class EnviarRecordatoriosMedicamentos extends Command
             ->where('fecha_inicio', '<=', $hoyDate)
             ->where(function ($q) use ($hoyDate) {
                 $q->whereNull('fecha_fin')
-                  ->orWhere('fecha_fin', '>=', $hoyDate);
+                    ->orWhere('fecha_fin', '>=', $hoyDate);
             })
             ->with(['paciente', 'medicamento'])
             ->get();
@@ -63,11 +63,11 @@ class EnviarRecordatoriosMedicamentos extends Command
 
             // Buscar si alguna hora de dosis coincide con la hora actual (dentro de una ventana de ±35 minutos)
             $horaActual = $now->format('H:i');
-            $minutosActuales = (int)$now->format('H') * 60 + (int)$now->format('i');
+            $minutosActuales = (int) $now->format('H') * 60 + (int) $now->format('i');
 
             foreach ($horasDosis as $hd) {
                 $partesHd = explode(':', $hd);
-                $minutosHd = (int)$partesHd[0] * 60 + (int)$partesHd[1];
+                $minutosHd = (int) $partesHd[0] * 60 + (int) $partesHd[1];
 
                 // Coincidencia dentro del rango de tolerancias (ej: -5 min a +30 min)
                 $diferencia = $minutosActuales - $minutosHd;
@@ -90,7 +90,7 @@ class EnviarRecordatoriosMedicamentos extends Command
                         RecordatorioMedicamentoLog::create([
                             'recordatorio_id' => $rec->id,
                             'enviado_en' => $now,
-                            'email_enviado' => (bool)$rec->email_recordatorio,
+                            'email_enviado' => (bool) $rec->email_recordatorio,
                             'notif_interna' => true,
                             'hora_dosis' => $hd,
                         ]);

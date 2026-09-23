@@ -116,18 +116,18 @@ export default function CryptoPayment({ planPrecio = 0, tituloPlan = '' }: Props
     <>
       <Head title="Pagar con Crypto - TuMediBot" />
 
-      <div className="flex min-h-screen flex-col justify-between bg-gradient-to-b from-background to-muted/30 pt-8 md:pt-16">
+      <div className="flex min-h-screen w-full flex-col justify-between overflow-x-hidden bg-gradient-to-b from-background to-muted/30 pt-8 md:pt-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           {/* Encabezado */}
           <div className="mx-auto mb-10 max-w-3xl text-center">
-            <h1 className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-5xl">
+            <h1 className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-5xl">
               Direcciones Crypto
             </h1>
             <Separator className="mx-auto mt-4 mb-6 w-24" />
             <div className="rounded-lg border-l-4 border-rose-500 bg-rose-50/70 p-4 text-left text-sm text-rose-800 dark:border-rose-400 dark:bg-rose-950/30 dark:text-rose-300">
               <p className="flex items-start gap-2">
                 <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-500 dark:text-rose-400" />
-                <span>
+                <span className="min-w-0 flex-1">
                   <strong className="font-semibold">Advertencia:</strong>{' '}
                   No depositar ningún tipo de NFT en ninguna de las direcciones.
                   Considere que depositar en una red o dirección errónea puede
@@ -147,7 +147,7 @@ export default function CryptoPayment({ planPrecio = 0, tituloPlan = '' }: Props
                     Paga con Binance BPay
                   </span>
                   {totalConIva && (
-                    <span className="mt-1 flex items-baseline gap-1 text-sm font-medium text-white/90">
+                    <span className="mt-1 flex flex-wrap items-baseline gap-1 text-sm font-medium text-white/90">
                       el total de:
                       <span className="ml-1 text-2xl font-extrabold tracking-tight text-white drop-shadow">
                         ${totalConIva}
@@ -223,7 +223,7 @@ export default function CryptoPayment({ planPrecio = 0, tituloPlan = '' }: Props
           <div className="mt-12 text-center">
             <Badge
               variant="secondary"
-              className="border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-sm font-medium text-amber-600 dark:text-amber-400"
+              className="h-auto border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-center text-sm font-medium whitespace-normal text-amber-600 dark:text-amber-400"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

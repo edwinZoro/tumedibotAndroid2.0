@@ -533,25 +533,24 @@ function TablaArchivos({
     }
 
     return (
-        <Card className="overflow-hidden rounded-3xl border-slate-200/80 bg-white/80 shadow-lg backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">
+        <Card className="w-full overflow-hidden rounded-3xl border-slate-200/80 bg-white/80 shadow-lg backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-sky-400" />
-            <CardHeader className="flex flex-row items-center justify-between gap-4 border-b border-slate-100 bg-slate-50 pt-6 pb-4 dark:border-slate-800 dark:bg-slate-800/30">
-                <div>
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 bg-slate-50 pt-6 pb-4 dark:border-slate-800 dark:bg-slate-800/30">
+                <div className="min-w-0 flex-1">
                     <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                        <FolderLock className="h-5 w-5 text-sky-500" />
-                        Mi Bóveda
+                        <FolderLock className="h-5 w-5 shrink-0 text-sky-500" />
+                        <span className="truncate">Mi Bóveda</span>
                     </CardTitle>
-                    <CardDescription className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                        <Lock className="h-3 w-3 text-emerald-500" />
-                        Almacenamiento privado · el médico solo ve lo que
-                        compartes
+                    <CardDescription className="mt-1 flex items-start gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                        <Lock className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500" />
+                        <span className="whitespace-normal text-balance">Almacenamiento privado · el médico solo ve lo que compartes</span>
                     </CardDescription>
                 </div>
                 <SubirArchivoDialog />
             </CardHeader>
 
-            <CardContent className="p-0">
-                <Table>
+            <CardContent className="p-0 w-full overflow-x-auto">
+                <Table className="min-w-[600px]">
                     <TableHeader className="bg-slate-50/80 dark:bg-slate-800/20">
                         <TableRow className="hover:bg-transparent">
                             <TableHead className="h-12 pl-6 text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">
@@ -724,7 +723,7 @@ export default function MisArchivos({
             </section>
 
             {/* ══ CONTENIDO ═════════════════════════════════════════════════ */}
-            <main className="relative z-20 mx-auto -mt-8 max-w-6xl px-4 sm:px-6 lg:px-8">
+            <main className="relative z-20 mx-auto -mt-8 max-w-6xl w-full px-4 sm:px-6 lg:px-8">
                 {!tienePaciente ? (
                     <Card className="overflow-hidden rounded-3xl border-slate-200/80 bg-white/80 shadow-lg backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">
                         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-sky-400" />

@@ -4,9 +4,9 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\App;
 
 class HandleAppearance
 {
@@ -19,6 +19,7 @@ class HandleAppearance
     {
         View::share('appearance', $request->cookie('appearance') ?? 'system');
         App::setLocale('es');
+
         return $next($request);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Medical;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medicos\StoreMedicalRequest;
+use App\Jobs\SyncDoctorToWordPress;
 use App\Models\Medico;
 use App\Models\User;
 use HTMLPurifier;
@@ -132,7 +133,7 @@ class MedicalFormController extends Controller
         }
 
         // ─── 🌐 Sincronizar con WordPress ────────────────────────────────────
-        \App\Jobs\SyncDoctorToWordPress::dispatch($medico);
+        SyncDoctorToWordPress::dispatch($medico);
 
         // ─── ✅ Respuesta JSON (coincide con lo que espera el frontend) ────
         return response()->json([

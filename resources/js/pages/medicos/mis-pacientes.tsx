@@ -179,7 +179,7 @@ function NuevaCitaDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[520px]">
+            <DialogContent className="sm:max-w-[520px] max-h-[80dvh] overflow-y-auto p-4 sm:p-6">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Calendar className="h-5 w-5 text-sky-500" />
@@ -354,7 +354,7 @@ function AsignarFechaCitaDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[400px]">
+            <DialogContent className="sm:max-w-[400px] max-h-[80dvh] overflow-y-auto p-4 sm:p-6">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Clock className="h-5 w-5 text-sky-500" />
@@ -529,12 +529,6 @@ function CitasSheet({
                                 <Plus className="mr-1.5 h-3.5 w-3.5" />
                                 Nueva cita
                             </Button>
-                            <button
-                                onClick={onClose}
-                                className="rounded-lg p-1 text-white/70 transition hover:bg-white/10 hover:text-white"
-                            >
-                                <X className="h-4 w-4" />
-                            </button>
                         </div>
                     </div>
                 </SheetHeader>
@@ -896,7 +890,7 @@ export default function MisPacientes({
                                 </div>
                             ) : (
                                 <>
-                                    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/50">
+                                    <div className="overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200/80 bg-white/80 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/50">
                                         <Table>
                                             <TableHeader className="bg-slate-50/80 dark:bg-slate-800/20">
                                                 <TableRow className="hover:bg-transparent">

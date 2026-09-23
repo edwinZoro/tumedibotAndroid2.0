@@ -10,6 +10,7 @@ use App\Http\Controllers\Medical\MedicalFormController;
 use App\Http\Controllers\Medical\MedicamentoController;
 use App\Http\Controllers\Medical\MedicoArchivosController;
 use App\Http\Controllers\Medical\MedicoCitasController;
+use App\Http\Controllers\Medical\MedicoIoMTController;
 use App\Http\Controllers\Medical\MedicoPacientesController;
 use App\Http\Controllers\Medical\MedicoReportController;
 use App\Http\Controllers\Medical\MedicoSearchController;
@@ -21,14 +22,16 @@ use App\Http\Controllers\Paciente\ArchivosController;
 use App\Http\Controllers\Paciente\CitasController;
 use App\Http\Controllers\Paciente\DatosMedicosController;
 use App\Http\Controllers\Paciente\HistorialPacienteController;
+use App\Http\Controllers\Paciente\IoMTController;
 use App\Http\Controllers\Paciente\RecetaPacienteController;
 use App\Http\Controllers\Paciente\RecordatorioMedicamentoController;
 use App\Http\Controllers\VideoCallController;
 use App\Models\Especialidades;
+use App\Models\Factura;
 use App\Models\Pais;
 use App\Models\State;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::inertia('/', 'welcome')->name('home');
 Route::post('/enviar_correo', [ProfileMedical::class, 'enviarMensajeDoctor'])->name('enviar_correo');
@@ -195,11 +198,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('pacientes.medicamentos.destroy');
 
     // Monitoreo IoMT del Paciente
-    Route::get('/paciente/monitoreo-iomt', [\App\Http\Controllers\Paciente\IoMTController::class, 'index'])
+    Route::get('/paciente/monitoreo-iomt', [IoMTController::class, 'index'])
         ->name('pacientes.iomt');
-    Route::post('/paciente/monitoreo-iomt', [\App\Http\Controllers\Paciente\IoMTController::class, 'store'])
+    Route::post('/paciente/monitoreo-iomt', [IoMTController::class, 'store'])
         ->name('pacientes.iomt.store');
-    Route::patch('/paciente/monitoreo-iomt/compartir', [\App\Http\Controllers\Paciente\IoMTController::class, 'compartir'])
+    Route::put('/paciente/monitoreo-iomt/{iomt}', [IoMTController::class, 'update'])
+        ->name('pacientes.iomt.update');
+    Route::delete('/paciente/monitoreo-iomt/{iomt}', [IoMTController::class, 'destroy'])
+        ->name('pacientes.iomt.destroy');
+    Route::patch('/paciente/monitoreo-iomt/compartir', [IoMTController::class, 'compartir'])
         ->name('pacientes.iomt.compartir');
 
     // PDF del historial clínico compartido por el médico
@@ -239,9 +246,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('medicos.pacientes.store');
 
     // Monitorización IoMT de Pacientes Compartidos
-    Route::get('/medico/monitorizacion-iomt', [\App\Http\Controllers\Medical\MedicoIoMTController::class, 'index'])
+    Route::get('/medico/monitorizacion-iomt', [MedicoIoMTController::class, 'index'])
         ->name('medicos.iomt.index');
-    Route::get('/medico/monitorizacion-iomt/{paciente}', [\App\Http\Controllers\Medical\MedicoIoMTController::class, 'show'])
+    Route::get('/medico/monitorizacion-iomt/{paciente}', [MedicoIoMTController::class, 'show'])
         ->name('medicos.iomt.show');
 
     // Crear nueva cita completa para un paciente del consultorio (desde Mis Pacientes)
@@ -292,13 +299,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/billing-plan-edit/{userId}', [BillingController::class, 'show'])->name('billing.edit');
 
     Route::get('/pagar-crypto', function () {
-        $factura = \App\Models\Factura::where('user_id', auth()->id())->first();
+        $factura = Factura::where('user_id', auth()->id())->first();
         $planPrecio = 0;
         $tituloPlan = '';
         if ($factura) {
             $planPrecio = $factura->plan === 'andromeda' ? 25 : ($factura->plan === 'fenix' ? 135 : 270);
             $tituloPlan = ucfirst($factura->plan);
         }
+
         return inertia('crypto', [
             'planPrecio' => $planPrecio,
             'tituloPlan' => $tituloPlan,

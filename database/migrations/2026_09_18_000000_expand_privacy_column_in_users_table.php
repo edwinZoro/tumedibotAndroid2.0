@@ -13,14 +13,14 @@ return new class extends Migration
     public function up(): void
     {
         if (DB::getDriverName() !== 'sqlite') {
-            DB::statement("ALTER TABLE users MODIFY privacy VARCHAR(35) NOT NULL");
+            DB::statement('ALTER TABLE users MODIFY privacy VARCHAR(35) NOT NULL');
         }
     }
 
     public function down(): void
     {
         if (DB::getDriverName() !== 'sqlite') {
-            DB::statement("ALTER TABLE users MODIFY privacy VARCHAR(25) NOT NULL");
+            DB::statement('ALTER TABLE users MODIFY privacy VARCHAR(25) NOT NULL');
         }
     }
 };

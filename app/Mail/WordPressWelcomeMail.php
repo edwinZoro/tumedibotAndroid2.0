@@ -13,8 +13,11 @@ class WordPressWelcomeMail extends Mailable
     use Queueable, SerializesModels;
 
     public string $nombre;
+
     public string $username;
+
     public string $password;
+
     public string $loginUrl;
 
     public function __construct(

@@ -46,6 +46,7 @@ class RecordatorioMedicamento extends Model
         if ($this->medicamento) {
             return $this->medicamento->nombre_comercial ?? $this->medicamento->principio_activo ?? $this->nombre_libre ?? 'Medicamento';
         }
+
         return $this->nombre_libre ?? 'Medicamento';
     }
 

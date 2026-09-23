@@ -374,19 +374,18 @@ export default function AreaMedica({
                                         <div className="rounded-full bg-indigo-100 p-2 dark:bg-indigo-900/30">
                                             <FileSignature className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs font-semibold">
-                                                Configurar Firma y
-                                                Hospital/Clínica
+                                        <div className="flex flex-wrap items-center justify-center gap-2">
+                                            <span className="text-center text-xs font-semibold whitespace-normal text-balance">
+                                                Configurar Firma y Hospital/Clínica
                                             </span>
                                             {firmaConfigurada === true && (
-                                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
                                                     <ShieldCheck className="h-3 w-3" />
                                                     Configurado
                                                 </span>
                                             )}
                                             {firmaConfigurada === false && (
-                                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
                                                     Pendiente
                                                 </span>
                                             )}

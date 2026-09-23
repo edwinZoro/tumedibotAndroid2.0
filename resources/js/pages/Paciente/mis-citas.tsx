@@ -476,11 +476,11 @@ function BuscadorMedicos({
                 </div>
             ) : (
                 <>
-                    <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 shadow-sm backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">
-                        <Table>
+                    <div className="w-full overflow-x-auto overflow-y-hidden rounded-2xl border border-slate-200/80 bg-white/80 shadow-sm backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">
+                        <Table className="min-w-[500px] sm:min-w-full">
                             <TableHeader className="bg-slate-50/80 dark:bg-slate-800/20">
                                 <TableRow className="hover:bg-transparent">
-                                    <TableHead className="h-12 pl-6 text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">
+                                    <TableHead className="h-12 min-w-[250px] pl-6 text-[11px] font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">
                                         Médico
                                     </TableHead>
                                     <TableHead className="hidden text-[11px] font-bold tracking-widest text-slate-500 uppercase sm:table-cell dark:text-slate-400">
@@ -503,7 +503,7 @@ function BuscadorMedicos({
                                                     foto={medico.foto}
                                                     nombre={medico.nombre}
                                                 />
-                                                <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                                <span className="block whitespace-nowrap text-sm font-semibold text-slate-800 dark:text-slate-100">
                                                     {medico.nombre}
                                                 </span>
                                             </span>

@@ -157,24 +157,24 @@ class MedicoPacientesController extends Controller
 
         $validated = $request->validate([
             'motivo_consulta' => ['required', 'string', 'min:3', 'max:255'],
-            'tipo'            => ['required', 'string', 'in:CONSULTA,VIDEOLLAMADA'],
-            'fecha'           => ['required', 'date', 'after_or_equal:today'],
-            'hora'            => ['required', 'date_format:H:i'],
-            'sintomas'        => ['nullable', 'string', 'max:255'],
+            'tipo' => ['required', 'string', 'in:CONSULTA,VIDEOLLAMADA'],
+            'fecha' => ['required', 'date', 'after_or_equal:today'],
+            'hora' => ['required', 'date_format:H:i'],
+            'sintomas' => ['nullable', 'string', 'max:255'],
         ], [
             'fecha.after_or_equal' => 'La fecha debe ser hoy o una fecha futura.',
-            'hora.date_format'     => 'La hora debe tener formato HH:MM (ej: 09:30).',
+            'hora.date_format' => 'La hora debe tener formato HH:MM (ej: 09:30).',
         ]);
 
         CitaPaciente::create([
-            'id_paciente'    => $paciente->id,
-            'id_medico'      => $medico->id,
-            'fecha'          => $validated['fecha'],
-            'hora'           => $validated['hora'],
+            'id_paciente' => $paciente->id,
+            'id_medico' => $medico->id,
+            'fecha' => $validated['fecha'],
+            'hora' => $validated['hora'],
             'motivo_consulta' => $validated['motivo_consulta'],
-            'sintomas'       => $validated['sintomas'] ?? null,
-            'tipo'           => $validated['tipo'],
-            'estado_cita'    => 'CONFIRMADA',
+            'sintomas' => $validated['sintomas'] ?? null,
+            'tipo' => $validated['tipo'],
+            'estado_cita' => 'CONFIRMADA',
         ]);
 
         return back()->with('success', 'Cita creada y confirmada correctamente.');
@@ -192,12 +192,12 @@ class MedicoPacientesController extends Controller
 
         $validated = $request->validate([
             'fecha' => ['required', 'date', 'after_or_equal:today'],
-            'hora'  => ['required', 'date_format:H:i'],
+            'hora' => ['required', 'date_format:H:i'],
         ]);
 
         $cita->update([
-            'fecha'      => $validated['fecha'],
-            'hora'       => $validated['hora'],
+            'fecha' => $validated['fecha'],
+            'hora' => $validated['hora'],
             'estado_cita' => 'CONFIRMADA',
         ]);
 

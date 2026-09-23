@@ -39,7 +39,7 @@ class MedicoCitasController extends Controller
             ->where('id_medico', $medico->id)
             ->whereHas('paciente.medicos', function ($q) use ($medico) {
                 $q->where('medicos.id', $medico->id)
-                  ->where('medico_paciente.origen', 'paciente');
+                    ->where('medico_paciente.origen', 'paciente');
             })
             ->with('paciente:id,nombre_paciente,email_paciente,tlf_paciente')
             ->orderByRaw('CASE WHEN fecha IS NULL THEN 0 ELSE 1 END')
@@ -64,7 +64,7 @@ class MedicoCitasController extends Controller
             ->where('id_medico', $medico->id)
             ->whereHas('paciente.medicos', function ($q) use ($medico) {
                 $q->where('medicos.id', $medico->id)
-                  ->where('medico_paciente.origen', 'paciente');
+                    ->where('medico_paciente.origen', 'paciente');
             })
             ->whereNotNull('fecha')
             ->with('paciente:id,nombre_paciente,email_paciente,tlf_paciente')

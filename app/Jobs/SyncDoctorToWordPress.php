@@ -20,7 +20,6 @@ class SyncDoctorToWordPress implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param Medico $medico
      * @return void
      */
     public function __construct(Medico $medico)
@@ -31,7 +30,6 @@ class SyncDoctorToWordPress implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @param WordPressService $wpService
      * @return void
      */
     public function handle(WordPressService $wpService)
@@ -41,10 +39,10 @@ class SyncDoctorToWordPress implements ShouldQueue
         $email = $this->medico->correo;
         $firstName = $this->medico->nombre ?? '';
         $lastName = $this->medico->apellido ?? '';
-        
+
         // WP usernames cannot have spaces, usually we can use part of email or first.last
         $usernameParts = explode('@', $email);
-        $username = $usernameParts[0] . rand(10, 99); // Ensure uniqueness slightly
+        $username = $usernameParts[0].rand(10, 99); // Ensure uniqueness slightly
 
         $wpService->createAuthor($email, $username, $firstName, $lastName);
     }

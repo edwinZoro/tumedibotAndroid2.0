@@ -240,8 +240,8 @@ export default function ArchivosCompartidos({
             </section>
 
             {/* ══ CONTENIDO ═════════════════════════════════════════════════ */}
-            <main className="relative z-20 mx-auto -mt-8 max-w-6xl px-4 sm:px-6 lg:px-8">
-                <Card className="overflow-hidden rounded-3xl border-slate-200/80 bg-white/80 shadow-lg backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">
+            <main className="relative z-20 mx-auto -mt-8 max-w-6xl w-full px-4 sm:px-6 lg:px-8">
+                <Card className="w-full overflow-hidden rounded-3xl border-slate-200/80 bg-white/80 shadow-lg backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50">
                     <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-sky-400" />
                     <CardHeader className="border-b border-slate-100 bg-slate-50 pt-6 pb-4 dark:border-slate-800 dark:bg-slate-800/30">
                         <CardTitle className="flex items-center gap-2 text-lg font-bold">
@@ -356,19 +356,19 @@ export default function ArchivosCompartidos({
                                     {pacientes.data.map((grupo) => (
                                         <Card
                                             key={grupo.paciente.id}
-                                            className="overflow-hidden rounded-3xl border-slate-200/80 bg-white/80 shadow-lg backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50"
+                                            className="w-full overflow-hidden rounded-3xl border-slate-200/80 bg-white/80 shadow-lg backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/50"
                                         >
                                             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-sky-400" />
                                             <CardHeader className="border-b border-slate-100 bg-slate-50 pt-6 pb-4 dark:border-slate-800 dark:bg-slate-800/30">
-                                                <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                                                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-blue-600">
+                                                <CardTitle className="flex min-w-0 flex-1 items-center gap-2 text-lg font-bold">
+                                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-blue-600">
                                                         <span className="text-sm font-extrabold text-white">
                                                             {grupo.paciente.nombre
                                                                 .charAt(0)
                                                                 .toUpperCase()}
                                                         </span>
                                                     </span>
-                                                    {grupo.paciente.nombre}
+                                                    <span className="truncate">{grupo.paciente.nombre}</span>
                                                 </CardTitle>
                                                 <CardDescription className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
                                                     {grupo.archivos.length}{' '}
@@ -378,7 +378,7 @@ export default function ArchivosCompartidos({
                                                 </CardDescription>
                                             </CardHeader>
 
-                                            <CardContent className="p-0">
+                                            <CardContent className="p-0 w-full overflow-x-auto">
                                                 <Table>
                                                     <TableHeader className="bg-slate-50/80 dark:bg-slate-800/20">
                                                         <TableRow className="hover:bg-transparent">

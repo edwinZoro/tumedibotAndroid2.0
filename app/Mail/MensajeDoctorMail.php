@@ -14,9 +14,13 @@ class MensajeDoctorMail extends Mailable
     use Queueable, SerializesModels;
 
     public string $nombre;
+
     public string $email;
+
     public string $phone;
+
     public string $mensaje;
+
     public string $medicoNombre;
 
     public function __construct(

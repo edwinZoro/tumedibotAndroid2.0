@@ -29,29 +29,29 @@ class CreateNewUser implements CreatesNewUsers
     {
         Validator::make($input, [
             ...$this->profileRules(),
-            'password'          => $this->passwordRules(),
+            'password' => $this->passwordRules(),
             'g-recaptcha-response' => ['required', 'string', new Recaptcha],
-            'privacy_accepted'  => ['required', 'accepted'],
+            'privacy_accepted' => ['required', 'accepted'],
         ], [
             'privacy_accepted.required' => 'Debes aceptar los Términos, Política de Privacidad y Política de Cookies.',
-            'privacy_accepted.accepted'  => 'Debes aceptar los Términos, Política de Privacidad y Política de Cookies.',
+            'privacy_accepted.accepted' => 'Debes aceptar los Términos, Política de Privacidad y Política de Cookies.',
         ])->validate();
 
         // Timestamp ISO de la aceptación (también queda en la columna `privacy` del usuario)
         $acceptedAt = now();
 
         $user = User::create([
-            'name'     => $input['name'],
-            'email'    => $input['email'],
+            'name' => $input['name'],
+            'email' => $input['email'],
             'password' => $input['password'],
-            'privacy'  => $acceptedAt->toIso8601String(),
+            'privacy' => $acceptedAt->toIso8601String(),
         ]);
 
         // Registrar consentimiento completo en la tabla de auditoría
         ConsentLog::record(
-            userId:        $user->id,
-            request:       $this->request,
-            type:          'all',
+            userId: $user->id,
+            request: $this->request,
+            type: 'all',
             policyVersion: config('app.policy_version', 'v1.0'),
         );
 

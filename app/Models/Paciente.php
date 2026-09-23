@@ -152,4 +152,3 @@ class Paciente extends Model
         return $this->hasMany(RecordatorioMedicamento::class, 'paciente_id');
     }
 }
-

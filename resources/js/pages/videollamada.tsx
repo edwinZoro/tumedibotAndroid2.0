@@ -68,12 +68,12 @@ export default function Videollamada({
             <Head title="Videollamada · TuMediBot" />
 
             {/* Barra superior de info + botón salir */}
-            <div className="flex shrink-0 items-center justify-between gap-4 border-b border-sidebar-border/70 bg-background px-4 py-2.5">
-                <div className="flex items-center gap-3">
+            <div className="flex shrink-0 flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-sidebar-border/70 bg-background px-4 py-3">
+                <div className="flex min-w-0 items-center gap-3 w-full">
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 shadow-md shadow-blue-500/30">
                         <Video className="h-4 w-4 text-white" />
                     </span>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                         <p className="text-sm font-bold text-foreground">
                             Videollamada segura
                         </p>
@@ -88,7 +88,7 @@ export default function Videollamada({
                     </div>
                 </div>
                 
-                <div className="flex items-center gap-2">
+                <div className="flex w-full items-center justify-between sm:justify-end gap-2 overflow-x-auto pb-1 sm:pb-0">
                     {rol === 'medico' && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -127,7 +127,7 @@ export default function Videollamada({
             </div>
 
             {/* Contenedor del iframe — ocupa todo el alto restante */}
-            <div className="relative flex-1 overflow-hidden" style={{ height: 'calc(100vh - 120px)' }}>
+            <div className="relative flex-1 w-full min-h-[70vh] sm:min-h-0 overflow-hidden">
                 <JitsiMeeting
                     domain="meet.jit.si"
                     roomName={roomName}
