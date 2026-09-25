@@ -195,7 +195,7 @@ export function AgregarPacienteDialog({
                 onOpenChange(next);
             }}
         >
-            <DialogContent className="sm:max-w-[640px]">
+            <DialogContent className="max-h-[85dvh] overflow-y-auto p-4 sm:p-6 sm:max-w-[640px] rounded-3xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <UserPlus className="h-5 w-5 text-sky-500" />
@@ -542,11 +542,12 @@ export function AgregarPacienteDialog({
                         )}
                     </div>
 
-                    <DialogFooter className="mt-6">
+                    <DialogFooter className="sticky bottom-0 z-10 mt-6 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 p-4 sm:p-6 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 rounded-b-3xl">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={() => onOpenChange(false)}
+                            className="rounded-xl"
                         >
                             Cancelar
                         </Button>
@@ -558,7 +559,7 @@ export function AgregarPacienteDialog({
                                 !form.data.email_paciente ||
                                 !form.data.tlf_paciente
                             }
-                            className="bg-gradient-to-r from-blue-600 to-sky-500 shadow-md hover:from-blue-500 hover:to-sky-400"
+                            className="rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 shadow-md hover:from-blue-500 hover:to-sky-400"
                         >
                             {enviando ? (
                                 <>

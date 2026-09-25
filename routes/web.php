@@ -15,6 +15,7 @@ use App\Http\Controllers\Medical\MedicoPacientesController;
 use App\Http\Controllers\Medical\MedicoReportController;
 use App\Http\Controllers\Medical\MedicoSearchController;
 use App\Http\Controllers\Medical\NotaController;
+use App\Http\Controllers\Medical\PayPalSuccessController;
 use App\Http\Controllers\Medical\ProfileMedical;
 use App\Http\Controllers\Medical\RecetaController;
 use App\Http\Controllers\NotificacionController;
@@ -67,7 +68,16 @@ Route::prefix('medicos')->group(function () {
     // reporte pago de medico
     Route::get('/reporte-pago', [MedicoReportController::class, 'create'])
         ->name('reporte.pago');
+
+    // Redirección exitosa desde PayPal (cumpliendo requisitos PayPal + protegida)
+    Route::get('/paypal-success', [PayPalSuccessController::class, 'handleSuccess'])
+        ->middleware(['auth'])
+        ->name('paypal.success');
 });
+
+// Alias directo para retorno de PayPal
+Route::get('/paypal/success', [PayPalSuccessController::class, 'handleSuccess'])
+    ->middleware(['auth']);
 
 Route::prefix('api')->group(function () {
     Route::get('/paises', fn () => Pais::all(['id', 'nombre_paises']));

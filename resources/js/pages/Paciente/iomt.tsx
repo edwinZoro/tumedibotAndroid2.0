@@ -59,12 +59,12 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import { toast } from 'sonner';
 
@@ -164,8 +164,8 @@ export default function IoMTDashboard({ iomtData = {}, medicos = [], compartidoC
     };
 
     const getTableData = (type: string) => {
-         if (!iomtData[type]) return [];
-         return iomtData[type].map(d => ({
+        if (!iomtData[type]) return [];
+        return iomtData[type].map(d => ({
             ...d.data,
             recorded_at: d.recorded_at,
             id: d.id,
@@ -212,7 +212,7 @@ export default function IoMTDashboard({ iomtData = {}, medicos = [], compartidoC
             <Head title={isDoctorView ? `Monitorización - ${paciente?.nombre_paciente}` : "Mi Monitorización Médica"} />
 
             <div className="container mx-auto p-4 lg:p-8 space-y-8 flex-1 animate-in fade-in zoom-in duration-500">
-                
+
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/5 dark:bg-black/20 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-md">
                     <div>
@@ -243,8 +243,8 @@ export default function IoMTDashboard({ iomtData = {}, medicos = [], compartidoC
                                 <p className="text-xs">Existen valores recientes que están fuera de los rangos normales (Riesgo / Advertencia). Por favor revisa el historial clínico.</p>
                             </div>
                         </div>
-                        <Button 
-                            variant="outline" 
+                        <Button
+                            variant="outline"
                             className="bg-white dark:bg-slate-900 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900/60"
                             onClick={() => {
                                 setFilterRisk('warnings');
@@ -308,18 +308,18 @@ export default function IoMTDashboard({ iomtData = {}, medicos = [], compartidoC
                                         <AreaChart data={tensiometroChart} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                             <defs>
                                                 <linearGradient id="colorSys" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
-                                                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                                                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
+                                                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
                                                 </linearGradient>
                                                 <linearGradient id="colorDia" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                                                 </linearGradient>
                                             </defs>
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.2} />
-                                            <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#64748b'}} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#64748b'}} />
-                                            <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff'}} />
+                                            <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                                            <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff' }} />
                                             <Area type="monotone" dataKey="sys" stroke="#ef4444" strokeWidth={3} fillOpacity={1} fill="url(#colorSys)" name="Sistólica" />
                                             <Area type="monotone" dataKey="dia" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorDia)" name="Diastólica" />
                                         </AreaChart>
@@ -389,17 +389,17 @@ export default function IoMTDashboard({ iomtData = {}, medicos = [], compartidoC
                                     <ResponsiveContainer width="100%" height="100%">
                                         <LineChart data={glucometroChart} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.2} />
-                                            <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#64748b'}} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#64748b'}} />
-                                            <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff'}} />
-                                            <Line type="step" dataKey="glucosa" stroke="#f59e0b" strokeWidth={3} dot={{r: 4, strokeWidth: 2, fill: '#fff'}} activeDot={{r: 6}} name="Glucosa" />
+                                            <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                                            <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff' }} />
+                                            <Line type="step" dataKey="glucosa" stroke="#f59e0b" strokeWidth={3} dot={{ r: 4, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} name="Glucosa" />
                                         </LineChart>
                                     </ResponsiveContainer>
                                 </div>
                             ) : (
                                 <div className="h-[200px] flex items-center justify-center text-slate-400 text-sm">No hay registros de glucosa</div>
                             )}
-                             <div className="absolute top-4 right-6 text-right">
+                            <div className="absolute top-4 right-6 text-right">
                                 {latestGlucometro && (
                                     <>
                                         <div className="text-3xl font-black text-amber-500 drop-shadow-sm">
@@ -428,7 +428,7 @@ export default function IoMTDashboard({ iomtData = {}, medicos = [], compartidoC
                         <CardContent className="pt-6 relative">
                             {latestBascula ? (
                                 <div className="flex h-[200px] items-center justify-around">
-                                     <div className="text-center p-6 bg-slate-50 dark:bg-slate-800/50 rounded-full h-36 w-36 flex flex-col items-center justify-center border-4 border-purple-100 dark:border-purple-900/50 shadow-inner">
+                                    <div className="text-center p-6 bg-slate-50 dark:bg-slate-800/50 rounded-full h-36 w-36 flex flex-col items-center justify-center border-4 border-purple-100 dark:border-purple-900/50 shadow-inner">
                                         <div className="text-3xl font-black text-purple-600 dark:text-purple-400">
                                             {latestBascula.peso}
                                         </div>
@@ -461,12 +461,12 @@ export default function IoMTDashboard({ iomtData = {}, medicos = [], compartidoC
                                     </CardTitle>
                                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Revisa el detalle de cada medición y las alertas médicas detectadas.</p>
                                 </div>
-                                
+
                                 {/* Filtros Rápidos */}
                                 <div className="flex flex-wrap items-center gap-2 bg-slate-50 dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
                                     <div className="relative">
                                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
-                                        <Input 
+                                        <Input
                                             type="date"
                                             value={searchDate}
                                             onChange={(e) => setSearchDate(e.target.value)}
@@ -492,7 +492,7 @@ export default function IoMTDashboard({ iomtData = {}, medicos = [], compartidoC
                                     </Button>
                                 </div>
                             </div>
-                            
+
                             {/* Pestañas de Navegación de Tablas */}
                             <div className="flex overflow-x-auto gap-4 pt-2 pb-0">
                                 <button
@@ -671,7 +671,7 @@ export default function IoMTDashboard({ iomtData = {}, medicos = [], compartidoC
                 </div>
             </div>
             {/* Notas de la versión (Cambios de hoy) */}
-            <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            {/*   <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-6 dark:border-blue-900/40 dark:bg-blue-950/20">
                     <h3 className="text-lg font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center gap-2">
                         <Activity className="h-5 w-5" />
@@ -686,7 +686,7 @@ export default function IoMTDashboard({ iomtData = {}, medicos = [], compartidoC
                         </ul>
                     </div>
                 </div>
-            </div>
+            </div> */}
             <Footer />
         </div>
     );
@@ -731,23 +731,23 @@ function ActionButtons({ row, device, isDoctorView }: { row: any, device: string
     );
 }
 
-function EditRecordModal({ device, row }: { device: string, row: any }) {
+function EditRecordModal({ device, row }: { device: string; row: any }) {
     const [open, setOpen] = useState(false);
-    
-    const [sys, setSys] = useState(row.sys?.toString() || '');
-    const [dia, setDia] = useState(row.dia?.toString() || '');
-    const [pul, setPul] = useState((row.pul || row.bpm)?.toString() || '');
-    
-    const [spo2, setSpo2] = useState(row.spo2?.toString() || '');
-    const [bpm, setBpm] = useState(row.bpm?.toString() || '');
-    
-    const [glucosa, setGlucosa] = useState(row.glucosa?.toString() || '');
-    
-    const [peso, setPeso] = useState(row.peso?.toString() || '');
-    const [imc, setImc] = useState(row.imc?.toString() || '');
 
-    useEffect(() => {
-        if (open) {
+    const [sys, setSys] = useState('');
+    const [dia, setDia] = useState('');
+    const [pul, setPul] = useState('');
+
+    const [spo2, setSpo2] = useState('');
+    const [bpm, setBpm] = useState('');
+
+    const [glucosa, setGlucosa] = useState('');
+
+    const [peso, setPeso] = useState('');
+    const [imc, setImc] = useState('');
+
+    const handleOpenChange = (isOpen: boolean) => {
+        if (isOpen) {
             setSys(row.sys?.toString() || '');
             setDia(row.dia?.toString() || '');
             setPul((row.pul || row.bpm)?.toString() || '');
@@ -757,7 +757,8 @@ function EditRecordModal({ device, row }: { device: string, row: any }) {
             setPeso(row.peso?.toString() || '');
             setImc(row.imc?.toString() || '');
         }
-    }, [open, row]);
+        setOpen(isOpen);
+    };
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
@@ -784,13 +785,13 @@ function EditRecordModal({ device, row }: { device: string, row: any }) {
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/50" title="Editar registro">
                     <Edit className="h-4 w-4" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
+            <DialogContent className="max-h-[85dvh] overflow-y-auto p-4 sm:p-6 sm:max-w-md bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-3xl">
                 <DialogHeader>
                     <DialogTitle>Editar Registro de {device}</DialogTitle>
                 </DialogHeader>
@@ -817,9 +818,9 @@ function EditRecordModal({ device, row }: { device: string, row: any }) {
                             <div><Label>IMC</Label><Input type="number" step="0.1" value={imc} onChange={e => setImc(e.target.value)} required /></div>
                         </div>
                     )}
-                    <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-                        <Button type="submit" className="bg-blue-600 text-white hover:bg-blue-700">Guardar Cambios</Button>
+                    <DialogFooter className="sticky bottom-0 z-10 mt-4 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 p-4 sm:p-6 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 rounded-b-3xl">
+                        <Button type="button" variant="outline" onClick={() => setOpen(false)} className="rounded-xl">Cancelar</Button>
+                        <Button type="submit" className="rounded-xl bg-blue-600 text-white hover:bg-blue-700">Guardar Cambios</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
@@ -1016,18 +1017,16 @@ function SyncModal({ device, name, onSaveData }: { device: string; name: string;
                     <button
                         type="button"
                         onClick={() => setActiveTab('bluetooth')}
-                        className={`flex-1 pb-3 text-sm font-semibold text-center border-b-2 transition-colors ${
-                            activeTab === 'bluetooth' ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-700'
-                        }`}
+                        className={`flex-1 pb-3 text-sm font-semibold text-center border-b-2 transition-colors ${activeTab === 'bluetooth' ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-700'
+                            }`}
                     >
                         <Bluetooth className="inline h-4 w-4 mr-1.5" /> Dispositivo Bluetooth
                     </button>
                     <button
                         type="button"
                         onClick={() => setActiveTab('manual')}
-                        className={`flex-1 pb-3 text-sm font-semibold text-center border-b-2 transition-colors ${
-                            activeTab === 'manual' ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-700'
-                        }`}
+                        className={`flex-1 pb-3 text-sm font-semibold text-center border-b-2 transition-colors ${activeTab === 'manual' ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-700'
+                            }`}
                     >
                         <PlusCircle className="inline h-4 w-4 mr-1.5" /> Registro Manual
                     </button>
